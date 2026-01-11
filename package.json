@@ -40,10 +40,21 @@
     "./types": {
       "types": "./lib/types.d.ts",
       "require": "./lib/types.js"
+    },
+    "./lib/scene": {
+      "types": "./lib/scene/index.d.ts",
+      "require": "./lib/scene/index.js"
+    },
+    "./lib/session": {
+      "types": "./lib/session/index.d.ts",
+      "require": "./lib/session/index.js"
     }
   },
   "engines": {
-    "node": ">=18.18.0"
+    "node": ">=14.13.1"
+  },
+  "peerDependencies": {
+    "ioredis": "^5.8.2"
   },
   "devDependencies": {
     "@commitlint/cli": "^20.2.0",
@@ -61,6 +72,7 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",
     "husky": "^9.1.7",
+    "ioredis": "^5.9.1",
     "prettier": "^3.7.4",
     "release-it": "^19.2.3",
     "rimraf": "^6.1.2",
