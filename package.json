@@ -48,6 +48,10 @@
     "./lib/session": {
       "types": "./lib/session/index.d.ts",
       "require": "./lib/session/index.js"
+    },
+    "./lib/i18n": {
+      "types": "./lib/i18n/index.d.ts",
+      "require": "./lib/i18n/index.js"
     }
   },
   "engines": {
@@ -62,6 +66,7 @@
     "@release-it/conventional-changelog": "^10.0.4",
     "@trivago/prettier-plugin-sort-imports": "^6.0.2",
     "@types/debug": "^4.1.12",
+    "@types/js-yaml": "^4.0.9",
     "@types/node": "^25.0.6",
     "@types/vcf": "^2.0.7",
     "@typescript-eslint/eslint-plugin": "^8.52.0",
@@ -81,6 +86,7 @@
   },
   "dependencies": {
     "debug": "^4.4.3",
+    "js-yaml": "^4.1.1",
     "vcf": "^2.1.2"
   }
 }
