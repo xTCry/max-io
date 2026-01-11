@@ -1,0 +1,21 @@
+# dependencies
+/node_modules
+
+# IDE
+/.idea
+/.awcache
+/.vscode
+
+# misc
+npm-debug.log
+.DS_Store
+/TODO.md
+
+# dist
+dist
+
+# tests
+/test
+/coverage
+/.nyc_output
+/lib_n

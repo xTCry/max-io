@@ -1,0 +1,74 @@
+{
+  "name": "max-io",
+  "version": "0.0.1",
+  "description": "Max bot api sdk",
+  "homepage": "https://github.com/xTCry/max-io#readme",
+  "bugs": {
+    "url": "https://github.com/xTCry/max-io/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/xTCry/max-io.git"
+  },
+  "author": {
+    "name": "xTCry (Vladislav Kh)",
+    "url": "https://github.com/xTCry"
+  },
+  "license": "MIT",
+  "type": "commonjs",
+  "scripts": {
+    "format": "prettier --write \"src/**/*.ts\"",
+    "build": "rimraf dist && tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "eslint ./src --ext ts --report-unused-disable-directives",
+    "prepublish:npm": "npm run build",
+    "publish:npm": "npm publish --access public",
+    "prerelease": "npm run build",
+    "release": "release-it",
+    "prepare": "husky"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "./dist/"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./types": {
+      "types": "./dist/types.d.ts",
+      "default": "./dist/types.js"
+    }
+  },
+  "engines": {
+    "node": ">=18.18.0"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^20.2.0",
+    "@commitlint/config-conventional": "^20.2.0",
+    "@release-it/conventional-changelog": "^10.0.4",
+    "@trivago/prettier-plugin-sort-imports": "^6.0.2",
+    "@types/debug": "^4.1.12",
+    "@types/node": "^25.0.6",
+    "@types/vcf": "^2.0.7",
+    "@typescript-eslint/eslint-plugin": "^8.52.0",
+    "@typescript-eslint/parser": "^8.52.0",
+    "eslint": "^9.39.2",
+    "eslint-config-airbnb-base": "15.0.0",
+    "eslint-config-airbnb-typescript": "^18.0.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.4",
+    "husky": "^9.1.7",
+    "prettier": "^3.7.4",
+    "release-it": "^19.2.3",
+    "rimraf": "^6.1.2",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.50.0"
+  },
+  "dependencies": {
+    "debug": "^4.4.3",
+    "vcf": "^2.1.2"
+  }
+}
