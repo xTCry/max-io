@@ -2,13 +2,11 @@
   "compilerOptions": {
     "module": "nodenext",
     "target": "ES2022",
-    "moduleResolution": "nodenext",
     "strict": true,
-    "declaration": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "sourceMap": false,
     "skipLibCheck": true,
+    "noImplicitAny": false,
     "strictNullChecks": true
   },
   "include": [

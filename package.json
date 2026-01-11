@@ -18,7 +18,7 @@
   "type": "commonjs",
   "scripts": {
     "format": "prettier --write \"src/**/*.ts\"",
-    "build": "rimraf dist && tsc -p tsconfig.build.json",
+    "build": "rimraf lib/ && tsc -p tsconfig.build.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint": "eslint ./src --ext ts --report-unused-disable-directives",
     "prepublish:npm": "npm run build",
@@ -27,19 +27,19 @@
     "release": "release-it",
     "prepare": "husky"
   },
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./lib/index.js",
+  "types": "./lib/index.d.ts",
   "files": [
-    "./dist/"
+    "./lib/"
   ],
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "default": "./dist/index.js"
+      "types": "./lib/index.d.ts",
+      "require": "./lib/index.js"
     },
     "./types": {
-      "types": "./dist/types.d.ts",
-      "default": "./dist/types.js"
+      "types": "./lib/types.d.ts",
+      "require": "./lib/types.js"
     }
   },
   "engines": {

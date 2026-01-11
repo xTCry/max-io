@@ -12,7 +12,9 @@ npm-debug.log
 /TODO.md
 
 # dist
-dist
+/dist
+/lib
+/types
 
 # tests
 /test

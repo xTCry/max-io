@@ -5,6 +5,8 @@
   "bracketSameLine": true,
   "singleQuote": true,
   "importOrder": [
+    "^@lib",
+    "^@core",
     "<THIRD_PARTY_MODULES>",
     "<SEPARATOR>",
     "^\\.\\./(.*)",
