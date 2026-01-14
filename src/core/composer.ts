@@ -9,7 +9,8 @@ import type {
 } from './middleware';
 import type { Message, UpdateType } from './network/api';
 
-type Triggers = MaybeArray<string | RegExp>;
+export type Triggers<C> = MaybeArray<string | RegExp | TriggerFn<C>>;
+type TriggerFn<C> = (value: string, ctx: C) => RegExpExecArray | null;
 
 type UpdateFilter<Ctx extends Context> = UpdateType | Guard<Ctx['update']>;
 
@@ -37,7 +38,7 @@ export class Composer<Ctx extends Context> implements MiddlewareObj<Ctx> {
   }
 
   command(
-    command: Triggers,
+    command: Triggers<FilteredContext<Ctx, 'message_created'>>,
     ...middlewares: Array<Middleware<FilteredContext<Ctx, 'message_created'>>>
   ) {
     const normalizedTriggers = normalizeTriggers(command);
@@ -49,10 +50,11 @@ export class Composer<Ctx extends Context> implements MiddlewareObj<Ctx> {
       this.filter(filter, (ctx, next) => {
         const text = extractTextFromMessage(ctx.message, ctx.myId)!;
 
+        // TODO: добавить првоерку на разрешенные символы начала команды (например /, !)
         const cmd = text.slice(1);
 
         for (const trigger of normalizedTriggers) {
-          const match = trigger(cmd);
+          const match = trigger(cmd, ctx);
           if (match) {
             ctx.match = match;
             return handler(ctx, next);
@@ -65,7 +67,7 @@ export class Composer<Ctx extends Context> implements MiddlewareObj<Ctx> {
   }
 
   hears(
-    triggers: Triggers,
+    triggers: Triggers<FilteredContext<Ctx, 'message_created'>>,
     ...middlewares: Array<Middleware<FilteredContext<Ctx, 'message_created'>>>
   ) {
     const normalizedTriggers = normalizeTriggers(triggers);
@@ -78,7 +80,7 @@ export class Composer<Ctx extends Context> implements MiddlewareObj<Ctx> {
         const text = extractTextFromMessage(ctx.message, ctx.myId)!;
 
         for (const trigger of normalizedTriggers) {
-          const match = trigger(text);
+          const match = trigger(text, ctx);
           if (match) {
             ctx.match = match;
             return handler(ctx, next);
@@ -91,7 +93,7 @@ export class Composer<Ctx extends Context> implements MiddlewareObj<Ctx> {
   }
 
   action(
-    triggers: Triggers,
+    triggers: Triggers<FilteredContext<Ctx, 'message_callback'>>,
     ...middlewares: Array<Middleware<FilteredContext<Ctx, 'message_callback'>>>
   ) {
     const normalizedTriggers = normalizeTriggers(triggers);
@@ -104,7 +106,7 @@ export class Composer<Ctx extends Context> implements MiddlewareObj<Ctx> {
         if (!payload) return next();
 
         for (const trigger of normalizedTriggers) {
-          const match = trigger(payload);
+          const match = trigger(payload, ctx);
           if (match) {
             ctx.match = match;
             return handler(ctx, next);
@@ -163,8 +165,15 @@ export class Composer<Ctx extends Context> implements MiddlewareObj<Ctx> {
   }
 }
 
-const normalizeTriggers = (triggers: Triggers) => {
-  return (Array.isArray(triggers) ? triggers : [triggers]).map((trigger) => {
+function escapeRegExp(s: string) {
+  // $& means the whole matched string
+  return s.replace(/[.*+\-?^${}()|[\]\\]/g, '\\$&');
+}
+
+const normalizeTriggers = <C extends Context>(triggers: Triggers<C>) =>
+  (Array.isArray(triggers) ? triggers : [triggers]).map((trigger) => {
+    if (!trigger) throw new Error('Invalid trigger');
+    if (typeof trigger === 'function') return trigger;
     if (trigger instanceof RegExp) {
       return (value = '') => {
         // eslint-disable-next-line no-param-reassign
@@ -172,10 +181,9 @@ const normalizeTriggers = (triggers: Triggers) => {
         return trigger.exec(value.trim());
       };
     }
-    const regex = new RegExp(`^${trigger}$`);
+    const regex = new RegExp(`^${escapeRegExp(trigger)}$`);
     return (value: string) => regex.exec(value.trim());
   });
-};
 
 const extractTextFromMessage = (message: Message, myId?: number) => {
   const { text } = message.body;
