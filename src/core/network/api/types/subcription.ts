@@ -1,6 +1,6 @@
 import type { Chat } from './chat';
 import type { ConstructedMessage, Message } from './message';
-import type { User, UserLocale } from './user';
+import type { User, UserLocale, UserWithPhoto } from './user';
 
 type MakeUpdate<Type extends string, Payload extends object> = {
   update_type: Type;
@@ -15,6 +15,7 @@ export type MessageCallbackUpdate = MakeUpdate<
     callback: {
       timestamp: number;
       callback_id: string;
+      /** Max len `1024` */
       payload?: string;
       user: User;
     };
@@ -89,7 +90,7 @@ export type BotStartedUpdate = MakeUpdate<
   'bot_started',
   {
     chat_id: number;
-    user: User;
+    user: User | UserWithPhoto;
     payload?: string | null;
     user_locale?: UserLocale;
   }
