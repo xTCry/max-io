@@ -30,7 +30,8 @@
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
   "files": [
-    "./lib/"
+    "./lib/",
+    "./src/"
   ],
   "exports": {
     ".": {
@@ -58,7 +59,16 @@
     "node": ">=14.13.1"
   },
   "peerDependencies": {
-    "ioredis": "^5.8.2"
+    "ioredis": "^4.0.0 || ^5.0.0",
+    "js-yaml": "^4.1.1"
+  },
+  "peerDependenciesMeta": {
+    "ioredis": {
+      "optional": true
+    },
+    "js-yaml": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@commitlint/cli": "^20.2.0",
@@ -78,7 +88,8 @@
     "eslint-plugin-prettier": "^5.5.4",
     "husky": "^9.1.7",
     "ioredis": "^5.9.1",
-    "prettier": "^3.7.4",
+    "js-yaml": "^4.1.1",
+    "prettier": "^3.8.0",
     "release-it": "^19.2.3",
     "rimraf": "^6.1.2",
     "typescript": "^5.9.3",
@@ -86,7 +97,6 @@
   },
   "dependencies": {
     "debug": "^4.4.3",
-    "js-yaml": "^4.1.1",
     "vcf": "^2.1.2"
   }
 }
