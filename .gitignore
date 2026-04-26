@@ -1,5 +1,6 @@
 # dependencies
 /node_modules
+/examples/**/node_modules
 
 # IDE
 /.idea
@@ -15,6 +16,7 @@ npm-debug.log
 /dist
 /lib
 /types
+/examples/**/dist
 
 # tests
 /test

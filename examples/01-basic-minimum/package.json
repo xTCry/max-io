@@ -1,0 +1,23 @@
+{
+  "name": "01-basic-minimum",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Minimal manual example for max-io",
+  "license": "UNLICENSED",
+  "scripts": {
+    "start": "tsx src/index.ts",
+    "start:attachments": "tsx src/attachments-bot.ts",
+    "start:custom-context": "tsx src/custom-context-bot.ts",
+    "start:keyboard": "tsx src/keyboard-bot.ts",
+    "start:start-payload": "tsx src/start-payload-bot.ts",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "max-io": "^0.0.4"
+  },
+  "devDependencies": {
+    "@types/node": "^25.0.6",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  }
+}
