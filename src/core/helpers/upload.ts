@@ -36,7 +36,9 @@ type FileBuffer = BaseFile & {
   buffer: Buffer;
 };
 
-type UploadFile = FileStream | FileBuffer;
+type FileBlob = BaseFile & { blob: Blob };
+
+type UploadFile = FileStream | FileBuffer | FileBlob;
 
 export type UploadImageOptions = UploadFromUrlOrSourceOptions & DefaultOptions;
 export type UploadVideoOptions = UploadFromSourceOptions & DefaultOptions;
@@ -45,20 +47,44 @@ export type UploadAudioOptions = UploadFromSourceOptions & DefaultOptions;
 
 const DEFAULT_UPLOAD_TIMEOUT = 20_000; // ms
 
-type UploadRangeChunkParams = {
-  uploadUrl: string;
-  chunk: Buffer | string;
-  startByte: number;
-  endByte: number;
-  fileSize: number;
-  fileName: string;
-};
-
 const toRequestBody = (body: Buffer | string): RequestInit['body'] => {
   if (typeof body === 'string') return body;
   return new Uint8Array(body);
 };
 
+/**
+ * Параметры загрузки чатка через Content-Range
+ */
+type UploadRangeChunkParams = {
+  /**
+   * URL для загрузки файла
+   */
+  uploadUrl: string;
+  /**
+   * Чанк-данных для загрузки
+   */
+  chunk: Buffer | string;
+  /**
+   * Начальный байт в общем потоке файла
+   */
+  startByte: number;
+  /**
+   * Конечный байт в общем потоке файла
+   */
+  endByte: number;
+  /**
+   * Общий размер файла
+   */
+  fileSize: number;
+  /**
+   * Имя файла для загрузки
+   */
+  fileName: string;
+};
+
+/**
+ * Загрузить чанк данных через Content-Range запрос
+ */
 async function uploadRangeChunk(
   {
     uploadUrl,
@@ -92,11 +118,34 @@ async function uploadRangeChunk(
   return uploadRes.text();
 }
 
+/**
+ * Параметры загрузки данных через Content-Range или Multipart запрос
+ */
 type UploadStreamParams = {
+  /**
+   * Файл для загрузки
+   */
   file: FileStream;
+  /**
+   * URL для загрузки файла
+   */
   uploadUrl: string;
 };
 
+type UploadMultipartParams = {
+  /**
+   * Файл для multipart-загрузки
+   */
+  file: FileStream | FileBlob;
+  /**
+   * URL для загрузки файла
+   */
+  uploadUrl: string;
+};
+
+/**
+ * Загрузить файл через Content-Range запрос
+ */
 async function uploadRange(
   { uploadUrl, file }: UploadStreamParams,
   options: { signal?: AbortSignal } | undefined,
@@ -123,17 +172,25 @@ async function uploadRange(
   }
 }
 
+/**
+ * Загрузить файл через Multipart запрос
+ */
 async function uploadMultipart<Res>(
-  { uploadUrl, file }: UploadStreamParams,
+  { uploadUrl, file }: UploadMultipartParams,
   { signal }: { signal?: AbortSignal } = {},
 ): Promise<Res> {
   const body = new FormData();
-  body.append('data', {
-    [Symbol.toStringTag]: 'File',
-    name: file.fileName,
-    stream: () => file.stream,
-    size: file.contentLength,
-  } as unknown as File);
+
+  if ('blob' in file) {
+    body.append('data', file.blob, file.fileName);
+  } else {
+    body.append('data', {
+      [Symbol.toStringTag]: 'File',
+      name: file.fileName,
+      stream: () => file.stream,
+      size: file.contentLength,
+    } as unknown as File);
+  }
 
   const result = await fetch(uploadUrl, {
     method: 'POST',
@@ -145,6 +202,11 @@ async function uploadMultipart<Res>(
 
   return response as Res;
 }
+
+const openAsBlob =
+  'openAsBlob' in fs && typeof fs.openAsBlob === 'function'
+    ? fs.openAsBlob.bind(fs)
+    : undefined;
 
 export class Upload {
   constructor(private readonly api: Api) {}
@@ -193,104 +255,241 @@ export class Upload {
     };
   };
 
-  private getUploadUrl = (type: UploadType) => {
-    return this.api.raw.uploads.getUploadUrl({ type });
+  private getBlobFromSource = async (
+    source: FileSource,
+  ): Promise<FileBlob | null> => {
+    if (!openAsBlob) {
+      return null;
+    }
+
+    if (typeof source === 'string') {
+      const stat = await fs.promises.stat(source);
+      const fileName = path.basename(source);
+
+      if (!stat.isFile()) {
+        throw new Error(`Failed to upload ${fileName}. Not a file`);
+      }
+
+      return {
+        blob: await openAsBlob(source),
+        fileName,
+      };
+    }
+
+    if (Buffer.isBuffer(source) || typeof source.path !== 'string') {
+      return null;
+    }
+
+    const fileName = path.basename(source.path);
+    const stat = await fs.promises.stat(source.path);
+
+    if (!stat.isFile()) {
+      throw new Error(`Failed to upload ${fileName}. Not a file`);
+    }
+
+    return {
+      blob: await openAsBlob(source.path),
+      fileName,
+    };
   };
 
-  image = async (options: UploadImageOptions) => {
-    if ('url' in options) {
-      const { url, timeout } = options;
-      const { token } = await this.getUploadUrl('image');
-      await fetch(url, {
-        signal: AbortSignal.timeout(timeout ?? DEFAULT_UPLOAD_TIMEOUT),
-      });
-      if (!token) throw new Error('Failed to upload image');
-      return { token };
+  private getBufferFromSource = async (
+    source: FileSource,
+  ): Promise<FileBuffer> => {
+    if (typeof source === 'string') {
+      const stat = await fs.promises.stat(source);
+      const fileName = path.basename(source);
+
+      if (!stat.isFile()) {
+        throw new Error(`Failed to upload ${fileName}. Not a file`);
+      }
+
+      return {
+        buffer: await fs.promises.readFile(source),
+        fileName,
+      };
     }
 
-    const { source, timeout } = options;
-    const file = await this.getStreamFromSource(source);
-    const { url } = await this.getUploadUrl('image');
-    if ('buffer' in file) {
-      await fetch(url, {
-        method: 'POST',
-        body: toRequestBody(file.buffer),
-        signal: AbortSignal.timeout(timeout ?? DEFAULT_UPLOAD_TIMEOUT),
-      });
-      return { token: '' };
+    if (Buffer.isBuffer(source)) {
+      return {
+        buffer: source,
+        fileName: randomUUID(),
+      };
     }
-    return uploadMultipart<{ token: string }>(
-      {
-        uploadUrl: url,
+
+    if (typeof source.path === 'string') {
+      const fileName = path.basename(source.path);
+      const stat = await fs.promises.stat(source.path);
+
+      if (!stat.isFile()) {
+        throw new Error(`Failed to upload ${fileName}. Not a file`);
+      }
+
+      return {
+        buffer: await fs.promises.readFile(source.path),
+        fileName,
+      };
+    }
+
+    const chunks: Buffer[] = [];
+
+    for await (const chunk of source) {
+      chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+    }
+
+    return {
+      buffer: Buffer.concat(chunks),
+      fileName: randomUUID(),
+    };
+  };
+
+  private upload = async <Res>(
+    type: UploadType,
+    file: UploadFile,
+    options?: DefaultOptions,
+  ) => {
+    const res = await this.api.raw.uploads.getUploadUrl({ type });
+    const { url: uploadUrl, token } = res;
+
+    const uploadController = new AbortController();
+
+    const uploadInterval = setTimeout(() => {
+      uploadController.abort();
+    }, options?.timeout ?? DEFAULT_UPLOAD_TIMEOUT);
+
+    try {
+      if ('stream' in file) {
+        return await this.uploadFromStream<Res>({
+          file,
+          uploadUrl,
+          abortController: uploadController,
+          token,
+        });
+      }
+
+      if ('blob' in file) {
+        return await this.uploadFromBlob<Res>({
+          file,
+          uploadUrl,
+          abortController: uploadController,
+        });
+      }
+
+      return await this.uploadFromBuffer<Res>({
         file,
-      },
-      { signal: AbortSignal.timeout(timeout ?? DEFAULT_UPLOAD_TIMEOUT) },
+        uploadUrl,
+        abortController: uploadController,
+      });
+    } finally {
+      clearTimeout(uploadInterval);
+    }
+  };
+
+  private uploadFromStream = async <Res>({
+    file,
+    uploadUrl,
+    token,
+    abortController,
+  }: {
+    file: FileStream;
+    uploadUrl: string;
+    abortController?: AbortController;
+    token?: string;
+  }): Promise<Res> => {
+    if (token) {
+      await uploadRange({ file, uploadUrl }, abortController);
+
+      return {
+        token,
+        file,
+        uploadUrl,
+        abortController,
+      } as Res;
+    }
+
+    return uploadMultipart<Res>({ file, uploadUrl }, abortController);
+  };
+
+  private uploadFromBlob = async <Res>({
+    file,
+    uploadUrl,
+    abortController,
+  }: {
+    file: FileBlob;
+    uploadUrl: string;
+    abortController?: AbortController;
+  }): Promise<Res> => {
+    return uploadMultipart<Res>(
+      { file, uploadUrl },
+      { signal: abortController?.signal },
     );
   };
 
-  video = async (options: UploadVideoOptions) => {
-    const { source, timeout } = options;
-    const file = await this.getStreamFromSource(source);
-    const { url } = await this.getUploadUrl('video');
-    if ('buffer' in file) {
-      await fetch(url, {
-        method: 'POST',
-        body: toRequestBody(file.buffer),
-        signal: AbortSignal.timeout(timeout ?? DEFAULT_UPLOAD_TIMEOUT),
-      });
-      return { token: '' };
-    }
-    await uploadRange(
-      {
-        uploadUrl: url,
-        file,
-      },
-      { signal: AbortSignal.timeout(timeout ?? DEFAULT_UPLOAD_TIMEOUT) },
+  private uploadFromBuffer = async <Res>({
+    file,
+    uploadUrl,
+    abortController,
+  }: {
+    file: FileBuffer;
+    uploadUrl: string;
+    abortController?: AbortController;
+  }): Promise<Res> => {
+    const formData = new FormData();
+    formData.append(
+      'data',
+      new Blob([new Uint8Array(file.buffer)]),
+      file.fileName,
     );
-    return { token: '' };
+
+    const res = await fetch(uploadUrl, {
+      method: 'POST',
+      body: formData,
+      signal: abortController?.signal,
+    });
+
+    return (await res.json()) as Res;
   };
 
-  audio = async (options: UploadAudioOptions) => {
-    const { source, timeout } = options;
-    const file = await this.getStreamFromSource(source);
-    const { url } = await this.getUploadUrl('audio');
-    if ('buffer' in file) {
-      await fetch(url, {
-        method: 'POST',
-        body: toRequestBody(file.buffer),
-        signal: AbortSignal.timeout(timeout ?? DEFAULT_UPLOAD_TIMEOUT),
-      });
-      return { token: '' };
+  image = async ({ timeout, ...source }: UploadImageOptions) => {
+    if ('url' in source) {
+      return { url: source.url };
     }
-    await uploadRange(
-      {
-        uploadUrl: url,
-        file,
-      },
-      { signal: AbortSignal.timeout(timeout ?? DEFAULT_UPLOAD_TIMEOUT) },
-    );
-    return { token: '' };
+
+    // Для файлового image source используем нативный Blob, чтобы multipart
+    // был корректным без полной загрузки файла в JS-память.
+    const fileBlob = await this.getBlobFromSource(source.source);
+    const uploadFile =
+      fileBlob ?? (await this.getBufferFromSource(source.source));
+
+    return this.upload<{
+      photos: { [key: string]: { token: string } };
+    }>('image', uploadFile, { timeout });
   };
 
-  file = async (options: UploadFileOptions) => {
-    const { source, timeout } = options;
-    const file = await this.getStreamFromSource(source);
-    const { url } = await this.getUploadUrl('file');
-    if ('buffer' in file) {
-      await fetch(url, {
-        method: 'POST',
-        body: toRequestBody(file.buffer),
-        signal: AbortSignal.timeout(timeout ?? DEFAULT_UPLOAD_TIMEOUT),
-      });
-      return { token: '' };
-    }
-    await uploadRange(
-      {
-        uploadUrl: url,
-        file,
-      },
-      { signal: AbortSignal.timeout(timeout ?? DEFAULT_UPLOAD_TIMEOUT) },
-    );
-    return { token: '' };
+  video = async ({ source, ...options }: UploadVideoOptions) => {
+    const fileBlob = await this.getStreamFromSource(source);
+
+    return this.upload<{
+      id: number;
+      token: string;
+    }>('video', fileBlob, options);
+  };
+
+  file = async ({ source, ...options }: UploadFileOptions) => {
+    const fileBlob = await this.getStreamFromSource(source);
+
+    return this.upload<{
+      id: number;
+      token: string;
+    }>('file', fileBlob, options);
+  };
+
+  audio = async ({ source, ...options }: UploadAudioOptions) => {
+    const fileBlob = await this.getStreamFromSource(source);
+
+    return this.upload<{
+      id: number;
+      token: string;
+    }>('audio', fileBlob, options);
   };
 }
