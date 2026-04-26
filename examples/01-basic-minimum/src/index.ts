@@ -1,3 +1,5 @@
+import 'dotenv/config';
+
 const scenarioScripts = [
   'yarn start:attachments',
   'yarn start:custom-context',

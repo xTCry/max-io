@@ -4,6 +4,7 @@
 
 Структура:
 - `01-basic-minimum/` — базовый mini-project с примерами из upstream `examples/`.
+- `pr-scenarios/` — отдельный mini-project для ручной проверки проблем, PR и регрессий.
 
 Принцип работы:
 - каждый пример — отдельный проект со своим `package.json` и `tsconfig.json`;

@@ -1,15 +1,23 @@
+import 'dotenv/config';
+
 import { Bot, Keyboard } from 'max-io';
 
 import { token } from './env';
+import {
+  registerExampleFallback,
+  startExampleBot,
+  syncExampleCommands,
+} from './runtime';
 
-const bot = new Bot(token);
-
-void bot.api.setMyCommands([
+const commands = [
   { name: 'callback', description: 'Send callback keyboard' },
   { name: 'geoLocation', description: 'Send geoLocation request' },
   { name: 'contact', description: 'Send contact request' },
   { name: 'createChat', description: 'Create chat' },
-]);
+];
+
+const bot = new Bot(token);
+
 
 const defaultKeyboard = [
   [Keyboard.button.link('❤️', 'https://dev.max.ru/')],
@@ -106,4 +114,19 @@ bot.command(/createChat(.+)?/, async (ctx) => {
   });
 });
 
-void bot.start();
+registerExampleFallback(bot, {
+  scenarioName: 'keyboard-bot',
+  commands,
+  fallbackLines: [
+    'Напиши обычный текст, если хочешь снова увидеть список клавиатурных команд.',
+  ],
+});
+
+startExampleBot(bot, {
+  scenarioName: 'keyboard-bot',
+  commands,
+  beforeStart: () => syncExampleCommands(bot, commands),
+  fallbackLines: [
+    'Напиши обычный текст, если хочешь снова увидеть список клавиатурных команд.',
+  ],
+});

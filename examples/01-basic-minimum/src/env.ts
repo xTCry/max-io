@@ -12,4 +12,4 @@ export const imageUrl =
 
 export const imageToken = process.env.MAX_IMAGE_TOKEN;
 
-export const stickerCode = process.env.MAX_STICKER_CODE ?? 'db4ff394c4';
+export const stickerCode = process.env.MAX_STICKER_CODE ?? '34bd4fbb';

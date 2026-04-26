@@ -1,3 +1,5 @@
+import 'dotenv/config';
+
 import fs from 'node:fs';
 
 import {
@@ -9,10 +11,13 @@ import {
 
 import { imageToken, imageUrl, stickerCode, token } from './env';
 import { publicPath } from './paths';
+import {
+  registerExampleFallback,
+  startExampleBot,
+  syncExampleCommands,
+} from './runtime';
 
-const bot = new Bot(token);
-
-void bot.api.setMyCommands([
+const commands = [
   { name: 'local', description: 'Send local video' },
   { name: 'url', description: 'Send image from url' },
   { name: 'stream', description: 'Send audio from stream' },
@@ -20,7 +25,15 @@ void bot.api.setMyCommands([
   { name: 'album', description: 'Send photo album' },
   { name: 'sticker', description: 'Send sticker' },
   { name: 'location', description: 'Send random location' },
-]);
+];
+
+const bot = new Bot(token);
+
+registerExampleFallback(bot, {
+  scenarioName: 'attachments-bot',
+  commands,
+  fallbackLines: ['Отправь одну из команд выше, чтобы проверить загрузку вложений.'],
+});
 
 bot.command('local', async (ctx) => {
   const video = await ctx.api.uploadVideo({
@@ -79,7 +92,12 @@ bot.command('location', (ctx) => {
   });
 });
 
-void bot.start();
+startExampleBot(bot, {
+  scenarioName: 'attachments-bot',
+  commands,
+  beforeStart: () => syncExampleCommands(bot, commands),
+  fallbackLines: ['Отправь одну из команд выше, чтобы проверить загрузку вложений.'],
+});
 
 function getRandomInRange(from: number, to: number, fixed = 0) {
   return Number((Math.random() * (to - from) + from).toFixed(fixed));
