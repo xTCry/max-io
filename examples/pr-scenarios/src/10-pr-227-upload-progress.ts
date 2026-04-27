@@ -13,7 +13,7 @@ import {
   uploadTimeout,
   uploadVideoPath,
 } from './env';
-import { installUploadFetchLogger } from './fetch-upload-debug';
+import { createUploadDebugSession } from './fetch-upload-debug';
 import {
   registerScenarioFallback,
   startScenarioBot,
@@ -36,7 +36,6 @@ type FileInfo = {
   size: number;
 };
 
-const uploadDebug = installUploadFetchLogger();
 const bot = new Bot(token);
 
 registerScenarioFallback(bot, {
@@ -48,37 +47,45 @@ registerScenarioFallback(bot, {
 });
 
 bot.command('videoPath', async (ctx) => {
-  return runUploadScenario(ctx, 'videoPath', uploadVideoPath, async () => {
+  return runUploadScenario(ctx, 'videoPath', uploadVideoPath, (session) => {
     return ctx.api.uploadVideo({
       source: uploadVideoPath,
       timeout: uploadTimeout,
+      signal: session.signal,
+      onProgress: session.onProgress,
     });
   });
 });
 
 bot.command('audioStream', async (ctx) => {
-  return runUploadScenario(ctx, 'audioStream', uploadAudioPath, async () => {
+  return runUploadScenario(ctx, 'audioStream', uploadAudioPath, (session) => {
     return ctx.api.uploadAudio({
       source: createReadStream(uploadAudioPath),
       timeout: uploadTimeout,
+      signal: session.signal,
+      onProgress: session.onProgress,
     });
   });
 });
 
 bot.command('fileBuffer', async (ctx) => {
-  return runUploadScenario(ctx, 'fileBuffer', uploadFilePath, async () => {
+  return runUploadScenario(ctx, 'fileBuffer', uploadFilePath, (session) => {
     return ctx.api.uploadFile({
       source: readFileSync(uploadFilePath),
       timeout: uploadTimeout,
+      signal: session.signal,
+      onProgress: session.onProgress,
     });
   });
 });
 
 bot.command('imagePath', async (ctx) => {
-  return runUploadScenario(ctx, 'imagePath', uploadImagePath, async () => {
+  return runUploadScenario(ctx, 'imagePath', uploadImagePath, (session) => {
     return ctx.api.uploadImage({
       source: uploadImagePath,
       timeout: uploadTimeout,
+      signal: session.signal,
+      onProgress: session.onProgress,
     });
   });
 });
@@ -90,14 +97,15 @@ startScenarioBot(bot, {
   fallbackLines: [
     'В консоли рисуется прогрессбар загрузки. Нажми Esc, чтобы прервать активный upload.',
   ],
-  onStop: uploadDebug.restore,
 });
 
 async function runUploadScenario(
   ctx: Context,
   scenarioName: string,
   sourcePath: string,
-  upload: () => Promise<UploadAttachment>,
+  upload: (
+    session: ReturnType<typeof createUploadDebugSession>,
+  ) => Promise<UploadAttachment>,
 ) {
   const fileInfo = await describeFile(sourcePath);
   const startedAt = Date.now();
@@ -119,7 +127,7 @@ async function runUploadScenario(
     ].join('\n'),
   );
 
-  const uploadSession = uploadDebug.startUploadSession({
+  const uploadSession = createUploadDebugSession({
     scenarioName: `pr-227:${scenarioName}`,
     filePath: sourcePath,
     totalBytes: fileInfo.size,
@@ -127,7 +135,7 @@ async function runUploadScenario(
   let uploadCompleted = false;
 
   try {
-    const attachment = await upload();
+    const attachment = await upload(uploadSession);
     const uploadedAt = Date.now();
     const uploadDuration = uploadedAt - startedAt;
 
@@ -163,14 +171,15 @@ async function runUploadScenario(
     return sentMessage;
   } catch (error) {
     const duration = Date.now() - startedAt;
-    const message = getScenarioErrorMessage(error, uploadSession.wasCanceled());
+    const wasCanceled = uploadSession.wasCanceled();
+    const message = getScenarioErrorMessage(error, wasCanceled);
 
-    if (!uploadCompleted) {
+    if (!uploadCompleted && !wasCanceled) {
       uploadSession.fail(message);
     }
 
     console.error(
-      `[pr-227:${scenarioName}] FAIL | duration=${duration}ms | ${message}`,
+      `[pr-227:${scenarioName}] ${wasCanceled ? 'CANCEL' : 'FAIL'} | duration=${duration}ms | ${message}`,
     );
 
     return ctx.reply(

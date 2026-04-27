@@ -10,6 +10,7 @@
     "start:custom-context": "tsx src/custom-context-bot.ts",
     "start:keyboard": "tsx src/keyboard-bot.ts",
     "start:start-payload": "tsx src/start-payload-bot.ts",
+    "start:upload-progress": "tsx src/upload-progress-bot.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {

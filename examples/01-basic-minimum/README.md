@@ -3,15 +3,18 @@
 ## Переменные окружения
 
 Обязательные:
+
 - `MAX_BOT_TOKEN` — токен бота.
 
 Опциональные:
+
 - `DEBUG` — namespace для отладки `debug`. Загружается из `.env` через `dotenv/config` до старта бота.
 - `MAX_IMAGE_URL` — URL картинки для `attachments-bot`.
 - `MAX_IMAGE_TOKEN` — готовый token картинки для команды `/album`.
 - `MAX_STICKER_CODE` — код стикера для команды `/sticker`.
 
 Быстрый старт по env:
+
 - скопировать `.env.example` в `.env`;
 - заполнить `MAX_BOT_TOKEN`;
 - при необходимости включить `DEBUG=max-io:*`.
@@ -19,6 +22,7 @@
 ## Demo Assets
 
 Для `attachments-bot` нужны локальные файлы в `public/`:
+
 - `public/video.mp4`
 - `public/audio.mp3`
 - `public/image.png`
@@ -48,10 +52,12 @@ yarn start
 yarn start:attachments
 yarn start:custom-context
 yarn start:keyboard
+yarn start:upload-progress
 yarn start:start-payload
 ```
 
 При запуске каждый сценарий пишет в консоль:
+
 - что бот инициализирован;
 - какой сценарий запущен;
 - список доступных команд;
@@ -59,16 +65,25 @@ yarn start:start-payload
 
 Если отправить обычный текст вместо команды, бот вернёт подсказку по доступным сценарным командам.
 
+Сценарий `upload-progress-bot` показывает базовое использование `signal` и `onProgress`:
+
+- `/upload` запускает загрузку `public/video.mp4`;
+- повторный `/upload` блокируется, пока активна текущая загрузка;
+- `/cancelUpload` прерывает активную загрузку;
+- прогресс и статусы `prepare/upload/complete` печатаются в консоль.
+
 ## Проверка локальной dev-сборки `max-io`
 
 Если изменения в библиотеке ещё не опубликованы в npm:
 
 1. В корне репозитория выполнить:
+
 ```bash
 yarn build
 ```
 
 2. В корне репозитория выполнить:
+
 ```bash
 node scripts/copy-to-sample.js
 ```
