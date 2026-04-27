@@ -1,0 +1,23 @@
+{
+  "name": "pr-scenarios",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Manual PR scenarios for max-io",
+  "license": "UNLICENSED",
+  "scripts": {
+    "start": "tsx src/index.ts",
+    "start:10-pr-227-upload-progress": "tsx src/10-pr-227-upload-progress.ts",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "cli-progress": "^3.12.0",
+    "dotenv": "^17.4.2",
+    "max-io": "^0.0.4"
+  },
+  "devDependencies": {
+    "@types/cli-progress": "^3.11.6",
+    "@types/node": "^25.0.6",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  }
+}
