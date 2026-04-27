@@ -7,15 +7,27 @@ const debug = createDebug('max-io:polling');
 
 const RETRY_INTERVAL = 5_000; // ms
 
+export type PollingState = {
+  marker?: number;
+};
+
 export class Polling {
   private readonly abortController = new AbortController();
-
-  private marker?: number;
 
   constructor(
     private readonly api: Api,
     private readonly allowedUpdates: UpdateType[] = [],
+    private readonly state: PollingState = {},
   ) {}
+
+  get marker() {
+    return this.state.marker;
+  }
+
+  setMarker(marker?: number) {
+    this.state.marker = marker;
+    debug('Polling marker set to %o', marker);
+  }
 
   loop = async (handleUpdate: (updates: Update) => Promise<void>) => {
     debug('Starting long polling');
@@ -23,9 +35,9 @@ export class Polling {
       try {
         const { updates, marker } = await this.api.getUpdates(
           this.allowedUpdates,
-          { marker: this.marker },
+          { marker: this.state.marker },
         );
-        this.marker = marker;
+        this.state.marker = marker;
         await Promise.all(updates.map(handleUpdate));
       } catch (err) {
         if (err instanceof Error) {

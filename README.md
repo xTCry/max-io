@@ -364,6 +364,36 @@ await bot.api.sendMessageToChat(54321, 'Текст', {
 - сейчас используется до `5` попыток с экспоненциальной задержкой: `500ms -> 1000ms -> 2000ms -> 4000ms`;
 - если передан `signal`, ожидание и повторы прекращаются сразу после `abort()`.
 
+## Marker в polling
+
+Можно задать стартовый `marker` до запуска long polling, прочитать его текущее значение и обновить вручную. Это полезно, если вы сохраняете позицию чтения updates между перезапусками бота.
+
+<details>
+<summary>Показать код</summary>
+
+```ts
+const bot = new Bot(process.env.MAX_BOT_TOKEN!, {
+  polling: { marker: 123456789 },
+});
+
+console.log('Текущий marker:', bot.polling.marker);
+
+bot.polling.setMarker(123456790);
+
+bot.start({ marker: 123456800 }).then();
+
+console.log('Обновлённый marker:', bot.polling.marker);
+```
+
+</details>
+
+Что важно:
+
+- `bot.polling.marker` доступен ещё до `bot.start()`;
+- `bot.polling.setMarker(...)` можно вызвать и до запуска, и между перезапусками polling;
+- `start({ marker })` имеет приоритет над marker, который был задан в конфиге или через `setMarker(...)` до запуска;
+- после каждого успешного `getUpdates` текущее значение `bot.polling.marker` обновляется автоматически.
+
 ## Public exports
 
 - `max-io` - core API (`Bot`, `Api`, `Context`, `Composer`, helpers)

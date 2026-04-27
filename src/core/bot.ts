@@ -11,17 +11,23 @@ import {
   Update,
   UpdateType,
 } from './network/api';
-import { Polling } from './network/polling';
+import { Polling, type PollingState } from './network/polling';
 
 const debug = createDebug('max-io:main');
+
+type BotPollingConfig = {
+  marker?: number;
+};
 
 type BotConfig<Ctx extends Context> = {
   clientOptions?: ClientOptions;
   contextType: new (...args: ConstructorParameters<typeof Context>) => Ctx;
+  polling?: BotPollingConfig;
 };
 
 type LaunchOptions = {
-  allowedUpdates: UpdateType[];
+  allowedUpdates?: UpdateType[];
+  marker?: number;
 };
 
 const defaultConfig: BotConfig<Context> = {
@@ -34,23 +40,51 @@ const resolveConfig = <Ctx extends Context>(
   clientOptions: config?.clientOptions,
   contextType: (config?.contextType ??
     defaultConfig.contextType) as BotConfig<Ctx>['contextType'],
+  polling: config?.polling,
 });
+
+class BotPollingFacade {
+  constructor(
+    private readonly state: PollingState,
+    private readonly getCurrentPolling: () => Polling | undefined,
+  ) {}
+
+  get marker() {
+    return this.state.marker;
+  }
+
+  setMarker(marker?: number) {
+    this.state.marker = marker;
+    this.getCurrentPolling()?.setMarker(marker);
+  }
+}
 
 export class Bot<Ctx extends Context = Context> extends Composer<Ctx> {
   api: Api;
 
   public botInfo?: BotInfo;
 
-  private polling?: Polling;
+  public readonly polling: BotPollingFacade;
+
+  private currentPolling?: Polling;
 
   private pollingIsStarted = false;
 
-  private config: BotConfig<Ctx>;
+  private readonly config: BotConfig<Ctx>;
+
+  private readonly pollingState: PollingState;
 
   constructor(token: string, config?: Partial<BotConfig<Ctx>>) {
     super();
 
     this.config = resolveConfig(config);
+    this.pollingState = {
+      marker: this.config.polling?.marker,
+    };
+    this.polling = new BotPollingFacade(
+      this.pollingState,
+      () => this.currentPolling,
+    );
     this.api = new Api(createClient(token, this.config.clientOptions));
 
     debug('Created `Bot` instance');
@@ -73,15 +107,27 @@ export class Bot<Ctx extends Context = Context> extends Composer<Ctx> {
       return;
     }
 
+    if (options?.marker !== undefined) {
+      this.polling.setMarker(options.marker);
+    }
+
     this.pollingIsStarted = true;
 
     this.botInfo ??= await this.api.getMyInfo();
-    this.polling = new Polling(this.api, options?.allowedUpdates);
+    this.currentPolling = new Polling(
+      this.api,
+      options?.allowedUpdates,
+      this.pollingState,
+    );
 
     debug(`Starting @${this.botInfo.username}`);
-    await this.polling.loop(this.handleUpdate);
 
-    this.pollingIsStarted = false;
+    try {
+      await this.currentPolling.loop(this.handleUpdate);
+    } finally {
+      this.currentPolling = undefined;
+      this.pollingIsStarted = false;
+    }
   };
 
   stop = () => {
@@ -90,7 +136,7 @@ export class Bot<Ctx extends Context = Context> extends Composer<Ctx> {
       return;
     }
 
-    this.polling?.stop();
+    this.currentPolling?.stop();
     this.pollingIsStarted = false;
   };
 
