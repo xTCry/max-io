@@ -31,7 +31,8 @@
   "types": "./lib/index.d.ts",
   "files": [
     "./lib/",
-    "./src/"
+    "./src/",
+    "./THIRD_PARTY_NOTICES.md"
   ],
   "exports": {
     ".": {

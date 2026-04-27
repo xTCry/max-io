@@ -401,3 +401,17 @@ console.log('Обновлённый marker:', bot.polling.marker);
 - `max-io/lib/session` - session middleware
 - `max-io/lib/scene` - scenes middleware
 - `max-io/lib/i18n` - i18n middleware
+
+## Лицензия
+
+Проект распространяется по лицензии `MIT`. См. [`LICENSE`](./LICENSE).
+
+## Атрибуция
+
+Репозиторий исторически развивался на основе кодовой базы [`max-messenger/max-bot-api-client-ts`](https://github.com/max-messenger/max-bot-api-client-ts) и дальше поддерживается как самостоятельный проект.
+
+Сохранённые notice и атрибуция вынесены в [`THIRD_PARTY_NOTICES.md`](./THIRD_PARTY_NOTICES.md).
+
+## Вклад в проект
+
+Если планируете присылать изменения, ориентируйтесь на [`CONTRIBUTING.md`](./CONTRIBUTING.md).
