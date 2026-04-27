@@ -22,3 +22,14 @@ export {
 } from './core/helpers/attachments';
 export * as Keyboard from './core/helpers/keyboard';
 export { MaxError } from './core/network/api';
+export type {
+  UploadAudioOptions,
+  UploadFileOptions,
+  UploadImageOptions,
+  UploadProgress,
+  UploadProgressHandler,
+  UploadProgressMode,
+  UploadProgressPhase,
+  UploadRequestOptions,
+  UploadVideoOptions,
+} from './core/helpers/upload';
