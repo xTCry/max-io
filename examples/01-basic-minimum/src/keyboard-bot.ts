@@ -13,11 +13,10 @@ const commands = [
   { name: 'callback', description: 'Send callback keyboard' },
   { name: 'geoLocation', description: 'Send geoLocation request' },
   { name: 'contact', description: 'Send contact request' },
-  { name: 'createChat', description: 'Create chat' },
+  { name: 'extraButtons', description: 'Send message and clipboard buttons' },
 ];
 
 const bot = new Bot(token);
-
 
 const defaultKeyboard = [
   [Keyboard.button.link('❤️', 'https://dev.max.ru/')],
@@ -26,7 +25,6 @@ const defaultKeyboard = [
       intent: 'negative',
     }),
   ],
-  // [Keyboard.button.clipboard('Hello from clipboard', 'Clipboard text')],
 ];
 
 bot.action('remove_message', async (ctx) => {
@@ -100,18 +98,20 @@ bot.on('message_created', async (ctx, next) => {
   );
 });
 
-bot.command(/createChat(.+)?/, async (ctx) => {
-  const chatTitle = ctx.match?.[1]?.trim();
-  if (!chatTitle) {
-    return ctx.reply('Enter chat title after command');
-  }
-  return ctx.reply('Create chat keyboard', {
+bot.command('extraButtons', async (ctx) => {
+  return ctx.reply('Message and clipboard keyboard', {
     attachments: [
       Keyboard.inlineKeyboard([
-        [Keyboard.button.chat(`Create chat "${chatTitle}"`, chatTitle)],
+        [Keyboard.button.message('Hello from message button')],
+        [Keyboard.button.clipboard('Copy text', 'Clipboard text')],
+        ...defaultKeyboard,
       ]),
     ],
   });
+});
+
+bot.hears('Hello from message button', async (ctx) => {
+  return ctx.reply('Received text from message button.');
 });
 
 registerExampleFallback(bot, {
