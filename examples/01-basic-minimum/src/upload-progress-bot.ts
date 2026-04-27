@@ -141,10 +141,13 @@ async function runUploadJob({ api, chatId, controller }: RunUploadJobOptions) {
       },
     });
 
+    // Прервать ожидание через 5 секунд
+    setTimeout(() => controller.abort(), 5_000);
+
     await api.sendMessageToChat(
       chatId,
       'Видео загружено. Ниже отправлено само вложение.',
-      { attachments: [video.toJson()] },
+      { attachments: [video.toJson()], signal: controller.signal },
     );
   } catch (error) {
     if (controller.signal.aborted) {

@@ -337,6 +337,33 @@ async function runUploadJob({ api, chatId, controller }: RunUploadJobOptions) {
 - Для `video`, `audio` и `file` при загрузке из пути или `ReadStream` прогресс обычно точный по байтам (`mode: 'range'`).
 - Для multipart-вариантов, например `image` или `file` из `Buffer`, прогресс сейчас фазовый: `prepare -> upload -> complete`, без гарантии точного байтового счётчика на всём запросе.
 
+## Отмена отправки
+
+Методы `sendMessageToChat` и `sendMessageToUser` поддерживают `AbortSignal`. Это полезно, когда API долго подтверждает вложение и отправка временно упирается в `attachment.not.ready`.
+
+<details>
+<summary>Показать код</summary>
+
+```ts
+const controller = new AbortController();
+
+// Прервать ожидание через 30 секунд
+setTimeout(() => controller.abort(), 30_000);
+
+await bot.api.sendMessageToChat(54321, 'Текст', {
+  attachments: [image.toJson()],
+  signal: controller.signal,
+});
+```
+
+</details>
+
+Что важно:
+
+- при `attachment.not.ready` SDK повторяет отправку автоматически;
+- сейчас используется до `5` попыток с экспоненциальной задержкой: `500ms -> 1000ms -> 2000ms -> 4000ms`;
+- если передан `signal`, ожидание и повторы прекращаются сразу после `abort()`.
+
 ## Public exports
 
 - `max-io` - core API (`Bot`, `Api`, `Context`, `Composer`, helpers)

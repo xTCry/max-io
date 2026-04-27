@@ -1,3 +1,4 @@
+import type { ReqOptions } from '../../client';
 import type {
   ActionResponse,
   AttachmentRequest,
@@ -48,12 +49,14 @@ export type SendMessageDTO = {
     notify?: boolean;
     format?: 'markdown' | 'html' | null;
   };
+  signal?: AbortSignal;
 };
 
 export type SendMessageExtra = Omit<
   FlattenReq<SendMessageDTO>,
   'chat_id' | 'user_id' | 'text'
->;
+> &
+  Pick<ReqOptions, 'signal'>;
 
 export type SendMessageResponse = {
   message: Message;
