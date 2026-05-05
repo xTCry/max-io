@@ -11,6 +11,7 @@ type ScenarioRuntimeOptions = {
   beforeStart?: () => Promise<void>;
   fallbackTitle?: string;
   fallbackLines?: string[];
+  shouldReplyToFallback?: (ctx: Context) => boolean | Promise<boolean>;
   onStop?: () => void;
 };
 
@@ -67,6 +68,9 @@ export const registerScenarioFallback = (
   bot.on('message_created', async (ctx, next) => {
     if (!ctx.message?.body?.text?.trim()) return next();
     if (isTextCommand(ctx)) return next();
+
+    const shouldReply = await (options.shouldReplyToFallback?.(ctx) ?? true);
+    if (!shouldReply) return next();
 
     return ctx.reply(helpText);
   });
