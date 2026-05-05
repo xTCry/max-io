@@ -1,0 +1,25 @@
+{
+  "name": "02-chat-admin-management",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Manual chat admin API checks for max-io",
+  "license": "UNLICENSED",
+  "scripts": {
+    "start": "tsx src/index.ts",
+    "get-users": "tsx src/index.ts get-users",
+    "get-admins": "tsx src/index.ts get-admins",
+    "set-admin": "tsx src/index.ts set-admin",
+    "delete-admin": "tsx src/index.ts delete-admin",
+    "delete-chat": "tsx src/index.ts delete-chat",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "max-io": "^0.0.4"
+  },
+  "devDependencies": {
+    "@types/node": "^25.0.6",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  }
+}
