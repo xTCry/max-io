@@ -3,6 +3,10 @@ import type { FlattenReq } from '../types';
 import type {
   AddChatMembersDTO,
   AddChatMembersResponse,
+  DeleteChatAdminDTO,
+  DeleteChatAdminResponse,
+  DeleteChatDTO,
+  DeleteChatResponse,
   EditChatInfoDTO,
   EditChatInfoResponse,
   GetAllChatsDTO,
@@ -27,6 +31,8 @@ import type {
   RemoveChatMemberResponse,
   SendActionDTO,
   SendActionResponse,
+  SetChatAdminsDTO,
+  SetChatAdminsResponse,
   UnpinMessageDTO,
   UnpinMessageResponse,
 } from './types';
@@ -66,6 +72,14 @@ export class ChatsApi extends BaseApi {
     });
   }
 
+  async delete({
+    chat_id,
+  }: FlattenReq<DeleteChatDTO>): Promise<DeleteChatResponse> {
+    return this._delete('chats/{chat_id}', {
+      path: { chat_id },
+    });
+  }
+
   async getChatMembership({
     chat_id,
   }: FlattenReq<GetChatMembershipDTO>): Promise<GetChatMembershipResponse> {
@@ -79,6 +93,25 @@ export class ChatsApi extends BaseApi {
   }: FlattenReq<GetChatAdminsDTO>): Promise<GetChatAdminsResponse> {
     return this._get('chats/{chat_id}/members/admins', {
       path: { chat_id },
+    });
+  }
+
+  async setChatAdmins({
+    chat_id,
+    ...body
+  }: FlattenReq<SetChatAdminsDTO>): Promise<SetChatAdminsResponse> {
+    return this._post('chats/{chat_id}/members/admins', {
+      path: { chat_id },
+      body,
+    });
+  }
+
+  async deleteChatAdmin({
+    chat_id,
+    user_id,
+  }: FlattenReq<DeleteChatAdminDTO>): Promise<DeleteChatAdminResponse> {
+    return this._delete('chats/{chat_id}/members/admins/{user_id}', {
+      path: { chat_id, user_id },
     });
   }
 

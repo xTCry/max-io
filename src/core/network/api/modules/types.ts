@@ -7,6 +7,10 @@ import type {
 import type {
   AddChatMembersDTO,
   AddChatMembersResponse,
+  DeleteChatAdminDTO,
+  DeleteChatAdminResponse,
+  DeleteChatDTO,
+  DeleteChatResponse,
   EditChatInfoDTO,
   EditChatInfoResponse,
   GetAllChatsDTO,
@@ -31,6 +35,8 @@ import type {
   RemoveChatMemberResponse,
   SendActionDTO,
   SendActionResponse,
+  SetChatAdminsDTO,
+  SetChatAdminsResponse,
   UnpinMessageDTO,
   UnpinMessageResponse,
 } from './chats/types';
@@ -115,6 +121,10 @@ export type ApiMethods = {
       req: AddChatMembersDTO;
       res: AddChatMembersResponse;
     };
+    'chats/{chat_id}/members/admins': {
+      req: SetChatAdminsDTO;
+      res: SetChatAdminsResponse;
+    };
     messages: {
       req: SendMessageDTO;
       res: SendMessageResponse;
@@ -149,6 +159,10 @@ export type ApiMethods = {
     };
   };
   DELETE: {
+    'chats/{chat_id}': {
+      req: DeleteChatDTO;
+      res: DeleteChatResponse;
+    };
     messages: {
       req: DeleteMessageDTO;
       res: DeleteMessageResponse;
@@ -164,6 +178,10 @@ export type ApiMethods = {
     'chats/{chat_id}/members/me': {
       req: LeaveChatDTO;
       res: LeaveChatResponse;
+    };
+    'chats/{chat_id}/members/admins/{user_id}': {
+      req: DeleteChatAdminDTO;
+      res: DeleteChatAdminResponse;
     };
   };
 };

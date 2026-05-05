@@ -26,6 +26,7 @@ import type {
   UpdateType,
 } from './network/api';
 import type {
+  ChatAdmin,
   EditChatExtra,
   GetAllChatsExtra,
   GetChatMembersExtra,
@@ -71,8 +72,25 @@ export class Api {
     return this.raw.chats.getByLink({ chat_link: link });
   };
 
+  /**
+   * Изменяет информацию группового чата.
+   *
+   * @param chatId ID группового чата. У групповых чатов ID может быть отрицательным.
+   * @param extra Новые поля чата: название, иконка, закреплённое сообщение и настройки уведомлений.
+   */
   editChatInfo = async (chatId: number, extra: EditChatExtra) => {
     return this.raw.chats.edit({ chat_id: chatId, ...extra });
+  };
+
+  /**
+   * Удаляет групповой чат для всех участников.
+   *
+   * @param chatId ID группового чата. У групповых чатов ID может быть отрицательным.
+   * @remarks Для успешного удаления у бота должно быть право `delete`. Если прав не хватает,
+   * сервер может вернуть `success: false` без HTTP-ошибки.
+   */
+  deleteChat = async (chatId: number) => {
+    return this.raw.chats.delete({ chat_id: chatId });
   };
 
   sendMessageToChat = async (
@@ -141,8 +159,33 @@ export class Api {
     return this.raw.chats.getChatMembership({ chat_id: chatId });
   };
 
+  /**
+   * Возвращает список администраторов группового чата.
+   *
+   * @param chatId ID группового чата. Бот должен быть администратором в этом чате.
+   */
   getChatAdmins = (chatId: number) => {
     return this.raw.chats.getChatAdmins({ chat_id: chatId });
+  };
+
+  /**
+   * Назначает или обновляет администраторов группового чата.
+   *
+   * @param chatId ID группового чата. У групповых чатов ID может быть отрицательным.
+   * @param admins Список пользователей и прав администратора. Боту нужно право `add_admins`.
+   */
+  setChatAdmins = (chatId: number, admins: ChatAdmin[]) => {
+    return this.raw.chats.setChatAdmins({ chat_id: chatId, admins });
+  };
+
+  /**
+   * Снимает права администратора у пользователя в групповом чате.
+   *
+   * @param chatId ID группового чата. У групповых чатов ID может быть отрицательным.
+   * @param userId ID пользователя, у которого нужно отозвать права администратора.
+   */
+  deleteChatAdmin = (chatId: number, userId: number) => {
+    return this.raw.chats.deleteChatAdmin({ chat_id: chatId, user_id: userId });
   };
 
   addChatMembers = (chatId: number, userIds: number[]) => {

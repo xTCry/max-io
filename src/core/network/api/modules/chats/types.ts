@@ -1,6 +1,7 @@
 import type {
   ActionResponse,
   Chat,
+  ChatAdminApiPermission,
   ChatMember,
   Message,
   PhotoAttachmentRequestPayload,
@@ -31,6 +32,12 @@ export type GetChatByIdDTO = {
 };
 
 export type GetChatByIdResponse = Chat;
+
+export type DeleteChatDTO = {
+  path: DefaultPath;
+};
+
+export type DeleteChatResponse = ActionResponse;
 
 export type GetChatByLinkDTO = {
   path: {
@@ -113,6 +120,33 @@ export type GetChatAdminsResponse = {
   marker?: number | null;
 };
 
+export type ChatAdmin = {
+  /** ID пользователя-участника чата, которому назначаются права администратора. */
+  user_id: number;
+  /** Права администратора. При повторном назначении обновляют текущий набор прав. */
+  permissions: ChatAdminApiPermission[];
+  /** Заголовок администратора, который будет показан в клиентах Max. */
+  alias?: string | null;
+};
+
+export type SetChatAdminsDTO = {
+  path: DefaultPath;
+  body: {
+    admins: ChatAdmin[];
+    marker?: number | null;
+  };
+};
+
+export type SetChatAdminsResponse = ActionResponse;
+
+export type DeleteChatAdminDTO = {
+  path: DefaultPath & {
+    user_id: number;
+  };
+};
+
+export type DeleteChatAdminResponse = ActionResponse;
+
 export type GetChatMembersDTO = {
   path: DefaultPath;
   query: {
@@ -143,13 +177,15 @@ export type AddChatMembersDTO = {
 
 export type AddChatMembersResponse = ActionResponse & {
   failed_user_ids?: number[] | null;
-  failed_user_details?: Array<{
-    error_code:
-      | 'add.participant.privacy'
-      | 'add.participant.not.found'
-      | string;
-    user_ids: number[];
-  }> | null;
+  failed_user_details?:
+    | {
+        error_code:
+          | 'add.participant.privacy'
+          | 'add.participant.not.found'
+          | string;
+        user_ids: number[];
+      }[]
+    | null;
 };
 
 export type RemoveChatMemberDTO = {

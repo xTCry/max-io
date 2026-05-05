@@ -20,6 +20,7 @@ import type {
   User,
 } from './network/api';
 import {
+  ChatAdmin,
   EditChatExtra,
   GetAllChatsExtra,
   GetChatMembersExtra,
@@ -235,6 +236,12 @@ export class Context<U extends Update = Update> {
     return this.api.editChatInfo(this.chatId, extra);
   }
 
+  /** Удаляет текущий групповой чат для всех участников. Требует права `delete`. */
+  async deleteChat() {
+    this.assert(this.chatId, 'deleteChat');
+    return this.api.deleteChat(this.chatId);
+  }
+
   async getMessage(id: string) {
     return this.api.getMessage(id);
   }
@@ -275,6 +282,18 @@ export class Context<U extends Update = Update> {
   async getChatAdmins() {
     this.assert(this.chatId, 'getChatAdmins');
     return this.api.getChatAdmins(this.chatId);
+  }
+
+  /** Назначает или обновляет администраторов текущего группового чата. Требует права `add_admins`. */
+  async setChatAdmins(admins: ChatAdmin[]) {
+    this.assert(this.chatId, 'setChatAdmins');
+    return this.api.setChatAdmins(this.chatId, admins);
+  }
+
+  /** Снимает права администратора у пользователя в текущем групповом чате. */
+  async deleteChatAdmin(userId: number) {
+    this.assert(this.chatId, 'deleteChatAdmin');
+    return this.api.deleteChatAdmin(this.chatId, userId);
   }
 
   async addChatMembers(userIds: number[]) {
