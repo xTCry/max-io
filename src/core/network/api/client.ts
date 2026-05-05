@@ -47,7 +47,7 @@ export const createClient = (token: string, options: ClientOptions = {}) => {
 
     Object.keys(callOptions.query ?? {}).forEach((param) => {
       const value = callOptions.query?.[param];
-      if (!value) return;
+      if (value === undefined || value === null) return;
       url.searchParams.set(param, value.toString());
     });
 

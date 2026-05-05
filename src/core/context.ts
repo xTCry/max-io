@@ -24,6 +24,7 @@ import {
   GetAllChatsExtra,
   GetChatMembersExtra,
   PinMessageExtra,
+  RemoveChatMemberExtra,
 } from './network/api/modules';
 
 export type FilteredContext<
@@ -286,9 +287,9 @@ export class Context<U extends Update = Update> {
     return this.api.getChatMembers(this.chatId, extra);
   }
 
-  async removeChatMember(userId: number) {
+  async removeChatMember(userId: number, extra?: RemoveChatMemberExtra) {
     this.assert(this.chatId, 'removeChatMember');
-    return this.api.removeChatMember(this.chatId, userId);
+    return this.api.removeChatMember(this.chatId, userId, extra);
   }
 
   async pinMessage(messageId: string, extra?: PinMessageExtra) {

@@ -104,11 +104,11 @@ export class ChatsApi extends BaseApi {
 
   async removeChatMember({
     chat_id,
-    ...body
+    ...query
   }: FlattenReq<RemoveChatMemberDTO>): Promise<RemoveChatMemberResponse> {
     return this._delete('chats/{chat_id}/members', {
       path: { chat_id },
-      body,
+      query,
     });
   }
 

@@ -141,14 +141,28 @@ export type AddChatMembersDTO = {
   };
 };
 
-export type AddChatMembersResponse = ActionResponse;
+export type AddChatMembersResponse = ActionResponse & {
+  failed_user_ids?: number[] | null;
+  failed_user_details?: Array<{
+    error_code:
+      | 'add.participant.privacy'
+      | 'add.participant.not.found'
+      | string;
+    user_ids: number[];
+  }> | null;
+};
 
 export type RemoveChatMemberDTO = {
   path: DefaultPath;
-  body: {
+  query: {
     user_id: number;
     block?: boolean;
   };
 };
+
+export type RemoveChatMemberExtra = Omit<
+  FlattenReq<RemoveChatMemberDTO>,
+  'chat_id' | 'user_id'
+>;
 
 export type RemoveChatMemberResponse = ActionResponse;

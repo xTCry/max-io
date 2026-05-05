@@ -4,7 +4,7 @@ type SuccessResponse = {
 
 type ErrorResponse = {
   success: false;
-  message: string;
+  message?: string;
 };
 
 export type ActionResponse = SuccessResponse | ErrorResponse;

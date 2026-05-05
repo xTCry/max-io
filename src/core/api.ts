@@ -30,6 +30,7 @@ import type {
   GetAllChatsExtra,
   GetChatMembersExtra,
   PinMessageExtra,
+  RemoveChatMemberExtra,
 } from './network/api/modules';
 
 export class Api {
@@ -162,10 +163,15 @@ export class Api {
     });
   };
 
-  removeChatMember = (chatId: number, userId: number) => {
+  removeChatMember = (
+    chatId: number,
+    userId: number,
+    extra?: RemoveChatMemberExtra,
+  ) => {
     return this.raw.chats.removeChatMember({
       chat_id: chatId,
       user_id: userId,
+      ...extra,
     });
   };
 
