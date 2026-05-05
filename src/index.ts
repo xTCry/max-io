@@ -21,7 +21,25 @@ export {
   ShareAttachment,
 } from './core/helpers/attachments';
 export * as Keyboard from './core/helpers/keyboard';
-export { MaxError } from './core/network/api';
+export {
+  RawApi,
+  createClient,
+  MaxError,
+} from './core/network/api';
+export {
+  BaseApi,
+  BotsApi,
+  ChatsApi,
+  MessagesApi,
+  SubscriptionsApi,
+  UploadsApi,
+} from './core/network/api/modules';
+export {
+  CHAT_ADMIN_API_PERMISSIONS,
+  CHAT_ADMIN_OWNER_PERMISSIONS,
+  CHAT_ADMIN_PERMISSIONS,
+  CHAT_ADMIN_REGULAR_BOT_ASSIGNABLE_PERMISSIONS,
+} from './core/network/api/types';
 export type {
   UploadAudioOptions,
   UploadFileOptions,

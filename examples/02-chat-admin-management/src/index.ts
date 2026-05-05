@@ -1,10 +1,10 @@
 import 'dotenv/config';
 
-import { Bot } from 'max-io';
 import {
+  Bot,
   CHAT_ADMIN_OWNER_PERMISSIONS,
   CHAT_ADMIN_REGULAR_BOT_ASSIGNABLE_PERMISSIONS,
-} from 'max-io/types';
+} from 'max-io';
 import type { ChatAdmin, ChatAdminApiPermission } from 'max-io/types';
 
 import {
