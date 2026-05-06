@@ -1,7 +1,13 @@
-/** Тип чата в Max: диалог, групповой чат или канал. */
+/** Тип чата в Max. В текущей схеме Bot API описан групповой чат `chat`; `dialog` и `channel` встречаются в runtime-ответах. */
 export type ChatType = 'dialog' | 'chat' | 'channel';
 
-/** Статус чата относительно текущего бота. */
+/**
+ * Статус чата для текущего бота:
+ * - `active` — бот является активным участником чата.
+ * - `removed` — бот был удалён из чата.
+ * - `left` — бот покинул чат.
+ * - `closed` — чат был закрыт.
+ */
 export type ChatStatus = 'active' | 'removed' | 'left' | 'closed' | 'suspended';
 
 /** Информация о чате, диалоге или канале. */
@@ -40,7 +46,10 @@ export type Chat = {
   pinned_message?: object | null;
 };
 
-/** Действие, которое бот может показать в чате: печатает, отправляет файл и т.п. */
+/**
+ * Действие, отправляемое участникам чата:
+ * `typing_on`, `sending_photo`, `sending_video`, `sending_audio`, `sending_file`, `mark_seen`.
+ */
 export type SenderAction =
   | 'typing_on'
   | 'sending_photo'
@@ -49,7 +58,10 @@ export type SenderAction =
   | 'sending_file'
   | 'mark_seen';
 
-/** Права администратора, описанные в Bot API для назначения через setChatAdmins. */
+/**
+ * Права администратора, описанные в Bot API для назначения через `setChatAdmins`.
+ * Для ботов важно право `read_all_messages`: без него бот не будет получать updates в групповом чате.
+ */
 export const CHAT_ADMIN_API_PERMISSIONS = [
   'read_all_messages',
   'add_remove_members',
@@ -88,7 +100,10 @@ export const CHAT_ADMIN_PERMISSIONS = [
   ...CHAT_ADMIN_OWNER_PERMISSIONS,
 ] as const;
 
-/** Право администратора, которое можно передавать в setChatAdmins согласно Bot API. */
+/**
+ * Право администратора, которое можно передавать в `setChatAdmins` согласно Bot API.
+ * При повторном назначении администратора сервер обновляет его текущие права доступа.
+ */
 export type ChatAdminApiPermission =
   (typeof CHAT_ADMIN_API_PERMISSIONS)[number];
 
@@ -102,7 +117,10 @@ export type ChatAdminPermission = (typeof CHAT_ADMIN_PERMISSIONS)[number];
 /** @deprecated Используйте ChatAdminPermission. */
 export type ChatPermissions = ChatAdminPermission;
 
-/** Участник чата с данными о правах и времени активности в чате. */
+/**
+ * Участник чата с данными о правах и времени активности в чате.
+ * Возвращается методами группы `/chats`, например `getChatMembers`.
+ */
 export type ChatMember = {
   /** ID пользователя или бота. */
   user_id: number;
@@ -120,14 +138,14 @@ export type ChatMember = {
   avatar_url?: string;
   /** URL полного аватара. */
   full_avatar_url?: string;
-  /** Время последней активности в этом чате. */
+  /** Время последней активности пользователя в чате. Может быть устаревшим для суперчатов. */
   last_access_time: number;
   /** `true`, если участник является владельцем чата. */
   is_owner: boolean;
   /** `true`, если участник является администратором чата. */
   is_admin: boolean;
-  /** Время вступления в чат, Unix timestamp в миллисекундах. */
+  /** Дата присоединения к чату в формате Unix time. */
   join_time: number;
-  /** Права участника в чате. Для обычных участников может быть `null`. */
+  /** Перечень прав пользователя. Для обычных участников может быть `null`. */
   permissions: ChatAdminPermission[] | null;
 };

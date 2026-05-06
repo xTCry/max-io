@@ -10,23 +10,27 @@ import type { FlattenReq } from '../types';
 /** DTO запроса сообщения по ID. */
 export type GetMessageDTO = {
   path: {
-    /** ID сообщения. */
+    /** ID сообщения (`mid`), чтобы получить одно сообщение в чате. */
     message_id: string;
   };
 };
 
+/** Ответ с сообщением по ID. */
 export type GetMessageResponse = Message;
 
-/** DTO запроса списка сообщений. */
+/**
+ * DTO запроса информации о сообщении или массива сообщений из чата.
+ * Для выполнения raw-запроса нужно указать один из параметров: `chat_id` или `message_ids`.
+ */
 export type GetMessagesDTO = {
   query: {
-    /** ID чата для фильтрации сообщений. */
+    /** ID чата. Обязательный параметр, если не указан `message_ids`. */
     chat_id?: number;
-    /** ID сообщений через запятую для raw API. */
+    /** Список ID сообщений через запятую. Обязательный параметр, если не указан `chat_id`. */
     message_ids?: string | null;
-    /** Нижняя граница времени создания сообщения, Unix timestamp в миллисекундах. */
+    /** Время начала для запрашиваемых сообщений, Unix timestamp. */
     from?: number;
-    /** Верхняя граница времени создания сообщения, Unix timestamp в миллисекундах. */
+    /** Время окончания для запрашиваемых сообщений, Unix timestamp. */
     to?: number;
     /** Максимальное количество сообщений в ответе. */
     count?: number;
@@ -44,30 +48,33 @@ export type GetMessagesExtra = Omit<
 
 /** Ответ со списком сообщений. */
 export type GetMessagesResponse = {
-  /** Сообщения, подходящие под фильтр. */
+  /** Массив сообщений. При запросе по `chat_id` сообщения возвращаются в обратном порядке: последние первыми. */
   messages: Message[];
 };
 
-/** DTO отправки сообщения. */
+/** DTO отправки сообщения в чат или диалог. */
 export type SendMessageDTO = {
   query: {
-    /** ID пользователя для отправки в диалог. */
+    /** Если нужно отправить сообщение пользователю, укажите его ID. */
     user_id?: number;
-    /** ID чата для отправки в чат или канал. */
+    /** Если сообщение отправляется в чат, укажите его ID. */
     chat_id?: number;
-    /** Отключить предпросмотр ссылок. */
+    /** Если `false`, сервер не будет генерировать превью для ссылок в тексте сообщения. */
     disable_link_preview?: boolean;
   };
   body: {
-    /** Текст сообщения. */
+    /** Новый текст сообщения. Ограничение API: до `4000` символов. */
     text?: string | null;
-    /** Вложения сообщения. */
+    /**
+     * Вложения сообщения.
+     * При редактировании `null` не изменяет текущие вложения, пустой массив удаляет все вложения.
+     */
     attachments?: AttachmentRequest[] | null;
-    /** Связь с другим сообщением: ответ или пересылка. */
+    /** Ссылка на сообщение: ответ или пересылка. */
     link?: { type: MessageLinkType; mid: string } | null;
-    /** Нужно ли отправлять push-уведомление. */
+    /** Если `false`, участники чата не будут уведомлены. По умолчанию `true`. */
     notify?: boolean;
-    /** Формат текста сообщения. */
+    /** Формат текста сообщения: `markdown` или `html`. */
     format?: 'markdown' | 'html' | null;
   };
   /** Сигнал отмены HTTP-запроса и внутренних повторов. */
@@ -81,15 +88,16 @@ export type SendMessageExtra = Omit<
 > &
   Pick<ReqOptions, 'signal'>;
 
+/** Ответ с созданным сообщением. */
 export type SendMessageResponse = {
   /** Созданное сообщение. */
   message: Message;
 };
 
-/** DTO удаления сообщения. */
+/** DTO удаления сообщения в диалоге или чате. */
 export type DeleteMessageDTO = {
   query: {
-    /** ID сообщения. */
+    /** ID удаляемого сообщения. */
     message_id: string;
   };
 };
@@ -100,9 +108,10 @@ export type DeleteMessageExtra = Omit<
   'message_id'
 >;
 
+/** Ответ удаления сообщения. По схеме метод удаляет сообщения, отправленные менее 24 часов назад. */
 export type DeleteMessageResponse = ActionResponse;
 
-/** DTO редактирования сообщения. */
+/** DTO редактирования сообщения в чате. */
 export type EditMessageDTO = {
   query: {
     /** ID редактируемого сообщения. */
@@ -114,18 +123,19 @@ export type EditMessageDTO = {
 /** Параметры метода `api.editMessage` без `messageId`. */
 export type EditMessageExtra = Omit<FlattenReq<EditMessageDTO>, 'message_id'>;
 
+/** Ответ редактирования сообщения. По схеме метод редактирует сообщения, отправленные менее 24 часов назад. */
 export type EditMessageResponse = ActionResponse;
 
-/** DTO ответа на callback-кнопку. */
+/** DTO ответа после нажатия пользователем кнопки. */
 export type AnswerOnCallbackDTO = {
   query: {
-    /** ID callback, полученный в update `message_callback`. */
+    /** Идентификатор кнопки из update `message_callback`: `updates[i].callback.callback_id`. */
     callback_id: string;
   };
   body: {
-    /** Сообщение для изменения текущего сообщения с кнопкой. */
+    /** Заполните это поле, если хотите изменить текущее сообщение. */
     message?: SendMessageDTO['body'] | null;
-    /** Одноразовое уведомление пользователю. */
+    /** Заполните это поле, если хотите отправить одноразовое уведомление пользователю. */
     notification?: string | null;
   };
 };
@@ -136,4 +146,5 @@ export type AnswerOnCallbackExtra = Omit<
   'callback_id'
 >;
 
+/** Ответ на callback-кнопку. */
 export type AnswerOnCallbackResponse = ActionResponse;

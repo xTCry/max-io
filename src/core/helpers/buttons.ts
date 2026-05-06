@@ -17,11 +17,10 @@ type MakeExtra<
 
 /**
  * Создаёт callback-кнопку.
- * При нажатии сервер Max отправляет update `message_callback`.
+ * После нажатия клиент отправляет на сервер полезную нагрузку, а бот получает update `message_callback`.
  *
- * @param text Видимый текст кнопки. От `1` до `128` символов.
- * @param payload Полезная нагрузка кнопки.
- * Будет доступна в callback update. Ограничение: до `1024` символов.
+ * @param text Видимый текст кнопки. Ограничение API: от `1` до `128` символов.
+ * @param payload Токен кнопки. Ограничение API: до `1024` символов.
  * @param extra Дополнительные параметры кнопки.
  */
 export const callback = (
@@ -35,9 +34,8 @@ export const callback = (
 /**
  * Создаёт кнопку-ссылку.
  *
- * @param text Видимый текст кнопки. От `1` до `128` символов.
- * @param url Ссылка, которая будет открыта пользователю.
- * Ограничение: до `2048` символов.
+ * @param text Видимый текст кнопки. Ограничение API: от `1` до `128` символов.
+ * @param url Ссылка, которая будет открыта пользователю. Ограничение API: до `2048` символов.
  */
 export const link = (text: string, url: string): LinkButton => {
   return { type: 'link', text, url };
@@ -45,9 +43,9 @@ export const link = (text: string, url: string): LinkButton => {
 
 /**
  * Создаёт кнопку запроса контакта.
- * При нажатии пользователю будет предложено отправить контакт.
+ * После нажатия клиент отправляет новое сообщение с вложением текущего контакта пользователя.
  *
- * @param text Видимый текст кнопки. От `1` до `128` символов.
+ * @param text Видимый текст кнопки. Ограничение API: от `1` до `128` символов.
  */
 export const requestContact = (text: string): RequestContactButton => {
   return { type: 'request_contact', text };
@@ -56,9 +54,9 @@ export const requestContact = (text: string): RequestContactButton => {
 /**
  * Создаёт кнопку запроса геолокации.
  *
- * @param text Видимый текст кнопки. От `1` до `128` символов.
+ * @param text Видимый текст кнопки. Ограничение API: от `1` до `128` символов.
  * @param extra Дополнительные параметры.
- * Если `quick: true`, клиент может отправить геолокацию без дополнительного подтверждения.
+ * Если `quick: true`, клиент отправляет местоположение без запроса подтверждения пользователя.
  */
 export const requestGeoLocation = (
   text: string,
@@ -70,7 +68,7 @@ export const requestGeoLocation = (
 /**
  * Создаёт кнопку запуска мини-приложения.
  *
- * @param text Видимый текст кнопки. От `1` до `128` символов.
+ * @param text Видимый текст кнопки. Ограничение API: от `1` до `128` символов.
  * @param webApp Публичное имя (`username`) бота или ссылка на него,
  * чьё мини-приложение нужно открыть.
  * @param payload Параметр запуска мини-приложения.
@@ -95,8 +93,8 @@ export const openApp = (
 /**
  * Создаёт кнопку, которая отправляет свой текст в чат от лица пользователя.
  *
- * @param text Текст кнопки.
- * Этот же текст будет отправлен сообщением при нажатии.
+ * @param text Текст кнопки, который будет отправлен в чат от лица пользователя.
+ * Ограничение API: от `1` до `128` символов.
  */
 export const message = (text: string): MessageButton => {
   return { type: 'message', text };
@@ -105,7 +103,7 @@ export const message = (text: string): MessageButton => {
 /**
  * Создаёт кнопку копирования в буфер обмена.
  *
- * @param text Видимый текст кнопки. От `1` до `128` символов.
+ * @param text Видимый текст кнопки. Ограничение API: от `1` до `128` символов.
  * @param payload Текст, который будет скопирован в буфер обмена.
  */
 export const clipboard = (text: string, payload: string): ClipboardButton => {
@@ -116,7 +114,7 @@ export const clipboard = (text: string, payload: string): ClipboardButton => {
  * @deprecated Серверный API больше не поддерживает кнопку `chat`.
  * Оставлено только для совместимости со старым кодом.
  *
- * @param text Видимый текст кнопки. От `1` до `128` символов.
+ * @param text Видимый текст кнопки. Ограничение API: от `1` до `128` символов.
  * @param chatTitle Заголовок создаваемого чата.
  * @param extra Дополнительные legacy-поля старого контракта.
  */
