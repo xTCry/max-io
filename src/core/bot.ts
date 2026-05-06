@@ -1,7 +1,7 @@
 import createDebug from 'debug';
 
 import { Api } from './api';
-import { Composer } from './composer';
+import { Composer, type CommandPrefix } from './composer';
 import { Context } from './context';
 import { MaybePromise } from './helpers/types';
 import {
@@ -22,6 +22,7 @@ type BotPollingConfig = {
 
 type BotConfig<Ctx extends Context> = {
   clientOptions?: ClientOptions;
+  commandPrefix?: CommandPrefix;
   contextType: new (...args: ConstructorParameters<typeof Context>) => Ctx;
   polling?: BotPollingConfig;
 };
@@ -41,6 +42,7 @@ const resolveConfig = <Ctx extends Context>(
   config?: Partial<BotConfig<Ctx>>,
 ): BotConfig<Ctx> => ({
   clientOptions: config?.clientOptions,
+  commandPrefix: config?.commandPrefix ?? true,
   contextType: (config?.contextType ??
     defaultConfig.contextType) as BotConfig<Ctx>['contextType'],
   polling: config?.polling,
@@ -86,6 +88,7 @@ export class Bot<Ctx extends Context = Context> extends Composer<Ctx> {
     super();
 
     this.config = resolveConfig(config);
+    this.setCommandPrefix(this.config.commandPrefix ?? true);
     this.pollingState = {
       marker: this.config.polling?.marker,
     };

@@ -105,6 +105,18 @@ type Sticker = {
 export class Context<U extends Update = Update> {
   match?: RegExpExecArray;
 
+  /** Произвольное состояние текущего update, общее для всей middleware-цепочки. */
+  state: Record<string | symbol, unknown> = {};
+
+  /** Имя команды без prefix и упоминания бота. Доступно внутри `Composer.command`. */
+  command?: string;
+
+  /** Неразобранная строка аргументов команды. Доступна внутри `Composer.command`. */
+  payload?: string;
+
+  /** Аргументы команды, разбитые по пробелам с поддержкой кавычек. */
+  args?: string[];
+
   constructor(
     readonly update: U,
     readonly api: Api,
