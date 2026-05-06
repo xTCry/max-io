@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "module": "nodenext",
+    "target": "ES2022",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "types": [
+      "node"
+    ],
+    "baseUrl": ".",
+    "paths": {
+      "max-io": [
+        "../../src/index.ts"
+      ],
+      "max-io/types": [
+        "../../src/types.ts"
+      ]
+    }
+  },
+  "include": [
+    "./src/**/*.ts"
+  ]
+}

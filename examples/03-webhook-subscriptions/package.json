@@ -1,0 +1,24 @@
+{
+  "name": "03-webhook-subscriptions",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Manual webhook subscription API checks for max-io",
+  "license": "UNLICENSED",
+  "scripts": {
+    "start": "tsx src/index.ts",
+    "server": "tsx src/index.ts server",
+    "get-subs": "tsx src/index.ts get-subs",
+    "subscribe": "tsx src/index.ts subscribe",
+    "unsubscribe": "tsx src/index.ts unsubscribe",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "max-io": "^0.0.4"
+  },
+  "devDependencies": {
+    "@types/node": "^25.0.6",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  }
+}
