@@ -51,6 +51,8 @@ import type {
   GetMessageResponse,
   GetMessagesDTO,
   GetMessagesResponse,
+  GetVideoAttachmentDetailsDTO,
+  GetVideoAttachmentDetailsResponse,
   SendMessageDTO,
   SendMessageResponse,
 } from './messages/types';
@@ -123,6 +125,10 @@ export type ApiMethods = {
     'messages/{message_id}': {
       req: GetMessageDTO;
       res: GetMessageResponse;
+    };
+    'videos/{video_token}': {
+      req: GetVideoAttachmentDetailsDTO;
+      res: GetVideoAttachmentDetailsResponse;
     };
   };
   POST: {

@@ -4,6 +4,7 @@ import type {
   AttachmentRequest,
   Message,
   MessageLinkType,
+  VideoAttachmentDetails,
 } from '../../types';
 import type { FlattenReq } from '../types';
 
@@ -148,3 +149,13 @@ export type AnswerOnCallbackExtra = Omit<
 
 /** Ответ на callback-кнопку. */
 export type AnswerOnCallbackResponse = ActionResponse;
+
+/** DTO получения подробной информации о прикреплённом видео. */
+export type GetVideoAttachmentDetailsDTO = {
+  path: {
+    /** Токен видео-вложения. */
+    video_token: string;
+  };
+};
+
+export type GetVideoAttachmentDetailsResponse = VideoAttachmentDetails;

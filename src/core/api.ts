@@ -135,6 +135,13 @@ export class Api {
     return this.raw.messages.getById({ message_id: id });
   };
 
+  /** Возвращает подробную информацию о прикреплённом видео по токену видео-вложения. */
+  getVideoAttachmentDetails = async (videoToken: string) => {
+    return this.raw.messages.getVideoAttachmentDetails({
+      video_token: videoToken,
+    });
+  };
+
   editMessage = async (messageId: string, extra?: EditMessageExtra) => {
     return this.raw.messages.edit({
       message_id: messageId,

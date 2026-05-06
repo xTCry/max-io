@@ -10,6 +10,8 @@ import type {
   GetMessageResponse,
   GetMessagesDTO,
   GetMessagesResponse,
+  GetVideoAttachmentDetailsDTO,
+  GetVideoAttachmentDetailsResponse,
   SendMessageResponse,
 } from '../types';
 import type {
@@ -61,6 +63,14 @@ export class MessagesApi extends BaseApi {
   }: FlattenReq<GetMessageDTO>): Promise<GetMessageResponse> => {
     return this._get('messages/{message_id}', {
       path: { message_id },
+    });
+  };
+
+  getVideoAttachmentDetails = async ({
+    video_token,
+  }: FlattenReq<GetVideoAttachmentDetailsDTO>): Promise<GetVideoAttachmentDetailsResponse> => {
+    return this._get('videos/{video_token}', {
+      path: { video_token },
     });
   };
 

@@ -32,6 +32,46 @@ export type VideoAttachment = {
   duration?: number | null;
 };
 
+/** URL-адреса воспроизведения видео в разных качествах. */
+export type VideoUrls = {
+  /** MP4 1080p, если доступно. */
+  mp4_1080?: string | null;
+  /** MP4 720p, если доступно. */
+  mp4_720?: string | null;
+  /** MP4 480p, если доступно. */
+  mp4_480?: string | null;
+  /** MP4 360p, если доступно. */
+  mp4_360?: string | null;
+  /** MP4 240p, если доступно. */
+  mp4_240?: string | null;
+  /** MP4 144p, если доступно. */
+  mp4_144?: string | null;
+  /** HLS-трансляция, если доступна. */
+  hls?: string | null;
+};
+
+/** Превью прикреплённого видео. */
+export type VideoThumbnail = {
+  /** URL изображения. */
+  url: string;
+};
+
+/** Подробная информация о прикреплённом видео. */
+export type VideoAttachmentDetails = {
+  /** Токен видео-вложения. */
+  token: string;
+  /** URL-адреса воспроизведения и HLS, если доступны. */
+  urls: VideoUrls;
+  /** Превью видео. */
+  thumbnail?: VideoThumbnail | null;
+  /** Ширина видео в пикселях. */
+  width?: number | null;
+  /** Высота видео в пикселях. */
+  height?: number | null;
+  /** Длительность видео. */
+  duration?: number | null;
+};
+
 /** Вложение аудио в полученном сообщении. */
 export type AudioAttachment = {
   type: 'audio';
