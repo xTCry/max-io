@@ -16,6 +16,7 @@ import { Polling, type PollingState } from './network/polling';
 const debug = createDebug('max-io:main');
 
 type BotPollingConfig = {
+  /** Marker, с которого long polling начнёт получать updates. */
   marker?: number;
 };
 
@@ -26,7 +27,9 @@ type BotConfig<Ctx extends Context> = {
 };
 
 type LaunchOptions = {
+  /** Список update-типов, которые нужно получать через long polling. */
   allowedUpdates?: UpdateType[];
+  /** Marker, с которого нужно начать текущий запуск long polling. */
   marker?: number;
 };
 
@@ -53,6 +56,11 @@ class BotPollingFacade {
     return this.state.marker;
   }
 
+  /**
+   * Устанавливает marker long polling.
+   *
+   * @param marker Последний обработанный marker или `undefined`, чтобы сбросить значение.
+   */
   setMarker(marker?: number) {
     this.state.marker = marker;
     this.getCurrentPolling()?.setMarker(marker);

@@ -14,7 +14,9 @@ class Attachment {
   }
 }
 
+/** Базовый wrapper для медиа-вложений, которые отправляются по upload token. */
 export class MediaAttachment extends Attachment {
+  /** Токен загруженного медиафайла. */
   readonly token?: string;
 
   constructor({ token }: { token?: string }) {
@@ -27,6 +29,7 @@ export class MediaAttachment extends Attachment {
   }
 }
 
+/** Видео-вложение для отправки в сообщении. */
 export class VideoAttachment extends MediaAttachment {
   readonly type = 'video';
 
@@ -38,13 +41,17 @@ export class VideoAttachment extends MediaAttachment {
   }
 }
 
+/** Набор токенов изображений, который возвращает upload endpoint для `image`. */
 export type ImagePhotos = {
   [key: string]: { token: string };
 };
 
+/** Изображение для отправки в сообщении: по token, URL или `photos` из upload API. */
 export class ImageAttachment extends MediaAttachment {
+  /** Набор токенов изображений, полученный после upload. */
   readonly photos?: ImagePhotos;
 
+  /** URL изображения, которое нужно прикрепить без upload API. */
   readonly url?: string;
 
   constructor(
@@ -77,6 +84,7 @@ export class ImageAttachment extends MediaAttachment {
   }
 }
 
+/** Аудио-вложение для отправки в сообщении. */
 export class AudioAttachment extends MediaAttachment {
   toJson(): AudioAttachmentRequest {
     return {
@@ -86,6 +94,7 @@ export class AudioAttachment extends MediaAttachment {
   }
 }
 
+/** Файл для отправки в сообщении. */
 export class FileAttachment extends MediaAttachment {
   toJson(): FileAttachmentRequest {
     return {
@@ -95,7 +104,9 @@ export class FileAttachment extends MediaAttachment {
   }
 }
 
+/** Стикер для отправки в сообщении по коду стикера. */
 export class StickerAttachment extends Attachment {
+  /** Код стикера. */
   readonly code: string;
 
   constructor({ code }: { code: string }) {
@@ -115,9 +126,12 @@ export class StickerAttachment extends Attachment {
   }
 }
 
+/** Геолокация для отправки в сообщении. */
 export class LocationAttachment extends Attachment {
+  /** Долгота. */
   readonly longitude: number;
 
+  /** Широта. */
   readonly latitude: number;
 
   constructor({ lon, lat }: { lon: number; lat: number }) {
@@ -135,9 +149,12 @@ export class LocationAttachment extends Attachment {
   }
 }
 
+/** Вложение предпросмотра ссылки. */
 export class ShareAttachment extends Attachment {
+  /** URL для предпросмотра ссылки. */
   readonly url?: string;
 
+  /** Token загруженного изображения для предпросмотра. */
   readonly token?: string;
 
   constructor({ url, token }: { url?: string; token?: string } = {}) {

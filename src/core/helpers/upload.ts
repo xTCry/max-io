@@ -7,32 +7,48 @@ import { MaxError, type UploadType } from '../network/api';
 
 type FileSource = string | fs.ReadStream | Buffer;
 
+/** Этап загрузки файла. */
 export type UploadProgressPhase = 'prepare' | 'upload' | 'complete';
+
+/** Режим загрузки файла на upload URL. */
 export type UploadProgressMode = 'range' | 'multipart';
 
+/** Снимок прогресса загрузки файла. */
 export type UploadProgress = {
+  /** Этап загрузки: подготовка upload URL, передача файла или завершение. */
   phase: UploadProgressPhase;
+  /** Режим загрузки: `range` для Content-Range или `multipart` для FormData. */
   mode: UploadProgressMode;
+  /** Имя файла, которое передаётся upload endpoint. */
   fileName: string;
+  /** Загружено байт на текущем этапе. */
   loaded: number;
+  /** Общий размер файла в байтах, если он известен. */
   total?: number;
 };
 
+/** Обработчик событий прогресса upload. */
 export type UploadProgressHandler = (progress: UploadProgress) => void;
 
+/** Общие параметры upload-запросов. */
 export type UploadRequestOptions = {
+  /** Таймаут загрузки файла в миллисекундах. По умолчанию `20000`. */
   timeout?: number;
+  /** Сигнал отмены получения upload URL и передачи файла на upload endpoint. */
   signal?: AbortSignal;
+  /** Callback для отслеживания этапов и прогресса загрузки. */
   onProgress?: UploadProgressHandler;
 };
 
 type DefaultOptions = UploadRequestOptions;
 
 type UploadFromSourceOptions = {
+  /** Источник файла: путь, `ReadStream` или `Buffer`. */
   source: FileSource;
 };
 
 type UploadFromUrlOptions = {
+  /** URL изображения, которое нужно прикрепить без загрузки через upload API. */
   url: string;
 };
 
@@ -64,9 +80,35 @@ type UploadProgressContext = {
   onProgress?: UploadProgressHandler;
 };
 
+/**
+ * Параметры загрузки изображения.
+ *
+ * @remarks Изображение можно передать как `url` без upload API или как локальный `source`.
+ * При upload сервер возвращает `photos`, которые используются в `ImageAttachment`.
+ */
 export type UploadImageOptions = UploadFromUrlOrSourceOptions & DefaultOptions;
+
+/**
+ * Параметры загрузки видео.
+ *
+ * @remarks Для видео Bot API возвращает token уже в ответе `POST /uploads`,
+ * а upload endpoint после передачи файла отвечает служебным результатом обработки.
+ */
 export type UploadVideoOptions = UploadFromSourceOptions & DefaultOptions;
+
+/**
+ * Параметры загрузки файла.
+ *
+ * @remarks Для `file` token приходит из ответа upload endpoint после передачи файла.
+ */
 export type UploadFileOptions = UploadFromSourceOptions & DefaultOptions;
+
+/**
+ * Параметры загрузки аудио.
+ *
+ * @remarks Для аудио Bot API возвращает token уже в ответе `POST /uploads`,
+ * а upload endpoint после передачи файла отвечает служебным результатом обработки.
+ */
 export type UploadAudioOptions = UploadFromSourceOptions & DefaultOptions;
 
 const DEFAULT_UPLOAD_TIMEOUT = 20_000; // ms

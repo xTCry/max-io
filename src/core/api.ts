@@ -94,6 +94,13 @@ export class Api {
     return this.raw.chats.delete({ chat_id: chatId });
   };
 
+  /**
+   * Отправляет сообщение в чат.
+   *
+   * @param chatId ID чата. У групповых чатов ID может быть отрицательным.
+   * @param text Текст сообщения. Ограничение API: до `4000` символов.
+   * @param extra Вложения, ссылка на сообщение, формат текста, уведомления и `AbortSignal`.
+   */
   sendMessageToChat = async (
     chatId: number,
     text: string,
@@ -107,6 +114,13 @@ export class Api {
     return message;
   };
 
+  /**
+   * Отправляет сообщение пользователю.
+   *
+   * @param userId ID пользователя-получателя.
+   * @param text Текст сообщения. Ограничение API: до `4000` символов.
+   * @param extra Вложения, ссылка на сообщение, формат текста, уведомления и `AbortSignal`.
+   */
   sendMessageToUser = async (
     userId: number,
     text: string,
@@ -120,6 +134,12 @@ export class Api {
     return message;
   };
 
+  /**
+   * Возвращает сообщения из чата.
+   *
+   * @param chatId ID чата.
+   * @param extra Фильтры по времени, количеству и списку message ID.
+   */
   getMessages = async (
     chatId: number,
     { message_ids, ...extra }: GetMessagesExtra = {},
@@ -131,17 +151,33 @@ export class Api {
     });
   };
 
+  /**
+   * Возвращает сообщение по ID.
+   *
+   * @param id ID сообщения (`mid`).
+   */
   getMessage = async (id: string) => {
     return this.raw.messages.getById({ message_id: id });
   };
 
-  /** Возвращает подробную информацию о прикреплённом видео по токену видео-вложения. */
+  /**
+   * Возвращает подробную информацию о прикреплённом видео по токену видео-вложения.
+   *
+   * @param videoToken Токен видео-вложения.
+   */
   getVideoAttachmentDetails = async (videoToken: string) => {
     return this.raw.messages.getVideoAttachmentDetails({
       video_token: videoToken,
     });
   };
 
+  /**
+   * Редактирует отправленное сообщение.
+   *
+   * @param messageId ID сообщения.
+   * @param extra Новый текст, вложения, формат и настройки превью ссылок.
+   * @remarks По схеме API редактирование доступно для сообщений младше 24 часов.
+   */
   editMessage = async (messageId: string, extra?: EditMessageExtra) => {
     return this.raw.messages.edit({
       message_id: messageId,
@@ -149,10 +185,23 @@ export class Api {
     });
   };
 
+  /**
+   * Удаляет отправленное сообщение.
+   *
+   * @param messageId ID сообщения.
+   * @param extra Дополнительные параметры удаления.
+   * @remarks По схеме API удаление доступно для сообщений младше 24 часов.
+   */
   deleteMessage = async (messageId: string, extra?: DeleteMessageExtra) => {
     return this.raw.messages.delete({ message_id: messageId, ...extra });
   };
 
+  /**
+   * Отвечает на callback-кнопку.
+   *
+   * @param callbackId ID callback-запроса.
+   * @param extra Сообщение для изменения текущего сообщения или одноразовое уведомление пользователю.
+   */
   answerOnCallback = async (
     callbackId: string,
     extra?: AnswerOnCallbackExtra,
@@ -163,6 +212,11 @@ export class Api {
     });
   };
 
+  /**
+   * Возвращает информацию о текущем боте как участнике чата.
+   *
+   * @param chatId ID чата.
+   */
   getChatMembership = (chatId: number) => {
     return this.raw.chats.getChatMembership({ chat_id: chatId });
   };
@@ -258,10 +312,22 @@ export class Api {
     return this.raw.subscriptions.unsubscribe({ url });
   };
 
+  /**
+   * Возвращает закреплённое сообщение чата.
+   *
+   * @param chatId ID чата.
+   */
   getPinnedMessage = async (chatId: number) => {
     return this.raw.chats.getPinnedMessage({ chat_id: chatId });
   };
 
+  /**
+   * Закрепляет сообщение в чате.
+   *
+   * @param chatId ID чата.
+   * @param messageId ID сообщения для закрепления.
+   * @param extra Настройки уведомления участников.
+   */
   pinMessage = async (
     chatId: number,
     messageId: string,
@@ -274,10 +340,21 @@ export class Api {
     });
   };
 
+  /**
+   * Снимает закреплённое сообщение в чате.
+   *
+   * @param chatId ID чата.
+   */
   unpinMessage = async (chatId: number) => {
     return this.raw.chats.unpinMessage({ chat_id: chatId });
   };
 
+  /**
+   * Отправляет действие бота в чат, например `typing_on` или `sending_file`.
+   *
+   * @param chatId ID чата.
+   * @param action Действие, которое увидят участники чата.
+   */
   sendAction = async (chatId: number, action: SenderAction) => {
     return this.raw.chats.sendAction({
       chat_id: chatId,
@@ -285,25 +362,50 @@ export class Api {
     });
   };
 
+  /**
+   * Удаляет бота из группового чата.
+   *
+   * @param chatId ID чата.
+   */
   leaveChat = async (chatId: number) => {
     return this.raw.chats.leaveChat({ chat_id: chatId });
   };
 
+  /**
+   * Загружает изображение и возвращает attachment builder для отправки сообщения.
+   *
+   * @param options URL изображения или локальный source, timeout, signal и обработчик прогресса.
+   */
   uploadImage = async (options: UploadImageOptions) => {
     const data = await this.upload.image(options);
     return new ImageAttachment(data);
   };
 
+  /**
+   * Загружает видео и возвращает attachment builder для отправки сообщения.
+   *
+   * @param options Локальный source, timeout, signal и обработчик прогресса.
+   */
   uploadVideo = async (options: UploadVideoOptions) => {
     const data = await this.upload.video(options);
     return new VideoAttachment(data);
   };
 
+  /**
+   * Загружает аудио и возвращает attachment builder для отправки сообщения.
+   *
+   * @param options Локальный source, timeout, signal и обработчик прогресса.
+   */
   uploadAudio = async (options: UploadAudioOptions) => {
     const data = await this.upload.audio(options);
     return new AudioAttachment(data);
   };
 
+  /**
+   * Загружает файл и возвращает attachment builder для отправки сообщения.
+   *
+   * @param options Локальный source, timeout, signal и обработчик прогресса.
+   */
   uploadFile = async (options: UploadFileOptions) => {
     const data = await this.upload.file(options);
     return new FileAttachment(data);

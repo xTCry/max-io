@@ -120,6 +120,7 @@ export const clipboard = (text: string, payload: string): ClipboardButton => {
  *
  * @param text Видимый текст кнопки. Ограничение API: от `1` до `128` символов.
  * @param payload Токен кнопки. Ограничение API: до `1024` символов.
+ * @remarks Получение `data` attachment зависит от клиентской поддержки reply keyboard.
  */
 export const sendMessage = (
   text: string,
@@ -133,6 +134,7 @@ export const sendMessage = (
  *
  * @param text Видимый текст кнопки. Ограничение API: от `1` до `128` символов.
  * @param payload Токен кнопки. Ограничение API: до `1024` символов.
+ * @remarks Отправка контакта зависит от клиентской поддержки reply keyboard и разрешения пользователя.
  */
 export const sendContact = (
   text: string,
@@ -148,6 +150,7 @@ export const sendContact = (
  * @param payload Токен кнопки. Ограничение API: до `1024` символов.
  * @param extra Дополнительные параметры.
  * Если `quick: true`, клиент отправляет местоположение без запроса подтверждения пользователя.
+ * @remarks Отправка геолокации зависит от клиентской поддержки reply keyboard и разрешения пользователя.
  */
 export const sendGeoLocation = (
   text: string,
