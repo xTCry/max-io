@@ -323,3 +323,26 @@ export type Update =
   | MessageConstructionRequestUpdate
   | MessageConstructedUpdate
   | MessageChatCreatedUpdate;
+
+/** Схема для описания подписки на WebHook. */
+export type Subscription = {
+  /** URL вебхука. */
+  url: string;
+  /** Unix-время, когда была создана подписка. */
+  time: number;
+  /** Типы обновлений, на которые подписан бот. */
+  update_types: UpdateType[] | null;
+};
+
+/** Запрос на настройку подписки WebHook. */
+export type SubscriptionRequestBody = {
+  /** URL HTTPS-endpoint вашего бота. Должен начинаться с `https://`. */
+  url: string;
+  /** Список типов обновлений, которые хочет получать бот. */
+  update_types?: UpdateType[] | null;
+  /**
+   * Секрет для заголовка `X-Max-Bot-Api-Secret` в каждом Webhook-запросе.
+   * Ограничение API: от `5` до `256` символов; разрешены `A-Z`, `a-z`, `0-9` и дефис.
+   */
+  secret?: string | null;
+};

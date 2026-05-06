@@ -54,7 +54,16 @@ import type {
   SendMessageDTO,
   SendMessageResponse,
 } from './messages/types';
-import type { GetUpdatesDTO, GetUpdatesResponse } from './subscriptions/types';
+import type {
+  GetSubscriptionsDTO,
+  GetSubscriptionsResponse,
+  GetUpdatesDTO,
+  GetUpdatesResponse,
+  SubscribeDTO,
+  SubscribeResponse,
+  UnsubscribeDTO,
+  UnsubscribeResponse,
+} from './subscriptions/types';
 import type { GetUploadUrlDTO, GetUploadUrlResponse } from './uploads/types';
 
 export * from './bots/types';
@@ -103,6 +112,10 @@ export type ApiMethods = {
       req: GetUpdatesDTO;
       res: GetUpdatesResponse;
     };
+    subscriptions: {
+      req: GetSubscriptionsDTO;
+      res: GetSubscriptionsResponse;
+    };
     messages: {
       req: GetMessagesDTO;
       res: GetMessagesResponse;
@@ -136,6 +149,10 @@ export type ApiMethods = {
     answers: {
       req: AnswerOnCallbackDTO;
       res: AnswerOnCallbackResponse;
+    };
+    subscriptions: {
+      req: SubscribeDTO;
+      res: SubscribeResponse;
     };
   };
   PATCH: {
@@ -182,6 +199,10 @@ export type ApiMethods = {
     'chats/{chat_id}/members/admins/{user_id}': {
       req: DeleteChatAdminDTO;
       res: DeleteChatAdminResponse;
+    };
+    subscriptions: {
+      req: UnsubscribeDTO;
+      res: UnsubscribeResponse;
     };
   };
 };

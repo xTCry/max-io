@@ -23,6 +23,7 @@ import type {
   FlattenReq,
   GetUpdatesDTO,
   SendMessageExtra,
+  SubscribeExtra,
   UpdateType,
 } from './network/api';
 import type {
@@ -226,6 +227,28 @@ export class Api {
       types: Array.isArray(types) ? types.join(',') : types,
       ...extra,
     });
+  };
+
+  /** Возвращает список всех WebHook-подписок бота. */
+  getSubscriptions = async () => {
+    return this.raw.subscriptions.getSubscriptions();
+  };
+
+  /**
+   * Настраивает доставку событий бота через WebHook.
+   *
+   * @param extra URL HTTPS-endpoint, список типов updates и необязательный секрет.
+   */
+  subscribe = async (extra: SubscribeExtra) => {
+    return this.raw.subscriptions.subscribe(extra);
+  };
+
+  /**
+   * Удаляет WebHook-подписку по URL.
+   * После удаления становится доступно получение updates через long polling.
+   */
+  unsubscribe = async (url: string) => {
+    return this.raw.subscriptions.unsubscribe({ url });
   };
 
   getPinnedMessage = async (chatId: number) => {
