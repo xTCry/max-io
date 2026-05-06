@@ -137,6 +137,73 @@ export type BotStartedUpdate = MakeUpdate<
   }
 >;
 
+/** Update остановки бота пользователем. */
+export type BotStoppedUpdate = MakeUpdate<
+  'bot_stopped',
+  {
+    /** ID диалога, где произошло событие. */
+    chat_id: number;
+    /** Пользователь, который остановил чат. */
+    user: User;
+    /** Текущий язык пользователя в формате IETF BCP 47. */
+    user_locale?: UserLocale | null;
+  }
+>;
+
+/** Update очистки истории диалога. */
+export type DialogClearedUpdate = MakeUpdate<
+  'dialog_cleared',
+  {
+    /** ID чата, где произошло событие. */
+    chat_id: number;
+    /** Пользователь, который очистил историю диалога. */
+    user: User;
+    /** Текущий язык пользователя в формате IETF BCP 47. */
+    user_locale?: UserLocale | null;
+  }
+>;
+
+/** Update отключения уведомлений в диалоге с ботом. */
+export type DialogMutedUpdate = MakeUpdate<
+  'dialog_muted',
+  {
+    /** ID чата, где произошло событие. */
+    chat_id: number;
+    /** Пользователь, который отключил уведомления. */
+    user: User;
+    /** Unix-время, до наступления которого диалог был отключён. */
+    muted_until: number;
+    /** Текущий язык пользователя в формате IETF BCP 47. */
+    user_locale?: UserLocale | null;
+  }
+>;
+
+/** Update удаления диалога пользователем. */
+export type DialogRemovedUpdate = MakeUpdate<
+  'dialog_removed',
+  {
+    /** ID чата, где произошло событие. */
+    chat_id: number;
+    /** Пользователь, который удалил чат. */
+    user: User;
+    /** Текущий язык пользователя в формате IETF BCP 47. */
+    user_locale?: UserLocale | null;
+  }
+>;
+
+/** Update включения уведомлений в диалоге с ботом. */
+export type DialogUnmutedUpdate = MakeUpdate<
+  'dialog_unmuted',
+  {
+    /** ID чата, где произошло событие. */
+    chat_id: number;
+    /** Пользователь, который включил уведомления. */
+    user: User;
+    /** Текущий язык пользователя в формате IETF BCP 47. */
+    user_locale?: UserLocale | null;
+  }
+>;
+
 /** Update изменения названия чата. */
 export type ChatTitleChangedUpdate = MakeUpdate<
   'chat_title_changed',
@@ -215,16 +282,26 @@ export type FilteredUpdate<Type extends UpdateType> =
                 : Type extends 'user_removed'
                   ? UserRemovedUpdate
                   : Type extends 'bot_started'
-                    ? BotStartedUpdate
-                    : Type extends 'chat_title_changed'
-                      ? ChatTitleChangedUpdate
-                      : Type extends 'message_construction_request'
-                        ? MessageConstructionRequestUpdate
-                        : Type extends 'message_constructed'
-                          ? MessageConstructedUpdate
-                          : Type extends 'message_chat_created'
-                            ? MessageChatCreatedUpdate
-                            : never;
+                  ? BotStartedUpdate
+                    : Type extends 'bot_stopped'
+                      ? BotStoppedUpdate
+                      : Type extends 'dialog_cleared'
+                        ? DialogClearedUpdate
+                        : Type extends 'dialog_muted'
+                          ? DialogMutedUpdate
+                          : Type extends 'dialog_removed'
+                            ? DialogRemovedUpdate
+                            : Type extends 'dialog_unmuted'
+                              ? DialogUnmutedUpdate
+                              : Type extends 'chat_title_changed'
+                                ? ChatTitleChangedUpdate
+                                : Type extends 'message_construction_request'
+                                  ? MessageConstructionRequestUpdate
+                                  : Type extends 'message_constructed'
+                                    ? MessageConstructedUpdate
+                                    : Type extends 'message_chat_created'
+                                      ? MessageChatCreatedUpdate
+                                      : never;
 
 /** Поддерживаемые updates Bot API. */
 export type Update =
@@ -237,6 +314,11 @@ export type Update =
   | UserAddedUpdate
   | UserRemovedUpdate
   | BotStartedUpdate
+  | BotStoppedUpdate
+  | DialogClearedUpdate
+  | DialogMutedUpdate
+  | DialogRemovedUpdate
+  | DialogUnmutedUpdate
   | ChatTitleChangedUpdate
   | MessageConstructionRequestUpdate
   | MessageConstructedUpdate
