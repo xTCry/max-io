@@ -6,12 +6,16 @@ import type {
   LinkButton,
   MessageButton,
   OpenAppButton,
+  ReplyButton,
   RequestContactButton,
   RequestGeoLocationButton,
+  SendContactButton,
+  SendGeoLocationButton,
+  SendMessageButton,
 } from '../network/api';
 
 type MakeExtra<
-  T extends Button | ChatButton,
+  T extends Button | ChatButton | ReplyButton,
   O extends keyof Omit<T, 'text' | 'type'> | '' = '',
 > = Omit<T, 'text' | 'type' | O>;
 
@@ -108,6 +112,49 @@ export const message = (text: string): MessageButton => {
  */
 export const clipboard = (text: string, payload: string): ClipboardButton => {
   return { type: 'clipboard', text, payload };
+};
+
+/**
+ * Создаёт кнопку reply keyboard, которая отправляет сообщение от лица пользователя.
+ * Если передан `payload`, бот получит его во вложении `data`.
+ *
+ * @param text Видимый текст кнопки. Ограничение API: от `1` до `128` символов.
+ * @param payload Токен кнопки. Ограничение API: до `1024` символов.
+ */
+export const sendMessage = (
+  text: string,
+  payload?: string | null,
+): SendMessageButton => {
+  return { type: 'message', text, payload };
+};
+
+/**
+ * Создаёт кнопку reply keyboard для отправки текущего контакта пользователя.
+ *
+ * @param text Видимый текст кнопки. Ограничение API: от `1` до `128` символов.
+ * @param payload Токен кнопки. Ограничение API: до `1024` символов.
+ */
+export const sendContact = (
+  text: string,
+  payload?: string | null,
+): SendContactButton => {
+  return { type: 'user_contact', text, payload };
+};
+
+/**
+ * Создаёт кнопку reply keyboard для отправки текущей геолокации пользователя.
+ *
+ * @param text Видимый текст кнопки. Ограничение API: от `1` до `128` символов.
+ * @param payload Токен кнопки. Ограничение API: до `1024` символов.
+ * @param extra Дополнительные параметры.
+ * Если `quick: true`, клиент отправляет местоположение без запроса подтверждения пользователя.
+ */
+export const sendGeoLocation = (
+  text: string,
+  payload?: string | null,
+  extra?: MakeExtra<SendGeoLocationButton, 'payload'>,
+): SendGeoLocationButton => {
+  return { type: 'user_geo_location', text, payload, ...extra };
 };
 
 /**

@@ -1,5 +1,5 @@
 import type { NullableObject } from '../../../helpers/types';
-import type { Button } from './keyboard';
+import type { Button, ReplyButton } from './keyboard';
 import type { User } from './user';
 
 type MediaPayload = {
@@ -144,6 +144,19 @@ export type InlineKeyboardAttachment = {
   };
 };
 
+/** Reply keyboard в полученном сообщении. */
+export type ReplyKeyboardAttachment = {
+  type: 'reply_keyboard';
+  /** Двумерный массив кнопок: строки и кнопки внутри строки. */
+  buttons: ReplyButton[][];
+};
+
+/** Вложение с payload, отправленным через кнопку reply keyboard типа `message`. */
+export type DataAttachment = {
+  type: 'data';
+  data: string;
+};
+
 /** Вложение полученного сообщения. */
 export type Attachment =
   | PhotoAttachment
@@ -153,5 +166,7 @@ export type Attachment =
   | StickerAttachment
   | ContactAttachment
   | InlineKeyboardAttachment
+  | ReplyKeyboardAttachment
+  | DataAttachment
   | ShareAttachment
   | LocationAttachment;

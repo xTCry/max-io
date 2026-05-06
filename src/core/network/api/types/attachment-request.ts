@@ -1,5 +1,5 @@
 import type { NullableObject } from '../../../helpers/types';
-import type { Button } from './keyboard';
+import type { Button, ReplyButton } from './keyboard';
 
 type MediaAttachmentRequestPayload = {
   /** Токен файла, полученный после загрузки через upload API. */
@@ -70,6 +70,17 @@ export type InlineKeyboardAttachmentRequest = {
   };
 };
 
+/** Запрос на прикрепление reply keyboard к исходящему сообщению. */
+export type ReplyKeyboardAttachmentRequest = {
+  type: 'reply_keyboard';
+  /** Показывать клавиатуру только пользователю, которого бот упомянул или которому ответил. Применимо только для чатов. */
+  direct?: boolean;
+  /** Если указан, reply keyboard будет показана только этому участнику чата. */
+  direct_user_id?: number | null;
+  /** Двумерный массив кнопок: строки и кнопки внутри строки. */
+  buttons: ReplyButton[][];
+};
+
 /** Запрос на прикрепление геолокации к исходящему сообщению. */
 export type LocationAttachmentRequest = {
   type: 'location';
@@ -108,6 +119,7 @@ export type AttachmentRequest =
   | StickerAttachmentRequest
   | ContactAttachmentRequest
   | InlineKeyboardAttachmentRequest
+  | ReplyKeyboardAttachmentRequest
   | ShareAttachmentRequest
   | LocationAttachmentRequest;
 
