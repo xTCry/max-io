@@ -282,7 +282,7 @@ export type FilteredUpdate<Type extends UpdateType> =
                 : Type extends 'user_removed'
                   ? UserRemovedUpdate
                   : Type extends 'bot_started'
-                  ? BotStartedUpdate
+                    ? BotStartedUpdate
                     : Type extends 'bot_stopped'
                       ? BotStoppedUpdate
                       : Type extends 'dialog_cleared'

@@ -1,5 +1,6 @@
-import { MultiBar, Presets, type SingleBar } from 'cli-progress';
 import type { UploadProgress } from 'max-io';
+
+import { MultiBar, Presets, type SingleBar } from 'cli-progress';
 import path from 'node:path';
 import readline from 'node:readline';
 

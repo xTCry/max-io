@@ -1,7 +1,7 @@
 import createDebug from 'debug';
 
 import { Api } from './api';
-import { Composer, type CommandPrefix } from './composer';
+import { type CommandPrefix, Composer } from './composer';
 import { Context } from './context';
 import { MaybePromise } from './helpers/types';
 import {

@@ -227,6 +227,10 @@ const parseCommandText = ({
     return parseCommandCandidate(mentionedCommand, prefix, botUsername);
   }
 
+  // if (trimmedText.startsWith('@')) {
+  //   return null;
+  // }
+
   const directCommand = parseCommandCandidate(trimmedText, prefix, botUsername);
 
   if (directCommand) {
@@ -297,10 +301,7 @@ const isOwnBotMention = (mention: string, botUsername?: string | null) => {
   return mention.toLowerCase() === botUsername.toLowerCase();
 };
 
-const stripLeadingBotMention = (
-  text: string,
-  botUsername?: string | null,
-) => {
+const stripLeadingBotMention = (text: string, botUsername?: string | null) => {
   const match = /^@(\S+)\s+(.+)$/.exec(text);
 
   if (!match) {

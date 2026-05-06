@@ -1,6 +1,7 @@
 import 'dotenv/config';
 
 import { Bot, type Context } from 'max-io';
+
 import { stat } from 'node:fs/promises';
 
 import { token, uploadTimeout, uploadVideoPath } from './env';

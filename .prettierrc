@@ -5,6 +5,8 @@
   "bracketSameLine": true,
   "singleQuote": true,
   "importOrder": [
+    "max-io",
+    "<SEPARATOR>",
     "^@lib",
     "^@core",
     "<THIRD_PARTY_MODULES>",

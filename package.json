@@ -17,7 +17,7 @@
   "license": "MIT",
   "type": "commonjs",
   "scripts": {
-    "format": "prettier --write \"src/**/*.ts\"",
+    "format": "prettier --write \"src/**/*.{ts,js}\" \"examples/**/*.{ts,js}\"",
     "build": "rimraf lib/ && tsc -p tsconfig.build.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint": "eslint ./src --ext ts --report-unused-disable-directives",

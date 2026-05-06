@@ -21,11 +21,7 @@ export {
   ShareAttachment,
 } from './core/helpers/attachments';
 export * as Keyboard from './core/helpers/keyboard';
-export {
-  RawApi,
-  createClient,
-  MaxError,
-} from './core/network/api';
+export { RawApi, createClient, MaxError } from './core/network/api';
 export {
   BaseApi,
   BotsApi,

@@ -2,6 +2,7 @@ import 'dotenv/config';
 
 import { Bot, type Context } from 'max-io';
 import type { AttachmentRequest } from 'max-io/types';
+
 import { createReadStream, readFileSync } from 'node:fs';
 import { stat } from 'node:fs/promises';
 

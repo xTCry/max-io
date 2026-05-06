@@ -23,7 +23,9 @@ const bot = new Bot(token, { contextType: CustomContext });
 registerExampleFallback(bot, {
   scenarioName: 'custom-context-bot',
   commands,
-  fallbackLines: ['Напиши обычный текст или вызови /start, чтобы увидеть custom context в работе.'],
+  fallbackLines: [
+    'Напиши обычный текст или вызови /start, чтобы увидеть custom context в работе.',
+  ],
 });
 
 bot.command('start', (ctx) => {
@@ -34,5 +36,7 @@ startExampleBot(bot, {
   scenarioName: 'custom-context-bot',
   commands,
   beforeStart: () => syncExampleCommands(bot, commands),
-  fallbackLines: ['Напиши обычный текст или вызови /start, чтобы увидеть custom context в работе.'],
+  fallbackLines: [
+    'Напиши обычный текст или вызови /start, чтобы увидеть custom context в работе.',
+  ],
 });

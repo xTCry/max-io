@@ -1,13 +1,13 @@
 import 'dotenv/config';
 
-import fs from 'node:fs';
-
 import {
   Bot,
   ImageAttachment,
   LocationAttachment,
   StickerAttachment,
 } from 'max-io';
+
+import fs from 'node:fs';
 
 import { imageToken, imageUrl, stickerCode, token } from './env';
 import { publicPath } from './paths';
@@ -32,7 +32,9 @@ const bot = new Bot(token);
 registerExampleFallback(bot, {
   scenarioName: 'attachments-bot',
   commands,
-  fallbackLines: ['Отправь одну из команд выше, чтобы проверить загрузку вложений.'],
+  fallbackLines: [
+    'Отправь одну из команд выше, чтобы проверить загрузку вложений.',
+  ],
 });
 
 bot.command('local', async (ctx) => {
@@ -96,7 +98,9 @@ startExampleBot(bot, {
   scenarioName: 'attachments-bot',
   commands,
   beforeStart: () => syncExampleCommands(bot, commands),
-  fallbackLines: ['Отправь одну из команд выше, чтобы проверить загрузку вложений.'],
+  fallbackLines: [
+    'Отправь одну из команд выше, чтобы проверить загрузку вложений.',
+  ],
 });
 
 function getRandomInRange(from: number, to: number, fixed = 0) {
