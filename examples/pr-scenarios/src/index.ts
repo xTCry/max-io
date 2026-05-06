@@ -3,6 +3,7 @@ import 'dotenv/config';
 const scenarioScripts = [
   'yarn start:10-pr-227-upload-progress',
   'yarn start:20-chat-moderation-bot',
+  'yarn start:30-video-attachment-details',
 ];
 
 console.log('Доступные сценарии examples/pr-scenarios:');
