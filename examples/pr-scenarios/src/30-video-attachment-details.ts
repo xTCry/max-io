@@ -36,8 +36,8 @@ registerScenarioFallback(bot, {
   ],
 });
 
-bot.command(/^videoDetails(?:\s+(\S+))?$/, async (ctx) => {
-  const tokenArg = ctx.match?.[1];
+bot.command('videoDetails', async (ctx) => {
+  const tokenArg = ctx.args?.[0];
 
   if (tokenArg) {
     return sendVideoDetails(ctx, tokenArg);

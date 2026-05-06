@@ -43,6 +43,24 @@ const commands = [
 
 const bot = new Bot(token);
 
+/* bot.use(async (ctx, next) => {
+  const getCircularReplacer = () => {
+    const seen = new WeakSet();
+    return (_key: string, value: any) => {
+      if (typeof value === 'object' && value !== null) {
+        if (seen.has(value)) return;
+        seen.add(value);
+      }
+      return value;
+    };
+  };
+  const res = await next();
+  const ctxObj = JSON.parse(JSON.stringify(ctx, getCircularReplacer()));
+  delete ctxObj['api'];
+  console.dir({ ctxObj }, { depth: 8 });
+  return res;
+}); */
+
 const shouldReplyToModerationFallback = (ctx: Context) => {
   const text = ctx.message?.body.text?.trim();
   const username = ctx.botInfo?.username;
@@ -289,11 +307,13 @@ const runRemove = async (
     const result = await ctx.api.removeChatMember(chatId, target.userId, {
       block: options.block,
     });
-    const actionText = options.block ? 'заблокирован' : 'удалён из чата';
     const reasonLine = reason ? `\nПричина: ${reason}` : '';
+    const actionText = `${options.block ? 'заблокирован' : 'удалён из чата'}`;
 
     await ctx.reply(
-      `Пользователь ${target.label} ${actionText}.${reasonLine}`,
+      result.success
+        ? `Пользователь ${target.label} ${actionText}.${reasonLine}`
+        : `Ошибка: ${result.message}`,
       { attachments: [moderationKeyboard(chatId, target.userId)] },
     );
 
@@ -351,22 +371,22 @@ bot.command('help', async (ctx) => {
   await ctx.reply(helpText);
 });
 
-bot.command(/^kick(?:\s+([\s\S]+))?$/i, async (ctx) => {
-  await runRemove(ctx, ctx.match?.[1] ?? '', {
+bot.command('kick', async (ctx) => {
+  await runRemove(ctx, ctx.payload ?? '', {
     block: false,
     actionName: 'kick',
   });
 });
 
-bot.command(/^ban(?:\s+([\s\S]+))?$/i, async (ctx) => {
-  await runRemove(ctx, ctx.match?.[1] ?? '', {
+bot.command('ban', async (ctx) => {
+  await runRemove(ctx, ctx.payload ?? '', {
     block: true,
     actionName: 'ban',
   });
 });
 
-bot.command(/^(?:invite|unban)(?:\s+([\s\S]+))?$/i, async (ctx) => {
-  await runInvite(ctx, ctx.match?.[1] ?? '');
+bot.command(['invite', 'unban'], async (ctx) => {
+  await runInvite(ctx, ctx.payload ?? '');
 });
 
 bot.action(/^moderation:invite:(-?\d+):(\d+)$/i, async (ctx) => {
