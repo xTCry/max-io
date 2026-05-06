@@ -9,6 +9,7 @@
     "start:10-pr-227-upload-progress": "tsx src/10-pr-227-upload-progress.ts",
     "start:20-chat-moderation-bot": "tsx src/20-chat-moderation-bot.ts",
     "start:30-video-attachment-details": "tsx src/30-video-attachment-details.ts",
+    "start:40-reply-keyboard-data": "tsx src/40-reply-keyboard-data.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
