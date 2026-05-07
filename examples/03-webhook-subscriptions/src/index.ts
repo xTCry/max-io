@@ -2,20 +2,21 @@ import 'dotenv/config';
 
 import { Bot } from 'max-io';
 import type { Api } from 'max-io';
-import type { Update } from 'max-io/types';
 
-import { createServer } from 'node:http';
 import { createInterface } from 'node:readline/promises';
 
 import {
   token,
   webhookAutoSubscribe,
+  webhookDeletePrevious,
   webhookPath,
   webhookPort,
+  webhookPublicUrl,
   webhookSecret,
+  webhookServerMode,
   webhookUpdateTypes,
-  webhookUrl,
 } from './env';
+import { createWebhookServerRunner } from './servers';
 
 type Command = 'server' | 'get-subs' | 'subscribe' | 'unsubscribe';
 
@@ -44,16 +45,6 @@ const parseCommand = (value: Command | undefined): Command => {
   process.exit(1);
 };
 
-const readRequestBody = async (request: NodeJS.ReadableStream) => {
-  const chunks: Buffer[] = [];
-
-  for await (const chunk of request) {
-    chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
-  }
-
-  return Buffer.concat(chunks).toString('utf8');
-};
-
 const formatResult = (title: string, value: unknown) => {
   console.log(`\n${title}`);
   console.dir(value, { depth: 10 });
@@ -61,7 +52,7 @@ const formatResult = (title: string, value: unknown) => {
 
 const createSubscribeRequest = () => {
   return {
-    url: webhookUrl,
+    url: webhookPublicUrl,
     ...(webhookUpdateTypes ? { update_types: webhookUpdateTypes } : {}),
     ...(webhookSecret ? { secret: webhookSecret } : {}),
   };
@@ -82,10 +73,21 @@ const subscribeWebhook = async (api: Api) => {
 };
 
 const unsubscribeWebhook = async (api: Api) => {
-  console.log(`unsubscribe url: ${webhookUrl}`);
-  const result = await api.unsubscribe(webhookUrl);
+  console.log(`unsubscribe url: ${webhookPublicUrl}`);
+  const result = await api.unsubscribe(webhookPublicUrl);
   formatResult('unsubscribe result:', result);
   return result;
+};
+
+const deletePreviousWebhooks = async (api: Api, exceptUrl?: string) => {
+  const { subscriptions } = await api.getSubscriptions();
+
+  for (const { url } of subscriptions) {
+    if (url === exceptUrl) continue;
+
+    console.log(`delete previous webhook: ${url}`);
+    await api.unsubscribe(url);
+  }
 };
 
 const printConsoleHelp = () => {
@@ -100,14 +102,28 @@ const printConsoleHelp = () => {
 
 const startInteractiveConsole = (api: Api, close: () => void) => {
   const rl = createInterface({ input: process.stdin, output: process.stdout });
+  let isClosed = false;
+
+  const closeOnce = () => {
+    if (isClosed) return;
+
+    isClosed = true;
+    rl.close();
+    close();
+  };
+
+  rl.on('SIGINT', () => {
+    console.log('\nОстановка сервера...');
+    closeOnce();
+  });
 
   const loop = async () => {
     printConsoleHelp();
 
-    while (true) {
-      const input = (await rl.question('\nwebhook> ')).trim();
-
+    while (!isClosed) {
       try {
+        const input = (await rl.question('\nwebhook> ')).trim();
+
         if (!input) {
           continue;
         }
@@ -128,8 +144,7 @@ const startInteractiveConsole = (api: Api, close: () => void) => {
           continue;
         }
         if (input === 'exit') {
-          rl.close();
-          close();
+          closeOnce();
           break;
         }
 
@@ -137,6 +152,11 @@ const startInteractiveConsole = (api: Api, close: () => void) => {
           `Неизвестная команда: ${input}\nИспользуй help для списка команд`,
         );
       } catch (error) {
+        if (isAbortError(error)) {
+          closeOnce();
+          break;
+        }
+
         console.error(error);
       }
     }
@@ -145,53 +165,69 @@ const startInteractiveConsole = (api: Api, close: () => void) => {
   void loop();
 };
 
-const runServer = (api: Api) => {
-  const server = createServer(async (request, response) => {
-    if (request.method !== 'POST' || request.url !== webhookPath) {
-      response.writeHead(404, { 'content-type': 'application/json' });
-      response.end(JSON.stringify({ ok: false, error: 'not_found' }));
-      return;
-    }
+const isAbortError = (error: unknown) => {
+  return error instanceof Error && error.name === 'AbortError';
+};
 
-    const requestSecret = request.headers['x-max-bot-api-secret'];
-    if (webhookSecret && requestSecret !== webhookSecret) {
-      response.writeHead(401, { 'content-type': 'application/json' });
-      response.end(JSON.stringify({ ok: false, error: 'invalid_secret' }));
-      return;
-    }
-
-    const rawBody = await readRequestBody(request);
-    const update = JSON.parse(rawBody) as Update;
-
-    console.log('\nWebhook update received');
-    console.log(`type: ${update.update_type}`);
-    console.dir(update, { depth: 10 });
-
-    response.writeHead(200, { 'content-type': 'application/json' });
-    response.end(JSON.stringify({ ok: true }));
+const registerBotHandlers = (bot: Bot) => {
+  bot.command('help', async (ctx) => {
+    return ctx.reply(
+      [
+        'Webhook example работает через middleware.',
+        'Команды:',
+        '/help — показать подсказку',
+        '/ping — проверить ответ через webhook',
+      ].join('\n'),
+    );
   });
 
-  server.listen(webhookPort, () => {
-    console.log('Webhook receiver started');
-    console.log(`local: http://localhost:${webhookPort}${webhookPath}`);
-    console.log(`public: ${webhookUrl}`);
-    console.log(`secret check: ${webhookSecret ? 'enabled' : 'disabled'}`);
-
-    const bootstrap = async () => {
-      await listSubscriptions(api);
-      if (webhookAutoSubscribe) {
-        await subscribeWebhook(api);
-      } else {
-        console.log('\nauto subscribe disabled');
-      }
-      startInteractiveConsole(api, () => server.close());
-    };
-
-    void bootstrap().catch((error) => {
-      console.error(error);
-      startInteractiveConsole(api, () => server.close());
-    });
+  bot.command('ping', async (ctx) => {
+    return ctx.reply('pong from webhook middleware');
   });
+
+  bot.on('message_created', async (ctx, next) => {
+    console.log('\nWebhook middleware update');
+    console.log(`type: ${ctx.updateType}`);
+    console.log(`text: ${ctx.message?.body?.text ?? ''}`);
+
+    if (ctx.message?.body?.text?.startsWith('/')) {
+      return next();
+    }
+
+    return ctx.reply('Webhook получил сообщение. Используй /help или /ping.');
+  });
+};
+
+const runServer = async (bot: Bot) => {
+  registerBotHandlers(bot);
+  const runner = createWebhookServerRunner();
+
+  await runner.start(bot);
+
+  if (runner.mode === 'custom' && webhookAutoSubscribe) {
+    if (webhookDeletePrevious) {
+      await deletePreviousWebhooks(bot.api, webhookPublicUrl);
+    }
+
+    await subscribeWebhook(bot.api);
+  }
+
+  console.log('Webhook receiver started');
+  console.log(`mode: ${webhookServerMode}`);
+  console.log(
+    `local: http://localhost:${webhookPort}${webhookPath ?? ' <auto>'}`,
+  );
+  console.log(`public: ${webhookPublicUrl}`);
+  console.log(`secret check: ${webhookSecret ? 'enabled' : 'disabled'}`);
+  console.log(
+    `auto subscribe: ${webhookAutoSubscribe ? 'enabled' : 'disabled'}`,
+  );
+  console.log(
+    `delete previous: ${webhookDeletePrevious ? 'enabled' : 'disabled'}`,
+  );
+
+  await listSubscriptions(bot.api);
+  startInteractiveConsole(bot.api, () => runner.stop());
 };
 
 const main = async () => {
@@ -200,7 +236,7 @@ const main = async () => {
   const bot = new Bot(token);
 
   if (activeCommand === 'server') {
-    runServer(bot.api);
+    await runServer(bot);
     return;
   }
 
