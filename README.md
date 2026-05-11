@@ -13,15 +13,15 @@
 
 ## Возможности
 
-| Возможность | Что даёт |
-| --- | --- |
-| Middleware-runtime | `bot.use`, `bot.on`, `bot.command`, `bot.hears`, `bot.action` |
-| Typed Context | `ctx.reply`, `ctx.message`, `ctx.args`, `ctx.payload`, `ctx.state`, `ctx.api` |
-| Long polling | `bot.start()`, marker API, режим для разработки и тестирования |
-| Webhook | `bot.start({ webhook })`, `webhookCallback`, `createWebhook`, `deleteWebhook` |
-| Upload | image/video/audio/file, progress, timeout, `AbortSignal`, retry `attachment.not.ready` |
-| Клавиатуры | inline keyboard, `open_app`, `message`, `clipboard`, reply keyboard types |
-| Модули | `max-io/lib/session`, `max-io/lib/scene`, `max-io/lib/i18n` |
+| Возможность        | Что даёт                                                                               |
+| ------------------ | -------------------------------------------------------------------------------------- |
+| Middleware-runtime | `bot.use`, `bot.on`, `bot.command`, `bot.hears`, `bot.action`                          |
+| Typed Context      | `ctx.reply`, `ctx.message`, `ctx.args`, `ctx.payload`, `ctx.state`, `ctx.api`          |
+| Long polling       | `bot.start()`, marker API, режим для разработки и тестирования                         |
+| Webhook            | `bot.start({ webhook })`, `webhookCallback`, `createWebhook`, `deleteWebhook`          |
+| Upload             | image/video/audio/file, progress, timeout, `AbortSignal`, retry `attachment.not.ready` |
+| Клавиатуры         | inline keyboard, `open_app`, `message`, `clipboard`, reply keyboard types              |
+| Модули             | `max-io/lib/session`, `max-io/lib/scene`, `max-io/lib/i18n`                            |
 
 ## Установка
 
@@ -158,9 +158,9 @@ const keyboard = Keyboard.inlineKeyboard([
 ## Дополнительные модули
 
 ```ts
-import { SessionManager } from 'max-io/lib/session';
-import { SceneManager, StepScene } from 'max-io/lib/scene';
 import { I18n } from 'max-io/lib/i18n';
+import { SceneManager, StepScene } from 'max-io/lib/scene';
+import { SessionManager } from 'max-io/lib/session';
 ```
 
 - `max-io/lib/session` — session middleware с memory/Redis storage.
@@ -181,23 +181,23 @@ import { I18n } from 'max-io/lib/i18n';
 
 ## Entry points
 
-| Import | Назначение |
-| --- | --- |
-| `max-io` | Runtime, `Bot`, `Context`, `Api`, helpers, основные типы |
-| `max-io/types` | Публичные типы Bot API |
-| `max-io/lib/session` | Session middleware |
-| `max-io/lib/scene` | Scene manager |
-| `max-io/lib/i18n` | I18n middleware |
+| Import               | Назначение                                               |
+| -------------------- | -------------------------------------------------------- |
+| `max-io`             | Runtime, `Bot`, `Context`, `Api`, helpers, основные типы |
+| `max-io/types`       | Публичные типы Bot API                                   |
+| `max-io/lib/session` | Session middleware                                       |
+| `max-io/lib/scene`   | Scene manager                                            |
+| `max-io/lib/i18n`    | I18n middleware                                          |
 
 ## Примеры
 
 В репозитории есть отдельные TypeScript-проекты для ручной проверки:
 
-- `examples/01-basic-minimum` — базовые команды, вложения, клавиатуры, upload.
-- `examples/02-chat-admin-management` — управление администраторами чата.
-- `examples/03-webhook-subscriptions` — webhook runtime, subscribe/unsubscribe, custom server mode.
-- `examples/04-sessions-scenes-i18n` — typed context, session, scene и i18n.
-- `examples/pr-scenarios` — сценарии для проверки PR/issues и спорного поведения API.
+- [`examples/01-basic-minimum`](./examples/01-basic-minimum/) — базовые команды, вложения, клавиатуры, upload.
+- [`examples/02-chat-admin-management`](./examples/02-chat-admin-management/) — управление администраторами чата.
+- [`examples/03-webhook-subscriptions`](./examples/03-webhook-subscriptions/) — webhook runtime, subscribe/unsubscribe, custom server mode.
+- [`examples/04-sessions-scenes-i18n`](./examples/04-sessions-scenes-i18n/) — typed context, session, scene и i18n.
+- [`examples/pr-scenarios`](./examples/pr-scenarios/) — сценарии для проверки PR/issues и спорного поведения API.
 
 ## Полезные модули
 

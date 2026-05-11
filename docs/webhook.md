@@ -52,9 +52,9 @@ await bot.start({
 Если в приложении уже есть HTTP-сервер, используйте `webhookCallback`.
 
 ```ts
-import { createServer } from 'node:http';
-
 import { Bot } from 'max-io';
+
+import { createServer } from 'node:http';
 
 const bot = new Bot(process.env.MAX_BOT_TOKEN!);
 
@@ -137,7 +137,7 @@ await bot.start({
 
 1. Запустите tunnel на локальный порт.
 2. Укажите публичный URL в `domain` или `.env` example-проекта.
-3. Запустите `examples/03-webhook-subscriptions`.
+3. Запустите [`examples/03-webhook-subscriptions`](../examples/03-webhook-subscriptions/).
 
 Example-проект поддерживает два режима:
 

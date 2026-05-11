@@ -89,7 +89,11 @@ Reply keyboard отображается как панель быстрых от�
 const keyboard = Keyboard.replyKeyboard([
   [Keyboard.button.sendMessage('Да', 'answer:yes')],
   [Keyboard.button.sendContact('Отправить контакт')],
-  [Keyboard.button.sendGeoLocation('Отправить геолокацию', null, { quick: true })],
+  [
+    Keyboard.button.sendGeoLocation('Отправить геолокацию', null, {
+      quick: true,
+    }),
+  ],
 ]);
 
 await ctx.reply('Быстрый ответ', {
@@ -105,5 +109,5 @@ await ctx.reply('Быстрый ответ', {
 
 ## Проверочные сценарии
 
-- `examples/01-basic-minimum/src/keyboard-bot.ts` — inline-кнопки и request-кнопки.
-- `examples/pr-scenarios/src/40-reply-keyboard-data.ts` — reply keyboard и data attachment.
+- [`examples/01-basic-minimum`](../examples/01-basic-minimum/), файл `src/keyboard-bot.ts` — inline-кнопки и request-кнопки.
+- [`examples/pr-scenarios`](../examples/pr-scenarios/), файл `src/40-reply-keyboard-data.ts` — reply keyboard и data attachment.

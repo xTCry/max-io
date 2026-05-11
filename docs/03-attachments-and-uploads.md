@@ -119,7 +119,9 @@ await ctx.reply('', {
 });
 
 await ctx.reply('Геолокация', {
-  attachments: [new LocationAttachment({ lon: 37.6173, lat: 55.7558 }).toJson()],
+  attachments: [
+    new LocationAttachment({ lon: 37.6173, lat: 55.7558 }).toJson(),
+  ],
 });
 
 await ctx.reply('Ссылка', {
@@ -129,5 +131,5 @@ await ctx.reply('Ссылка', {
 
 ## Проверочные сценарии
 
-- `examples/01-basic-minimum` — базовые upload-примеры.
-- `examples/pr-scenarios/src/10-pr-227-upload-progress.ts` — progress, cancel, range/multipart режимы и отправка результата в чат.
+- [`examples/01-basic-minimum`](../examples/01-basic-minimum/) — базовые upload-примеры.
+- [`examples/pr-scenarios`](../examples/pr-scenarios/), файл `src/10-pr-227-upload-progress.ts` — progress, cancel, range/multipart режимы и отправка результата в чат.
