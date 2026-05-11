@@ -1,0 +1,50 @@
+start:
+  hello: 'Hello, ${name}! Session visits: ${visits}.'
+help:
+  content: |
+    Commands:
+    /start - check session and i18n
+    /intro - run a two-step scene
+    /extra - run an extra scene with inline buttons
+    /cancel - leave the active scene
+    /help - show this message
+fallback:
+  content: 'Send /help to see available commands.'
+
+button:
+  cancel: 'Cancel'
+  save: 'Save'
+  back: 'Back'
+  next: 'Next'
+scene:
+  cancelled: 'Scenario stopped.'
+  intro:
+    name: 'What is your name?'
+    age: 'How old are you, ${name}?'
+    invalidAge: 'Age must be a positive integer. Try again.'
+    done: 'Nice to meet you, ${name}! Your age: ${age}.'
+  extra:
+    started: 'Starting the extra scene: choose language, notification frequency and save a note in session.'
+    chooseLanguage: 'Choose interface language:'
+    chooseFrequency: 'Choose notification frequency:'
+    writeNote: 'Send a short note that will be saved in scene state.'
+    writeNoteAgain: |
+      Current note: "${note}"
+      Send a new text or press "Next".
+    confirm: |
+      Check settings:
+      Language: ${language}
+      Frequency: ${frequency}
+      Note: ${note}
+    noteRequired: 'Send a note first.'
+    saved: 'Settings saved in session.'
+    dialogOnly: 'This scene is available only in a private dialog.'
+    pickLanguageFirst: 'Choose language first.'
+    pickFrequencyFirst: 'Choose notification frequency first.'
+    cancelled: 'Extra scene cancelled.'
+    language:
+      ru: 'Русский'
+      en: 'English'
+    frequency:
+      daily: 'Daily'
+      weekly: 'Weekly'

@@ -1,0 +1,21 @@
+{
+  "name": "04-sessions-scenes-i18n",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Typed session, scene and i18n example for max-io",
+  "license": "UNLICENSED",
+  "scripts": {
+    "start": "tsx src/index.ts",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "js-yaml": "^4.1.1",
+    "max-io": "^0.0.4"
+  },
+  "devDependencies": {
+    "@types/node": "^25.0.6",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  }
+}

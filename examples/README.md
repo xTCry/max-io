@@ -7,6 +7,7 @@
 - `01-basic-minimum/` — базовый mini-project с примерами из upstream `examples/`.
 - `02-chat-admin-management/` — отдельный mini-project для проверки методов управления администраторами чата.
 - `03-webhook-subscriptions/` — отдельный mini-project для проверки WebHook subscriptions API.
+- `04-sessions-scenes-i18n/` — отдельный mini-project для проверки typed context со связкой session, scene и i18n.
 - `pr-scenarios/` — отдельный mini-project для ручной проверки проблем, PR и регрессий.
 
 Принцип работы:

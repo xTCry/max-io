@@ -1,0 +1,50 @@
+start:
+  hello: 'Привет, ${name}! Визитов в session: ${visits}.'
+help:
+  content: |
+    Команды:
+    /start - проверить session и i18n
+    /intro - пройти scene из двух шагов
+    /extra - пройти extra scene с inline-кнопками
+    /cancel - выйти из active scene
+    /help - показать это сообщение
+fallback:
+  content: 'Напиши /help, чтобы увидеть список команд.'
+
+button:
+  cancel: 'Отмена'
+  save: 'Сохранить'
+  back: 'Назад'
+  next: 'Дальше'
+scene:
+  cancelled: 'Сценарий остановлен.'
+  intro:
+    name: 'Как тебя зовут?'
+    age: 'Сколько тебе лет, ${name}?'
+    invalidAge: 'Возраст должен быть целым положительным числом. Попробуй ещё раз.'
+    done: "Приятно познакомиться, ${name}! Вам ${pluralize(age, 'год', 'года', 'лет')}."
+  extra:
+    started: 'Запускаю extra-сцену: выберем язык, частоту уведомлений и сохраним заметку в session.'
+    chooseLanguage: 'Выбери язык интерфейса:'
+    chooseFrequency: 'Выбери частоту уведомлений:'
+    writeNote: 'Напиши короткую заметку, которую сохраним в state сцены.'
+    writeNoteAgain: |
+      Текущая заметка: «${note}»
+      Можно отправить новый текст или нажать «Дальше».
+    confirm: |
+      Проверь настройки:
+      Язык: ${language}
+      Частота: ${frequency}
+      Заметка: ${note}
+    noteRequired: 'Сначала напиши заметку.'
+    saved: 'Настройки сохранены в session.'
+    dialogOnly: 'Сцена доступна только в личном чате.'
+    pickLanguageFirst: 'Сначала выбери язык.'
+    pickFrequencyFirst: 'Сначала выбери частоту уведомлений.'
+    cancelled: 'Extra-сцена отменена.'
+    language:
+      ru: 'Русский'
+      en: 'English'
+    frequency:
+      daily: 'Каждый день'
+      weekly: 'Раз в неделю'
