@@ -18,7 +18,7 @@
   "type": "commonjs",
   "scripts": {
     "format": "prettier --write \"src/**/*.{ts,js}\" \"examples/**/*.{ts,js}\"",
-    "build": "rimraf lib/ && tsc -p tsconfig.build.json",
+    "build": "rimraf lib/ && tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint": "eslint ./src --ext ts --report-unused-disable-directives",
     "prepublish:npm": "npm run build",
@@ -93,6 +93,7 @@
     "prettier": "^3.8.0",
     "release-it": "^19.2.3",
     "rimraf": "^6.1.2",
+    "tsc-alias": "^1.8.17",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.50.0"
   },
