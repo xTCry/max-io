@@ -1,417 +1,212 @@
-# Max IO
+<p align="center">
+  <img src="./docs/assets/max-io-logo.svg" alt="Max IO" width="360">
+</p>
 
-[![npm](https://img.shields.io/npm/v/max-io.svg?style=flat-square)](https://www.npmjs.com/package/max-io)
-[![npm](https://img.shields.io/npm/dt/max-io.svg?style=flat-square)](https://www.npmjs.com/package/max-io)
-[![GitHub last commit](https://img.shields.io/github/last-commit/xtcry/max-io)](https://github.com/xtcry/max-io)
+<p align="center">
+  <a href="https://www.npmjs.com/package/max-io"><img src="https://img.shields.io/npm/v/max-io.svg?style=flat-square" alt="npm"></a>
+  <a href="https://www.npmjs.com/package/max-io"><img src="https://img.shields.io/npm/dt/max-io.svg?style=flat-square" alt="npm downloads"></a>
+  <a href="./LICENSE"><img src="https://img.shields.io/npm/l/max-io.svg?style=flat-square" alt="license"></a>
+  <a href="https://github.com/xtcry/max-io"><img src="https://img.shields.io/github/last-commit/xtcry/max-io?style=flat-square" alt="GitHub last commit"></a>
+</p>
 
-<img src="https://avatars.githubusercontent.com/u/201088336?s=120&v=1" title="Max logotype" align="right" width="80" height="80">
-
-> **Max IO** — TypeScript-фреймворк для разработки чат-ботов в мессенджере **Max**. ([на основе _max-bot-api_](https://github.com/max-messenger/max-bot-api-client-ts))
+> **Max IO** — TypeScript-фреймворк для разработки чат-ботов в мессенджере **Max**. Библиотека даёт middleware-runtime, typed context, long polling, webhook, upload helpers, клавиатуры и дополнительные модули для session/scene/i18n.
 
 ## Возможности
 
-- Middleware-архитектура в стиле [telegraf](https://github.com/telegraf/telegraf/tree/v4) (`use`, `on`, `hears`, `command`, `action`)
-- Строготипизированный `Context` и удобные хелперы для Max API
-- Long polling из коробки (`bot.start()`, `bot.stop()`)
-- _WebhHook в процесе разработки_
-- Дополнительные модули: _session, scene, i18n_
+| Возможность | Что даёт |
+| --- | --- |
+| Middleware-runtime | `bot.use`, `bot.on`, `bot.command`, `bot.hears`, `bot.action` |
+| Typed Context | `ctx.reply`, `ctx.message`, `ctx.args`, `ctx.payload`, `ctx.state`, `ctx.api` |
+| Long polling | `bot.start()`, marker API, режим для разработки и тестирования |
+| Webhook | `bot.start({ webhook })`, `webhookCallback`, `createWebhook`, `deleteWebhook` |
+| Upload | image/video/audio/file, progress, timeout, `AbortSignal`, retry `attachment.not.ready` |
+| Клавиатуры | inline keyboard, `open_app`, `message`, `clipboard`, reply keyboard types |
+| Модули | `max-io/lib/session`, `max-io/lib/scene`, `max-io/lib/i18n` |
 
 ## Установка
 
 ```bash
-# NPM
 npm i max-io
+```
 
-# Yarn
+```bash
 yarn add max-io
 ```
 
-## Полезные модули
+Требуется Node.js `>=14.13.1`.
 
-- [nestjs-max](https://github.com/xtcry/nestjs-max): Module for [NestJS](https://github.com/nestjs/nest)
+## Первый бот
 
-## Быстрый старт
+Создайте токен бота в Max и передайте его через переменную окружения `MAX_BOT_TOKEN`.
 
 ```ts
-import { Bot } from 'max-io';
+import 'dotenv/config';
+
+import { Bot, Keyboard } from 'max-io';
 
 const bot = new Bot(process.env.MAX_BOT_TOKEN!);
 
 bot.command('start', async (ctx) => {
-  await ctx.reply('Привет из Max IO');
+  await ctx.reply('Привет! Я бот на Max IO.', {
+    attachments: [
+      Keyboard.inlineKeyboard([
+        [Keyboard.button.callback('Проверить callback', 'demo:callback')],
+      ]),
+    ],
+  });
 });
 
-bot.hears(/ping/i, async (ctx) => {
-  await ctx.reply('pong');
+bot.command('echo', async (ctx) => {
+  const text = ctx.payload || 'Напиши /echo любой текст';
+  await ctx.reply(text);
 });
 
-bot.action('like', async (ctx) => {
-  await ctx.answerOnCallback({ notification: 'Принято' });
+bot.action('demo:callback', async (ctx) => {
+  await ctx.answerOnCallback({ notification: 'Callback получен' });
 });
 
-bot.start();
+bot.start().then();
 ```
 
-## Основные модули
-
-### Сессии (`max-io/lib/session`)
-
-Session middleware с подключаемым хранилищем (по умолчанию — память). Можно использовать вместе со _сценами_ и _i18n_.
-
-> Опциональная peer dependency для _Redis_:
-
-```bash
-yarn add ioredis
-```
+Команды поддерживают payload и args:
 
 ```ts
+bot.command('ban', async (ctx) => {
+  const [userId, ...reasonParts] = ctx.args ?? [];
+  const reason = reasonParts.join(' ');
+
+  await ctx.reply(`userId=${userId}; reason=${reason || 'не указана'}`);
+});
+```
+
+Подробнее: [`docs/01-first-bot.md`](./docs/01-first-bot.md) и [`docs/02-listen-and-respond.md`](./docs/02-listen-and-respond.md).
+
+## Webhook за минуту
+
+```ts
+import 'dotenv/config';
+
 import { Bot } from 'max-io';
-import { RedisStorage, SessionManager } from 'max-io/lib/session';
-
-// import Redis from 'ioredis';
-
-// const redis = new Redis();
-const bot = new Bot(process.env.MAX_BOT_TOKEN!);
-const sessionManager = new SessionManager({
-  // storage: new RedisStorage({
-  //   redis,
-  //   ttl: 7 * 24 * 3600,
-  // }),
-});
-
-bot.use(sessionManager.middleware);
-```
-
-### Сцены (`max-io/lib/scene`)
-
-Scene manager с использованием сессий (на оснвое [сцен vk-io](https://github.com/negezor/vk-io/tree/master/packages/scenes)).
-
-```ts
-import { SceneManager, StepScene } from 'max-io/lib/scene';
-
-const sceneManager = new SceneManager({
-  scenes: [
-    new StepScene('intro', [
-      /* ... */
-    ]),
-  ],
-});
-
-bot.use(sceneManager.middleware);
-bot.use(sceneManager.middlewareIntercept);
-```
-
-### I18n (`max-io/lib/i18n`)
-
-I18n с yaml ресурсами и поддержкой сессий.
-
-Опциональная peer dependency:
-
-```bash
-yarn add js-yaml
-```
-
-```ts
-import { I18n } from 'max-io/lib/i18n';
-
-const i18n = new I18n({
-  defaultLanguage: 'ru',
-  directory: './locales',
-  useSession: true,
-});
-
-bot.use(i18n.middleware);
-```
-
-### Пример использования _(typed context + i18n + session)_
-
-<details>
-<summary>Показать код</summary>
-
-```ts
-// ./src/index.ts
-import * as max from 'max-io/lib/types';
-import { Bot, type Context } from 'max-io';
-import { I18n } from 'max-io/lib/i18n';
-import type {
-  I18nContext,
-  ISessionContext as ISessionContextI18n,
-} from 'max-io/lib/i18n';
-import {
-  type ISessionContext as ISessionContextSession,
-  SessionManager,
-} from 'max-io/lib/session';
-import { resolve } from 'path';
-
-// * I18n
-export const i18n: I18n = new I18n({
-  defaultLanguage: 'ru',
-  directory: resolve(process.cwd(), './locales'),
-  defaultLanguageOnMissing: true,
-  useSession: true,
-});
-
-// * Interface
-export type AnyObj = Record<string, unknown>;
-
-export type CombinedContext = {
-  session: ISessionState;
-  i18n: I18nContext<Record<LocalePhrase, AnyObj | never>>;
-};
-
-export interface ISessionState
-  extends ISessionContextI18n, ISessionContextSession {
-  lastStartPayload?: string;
-  requestAuthCode?: string;
-
-  tempAuthMids?: string[];
-}
-
-type BaseContext<
-  T extends AnyObj = {},
-  U extends max.Update = max.Update,
-> = CombinedContext & Context<U> & T;
-
-export type IContext<
-  T extends AnyObj = {},
-  U extends max.Update = max.Update,
-> = BaseContext<T, U>;
-
-export type IMessageContext<T extends AnyObj = {}> = IContext<
-  T,
-  max.MessageCreatedUpdate | max.MessageEditedUpdate
->;
-export type ICallbackContext<T extends AnyObj = {}> = IContext<
-  T,
-  max.MessageCallbackUpdate
->;
-
-// * i18n
-export enum LocalePhrase {
-  OnStarted = 'pages.started.content',
-  Page_Start = 'pages.start.content',
-  // ...
-}
-
-// * Bot
-const bot = new Bot<IContext>(process.env.MAX_BOT_TOKEN!);
-
-const sessionManager = new SessionManager({});
-bot.use(sessionManager.middleware);
-bot.use(i18n.middleware);
-
-// Listeners
-bot.on('bot_started', async (ctx) => {
-  await ctx.reply(ctx.i18n.t(LocalePhrase.OnStarted), {
-    format: 'html',
-  });
-});
-
-bot.command('start', async (ctx) => {
-  const time = new Date().toLocaleString();
-  await ctx.replyTo(ctx.i18n.t(LocalePhrase.Page_Start, { time }), {
-    format: 'html',
-  });
-});
-
-bot.start();
-```
-
-```yml
-# ./locales/ru.yml
-pages:
-  started:
-    content: 'Привет! Используй команду /start'
-  start:
-    content: 'Текущее время: <b>{time}</b>'
-```
-
-</details>
-
-## Загрузка файлов
-
-Простой пример загрузки файла с прогрессом и возможностью отмены:
-
-<details>
-<summary>Показать код</summary>
-
-```ts
-import { type Api, Bot } from 'max-io';
 
 const bot = new Bot(process.env.MAX_BOT_TOKEN!);
-let currentUploadController: AbortController | null = null;
 
-bot.command('upload', async (ctx) => {
-  if (currentUploadController) {
-    await ctx.reply(
-      'Сейчас уже идёт загрузка файла. Дождись завершения или используй /cancelUpload.',
-    );
-    return;
-  }
-
-  if (ctx.chatId === undefined) {
-    throw new TypeError('chatId is not available for upload command');
-  }
-
-  const controller = new AbortController();
-  currentUploadController = controller;
-
-  await ctx.reply(
-    'Начинаю загрузку видео. Для отмены используй /cancelUpload.',
-  );
-
-  // Не ждём upload внутри middleware, чтобы long polling не блокировал
-  // обработку следующих команд, например /cancelUpload.
-  void runUploadJob({
-    api: ctx.api,
-    chatId: ctx.chatId,
-    controller,
-  });
+bot.command('ping', async (ctx) => {
+  await ctx.reply('pong from webhook');
 });
 
-bot.command('cancelUpload', async (ctx) => {
-  if (!currentUploadController) {
-    await ctx.reply('Сейчас нет активной загрузки.');
-    return;
-  }
-
-  currentUploadController.abort();
-  await ctx.reply('Отправил запрос на отмену загрузки.');
-});
-
-bot.start();
-
-type RunUploadJobOptions = {
-  api: Api;
-  chatId: number;
-  controller: AbortController;
-};
-
-async function runUploadJob({ api, chatId, controller }: RunUploadJobOptions) {
-  try {
-    const video = await api.uploadVideo({
-      source: './public/video.mp4',
-      signal: controller.signal,
-      onProgress: ({ phase, loaded, total, mode }) => {
-        if (phase !== 'upload') return;
-
-        const percent = total ? Math.round((loaded / total) * 100) : null;
-
-        console.log('[upload]', {
-          mode,
-          phase,
-          loaded,
-          total,
-          percent,
-        });
-      },
-    });
-
-    await api.sendMessageToChat(chatId, 'Видео загружено', {
-      attachments: [video.toJson()],
-    });
-  } catch (error) {
-    if (controller.signal.aborted) {
-      await api.sendMessageToChat(
-        chatId,
-        'Загрузка отменена. Можно запустить /upload повторно.',
-      );
-      return;
-    }
-
-    throw error;
-  } finally {
-    if (currentUploadController === controller) {
-      currentUploadController = null;
-    }
-  }
-}
-```
-
-</details>
-
-Что сейчас поддерживается:
-
-- `signal` доступен в `uploadImage`, `uploadVideo`, `uploadAudio`, `uploadFile`.
-- `onProgress` отдаёт `{ phase, mode, fileName, loaded, total }`.
-- Для `video`, `audio` и `file` при загрузке из пути или `ReadStream` прогресс обычно точный по байтам (`mode: 'range'`).
-- Для multipart-вариантов, например `image` или `file` из `Buffer`, прогресс сейчас фазовый: `prepare -> upload -> complete`, без гарантии точного байтового счётчика на всём запросе.
-
-## Отмена отправки
-
-Методы `sendMessageToChat` и `sendMessageToUser` поддерживают `AbortSignal`. Это полезно, когда API долго подтверждает вложение и отправка временно упирается в `attachment.not.ready`.
-
-<details>
-<summary>Показать код</summary>
-
-```ts
-const controller = new AbortController();
-
-// Прервать ожидание через 30 секунд
-setTimeout(() => controller.abort(), 30_000);
-
-await bot.api.sendMessageToChat(54321, 'Текст', {
-  attachments: [image.toJson()],
-  signal: controller.signal,
+await bot.start({
+  webhook: {
+    domain: 'https://example.com',
+    port: 3000,
+    secret: process.env.MAX_WEBHOOK_SECRET,
+  },
 });
 ```
 
-</details>
+Если `path` не указан, `max-io` создаёт безопасный стабильный path по токену. При запуске webhook по умолчанию удаляются старые подписки с другими URL; при запуске polling удаляются все webhook-подписки.
 
-Что важно:
+Подробнее: [`docs/webhook.md`](./docs/webhook.md).
 
-- при `attachment.not.ready` SDK повторяет отправку автоматически;
-- сейчас используется до `5` попыток с экспоненциальной задержкой: `500ms -> 1000ms -> 2000ms -> 4000ms`;
-- если передан `signal`, ожидание и повторы прекращаются сразу после `abort()`.
+## Polling marker
 
-## Marker в polling
-
-Можно задать стартовый `marker` до запуска long polling, прочитать его текущее значение и обновить вручную. Это полезно, если вы сохраняете позицию чтения updates между перезапусками бота.
-
-<details>
-<summary>Показать код</summary>
+`marker` нужен, чтобы продолжить long polling с конкретной позиции. Если `marker` не передать, Max API возвращает только последнее обновление, поэтому события, накопившиеся пока бот был недоступен, не будут прочитаны автоматически.
 
 ```ts
 const bot = new Bot(process.env.MAX_BOT_TOKEN!, {
-  polling: { marker: 123456789 },
+  polling: { marker: Number(process.env.MAX_POLLING_MARKER) || undefined },
 });
-
-console.log('Текущий marker:', bot.polling.marker);
-
-bot.polling.setMarker(123456790);
-
-bot.start({ marker: 123456800 }).then();
-
-console.log('Обновлённый marker:', bot.polling.marker);
+// или
+bot.polling.setMarker(123456);
+console.log(bot.polling.marker);
+// или
+await bot.start({ marker: bot.polling.marker });
 ```
 
-</details>
+> Long polling стоит использовать для разработки и ручной проверки. Для production Max рекомендует Webhook; с 11.05.2026 для polling заявлены ограничения: `2 RPS`, timeout `30` секунд, batch до `100` событий и TTL событий `24` часа.
 
-Что важно:
+## Upload и вложения
 
-- `bot.polling.marker` доступен ещё до `bot.start()`;
-- `bot.polling.setMarker(...)` можно вызвать и до запуска, и между перезапусками polling;
-- `start({ marker })` имеет приоритет над marker, который был задан в конфиге или через `setMarker(...)` до запуска;
-- после каждого успешного `getUpdates` текущее значение `bot.polling.marker` обновляется автоматически.
+```ts
+bot.command('video', async (ctx) => {
+  const video = await ctx.api.uploadVideo({
+    source: './public/video.mp4',
+    onProgress: ({ loaded, total }) => {
+      if (total) console.log(`upload ${Math.round((loaded / total) * 100)}%`);
+    },
+  });
 
-## Public exports
+  await ctx.reply('Видео загружено', {
+    attachments: [video.toJson()],
+  });
+});
+```
 
-- `max-io` - core API (`Bot`, `Api`, `Context`, `Composer`, helpers)
-- `max-io/types` - API types
-- `max-io/lib/session` - session middleware
-- `max-io/lib/scene` - scenes middleware
-- `max-io/lib/i18n` - i18n middleware
+Подробнее: [`docs/03-attachments-and-uploads.md`](./docs/03-attachments-and-uploads.md).
+
+## Клавиатуры
+
+```ts
+const keyboard = Keyboard.inlineKeyboard([
+  [Keyboard.button.callback('Callback', 'payload')],
+  [Keyboard.button.openApp('Открыть mini app', 'my_bot', 'demo')],
+  [Keyboard.button.clipboard('Скопировать', 'promo-code')],
+]);
+```
+
+Подробнее: [`docs/04-keyboards.md`](./docs/04-keyboards.md).
+
+## Дополнительные модули
+
+```ts
+import { SessionManager } from 'max-io/lib/session';
+import { SceneManager, StepScene } from 'max-io/lib/scene';
+import { I18n } from 'max-io/lib/i18n';
+```
+
+- `max-io/lib/session` — session middleware с memory/Redis storage.
+- `max-io/lib/scene` — сцены и step-сценарии поверх session.
+- `max-io/lib/i18n` — YAML-локализация с поддержкой session.
+
+Подробнее: [`docs/05-sessions-scenes-i18n.md`](./docs/05-sessions-scenes-i18n.md).
+
+## Документация
+
+- [`docs/01-first-bot.md`](./docs/01-first-bot.md) — установка, токен, первый запуск.
+- [`docs/02-listen-and-respond.md`](./docs/02-listen-and-respond.md) — updates, команды, ответы, форматирование.
+- [`docs/03-attachments-and-uploads.md`](./docs/03-attachments-and-uploads.md) — вложения, upload, progress, cancel.
+- [`docs/04-keyboards.md`](./docs/04-keyboards.md) — inline/reply клавиатуры и типы кнопок.
+- [`docs/webhook.md`](./docs/webhook.md) — webhook runtime, custom server, subscriptions.
+- [`docs/05-sessions-scenes-i18n.md`](./docs/05-sessions-scenes-i18n.md) — session, scene, i18n.
+- [`docs/api-notes.md`](./docs/api-notes.md) — важные оговорки по поведению Max API.
+
+## Entry points
+
+| Import | Назначение |
+| --- | --- |
+| `max-io` | Runtime, `Bot`, `Context`, `Api`, helpers, основные типы |
+| `max-io/types` | Публичные типы Bot API |
+| `max-io/lib/session` | Session middleware |
+| `max-io/lib/scene` | Scene manager |
+| `max-io/lib/i18n` | I18n middleware |
+
+## Примеры
+
+В репозитории есть отдельные TypeScript-проекты для ручной проверки:
+
+- `examples/01-basic-minimum` — базовые команды, вложения, клавиатуры, upload.
+- `examples/02-chat-admin-management` — управление администраторами чата.
+- `examples/03-webhook-subscriptions` — webhook runtime, subscribe/unsubscribe, custom server mode.
+- `examples/04-sessions-scenes-i18n` — typed context, session, scene и i18n.
+- `examples/pr-scenarios` — сценарии для проверки PR/issues и спорного поведения API.
+
+## Полезные модули
+
+- [`nestjs-max`](https://github.com/xtcry/nestjs-max) — интеграция Max IO с NestJS.
+
+## Статус API
+
+Max Bot API развивается, а часть поведения зависит от серверной реализации и клиента Max. В проекте есть ручные сценарии проверки для upload, webhook, reply keyboard, chat admin API и video details. Если поведение API не подтверждено схемой или живой проверкой, лучше фиксировать это отдельно перед изменением публичных типов.
 
 ## Лицензия
 
-Проект распространяется по лицензии `MIT`. См. [`LICENSE`](./LICENSE).
-
-## Атрибуция
-
-Репозиторий исторически развивался на основе кодовой базы [`max-messenger/max-bot-api-client-ts`](https://github.com/max-messenger/max-bot-api-client-ts) и дальше поддерживается как самостоятельный проект.
-
-Сохранённые notice и атрибуция вынесены в [`THIRD_PARTY_NOTICES.md`](./THIRD_PARTY_NOTICES.md).
-
-## Вклад в проект
-
-Если планируете присылать изменения, ориентируйтесь на [`CONTRIBUTING.md`](./CONTRIBUTING.md).
+MIT. Подробности по сторонним ориентирам и лицензиям см. в [`THIRD_PARTY_NOTICES.md`](./THIRD_PARTY_NOTICES.md).
