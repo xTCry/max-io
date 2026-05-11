@@ -1,7 +1,17 @@
 {
   "name": "max-io",
   "version": "0.0.4",
-  "description": "Max bot api sdk",
+  "description": "TypeScript framework for Max messenger bots",
+  "keywords": [
+    "max",
+    "max-messenger",
+    "bot",
+    "chatbot",
+    "messenger",
+    "typescript",
+    "webhook",
+    "polling"
+  ],
   "homepage": "https://github.com/xTCry/max-io#readme",
   "bugs": {
     "url": "https://github.com/xTCry/max-io/issues"
@@ -30,6 +40,9 @@
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
   "files": [
+    "./README.md",
+    "./LICENSE",
+    "./docs/",
     "./lib/",
     "./src/",
     "./THIRD_PARTY_NOTICES.md"
