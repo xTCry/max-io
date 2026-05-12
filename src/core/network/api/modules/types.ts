@@ -19,8 +19,6 @@ import type {
   GetChatAdminsResponse,
   GetChatByIdDTO,
   GetChatByIdResponse,
-  GetChatByLinkDTO,
-  GetChatByLinkResponse,
   GetChatMembersDTO,
   GetChatMembershipDTO,
   GetChatMembershipResponse,
@@ -101,10 +99,6 @@ export type ApiMethods = {
     'chats/{chat_id}/pin': {
       req: GetPinnedMessageDTO;
       res: GetPinnedMessageResponse;
-    };
-    'chats/{chat_link}': {
-      req: GetChatByLinkDTO;
-      res: GetChatByLinkResponse;
     };
     me: {
       req: {};

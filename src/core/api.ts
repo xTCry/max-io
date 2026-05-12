@@ -12,7 +12,12 @@ import type {
   UploadImageOptions,
   UploadVideoOptions,
 } from './helpers/upload';
-import { GetMessagesExtra, RawApi, SenderAction } from './network/api';
+import {
+  GetMessagesExtra,
+  MaxError,
+  RawApi,
+  SenderAction,
+} from './network/api';
 import type {
   AnswerOnCallbackExtra,
   BotCommand,
@@ -69,8 +74,15 @@ export class Api {
     return this.raw.chats.getById({ chat_id: id });
   };
 
-  getChatByLink = async (link: string) => {
-    return this.raw.chats.getByLink({ chat_link: link });
+  /**
+   * @deprecated Max Bot API удалил lookup чата по публичной ссылке.
+   * Метод оставлен временно для мягкой миграции и всегда возвращает ошибку `410 Gone`.
+   */
+  getChatByLink = async (_link: string): Promise<never> => {
+    throw new MaxError(410, {
+      code: 'chat.link.removed',
+      message: 'Chat lookup by public link was removed from Max Bot API.',
+    });
   };
 
   /**

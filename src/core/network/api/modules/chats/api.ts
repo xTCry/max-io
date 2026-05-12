@@ -15,8 +15,6 @@ import type {
   GetChatAdminsResponse,
   GetChatByIdDTO,
   GetChatByIdResponse,
-  GetChatByLinkDTO,
-  GetChatByLinkResponse,
   GetChatMembersDTO,
   GetChatMembershipDTO,
   GetChatMembershipResponse,
@@ -51,14 +49,6 @@ export class ChatsApi extends BaseApi {
   }: FlattenReq<GetChatByIdDTO>): Promise<GetChatByIdResponse> {
     return this._get('chats/{chat_id}', {
       path: { chat_id },
-    });
-  }
-
-  async getByLink({
-    chat_link,
-  }: FlattenReq<GetChatByLinkDTO>): Promise<GetChatByLinkResponse> {
-    return this._get('chats/{chat_link}', {
-      path: { chat_link },
     });
   }
 

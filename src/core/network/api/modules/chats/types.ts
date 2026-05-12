@@ -49,16 +49,6 @@ export type DeleteChatDTO = {
 
 export type DeleteChatResponse = ActionResponse;
 
-/** DTO запроса чата по публичной ссылке. */
-export type GetChatByLinkDTO = {
-  path: {
-    /** Публичная ссылка на чат. */
-    chat_link: string;
-  };
-};
-
-export type GetChatByLinkResponse = Chat;
-
 /** DTO изменения информации группового чата. */
 export type EditChatInfoDTO = {
   path: DefaultPath;
