@@ -30,7 +30,7 @@ export class SessionManager<
           ? undefined
           : `max-io:${ctx.chatId}:${ctx.user.user_id}`);
 
-    this.defaultSession = options.defaultSession || ((ctx: C): S => ({}) as S);
+    this.defaultSession = options.defaultSession || ((_ctx: C): S => ({}) as S);
   }
 
   /**

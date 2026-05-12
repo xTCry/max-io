@@ -59,7 +59,6 @@ export class Composer<Ctx extends Context> implements MiddlewareObj<Ctx> {
         const text = extractTextFromMessage(ctx.message, ctx.myId)!;
         const parsedCommand = parseCommandText({
           text,
-          myId: ctx.myId,
           botUsername: ctx.botInfo?.username,
           prefix: this.commandPrefix,
         });
@@ -193,7 +192,6 @@ const normalizeTriggers = <C extends Context>(triggers: Triggers<C>) =>
     if (typeof trigger === 'function') return trigger;
     if (trigger instanceof RegExp) {
       return (value = '') => {
-        // eslint-disable-next-line no-param-reassign
         trigger.lastIndex = 0;
         return trigger.exec(value.trim());
       };
@@ -204,7 +202,6 @@ const normalizeTriggers = <C extends Context>(triggers: Triggers<C>) =>
 
 type ParseCommandTextOptions = {
   text: string;
-  myId?: number;
   botUsername?: string | null;
   prefix: CommandPrefix;
 };
@@ -216,7 +213,6 @@ type ParsedCommand = {
 
 const parseCommandText = ({
   text,
-  myId,
   botUsername,
   prefix,
 }: ParseCommandTextOptions): ParsedCommand | null => {

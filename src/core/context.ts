@@ -6,7 +6,6 @@ import type {
   AnswerOnCallbackExtra,
   BotInfo,
   BotStartedUpdate,
-  Chat,
   ChatType,
   EditMessageExtra,
   FilteredUpdate,
@@ -412,7 +411,6 @@ const getContactInfo = (update: Update): ContactInfo | undefined => {
     (attachment) => attachment.type === 'contact',
   );
   if (!contact?.payload.vcf_info) return undefined;
-  // eslint-disable-next-line new-cap
   const vcf = new vCard().parse(contact.payload.vcf_info);
   return {
     tel: vcf.get('tel').valueOf() as string | undefined,

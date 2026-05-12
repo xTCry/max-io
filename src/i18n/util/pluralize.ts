@@ -119,7 +119,6 @@ function pluralizeInternal(
     : `${number} ${String(form)}`;
 }
 
-// eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
 export function pluralize(
   this: I18nContext,
   number: number,

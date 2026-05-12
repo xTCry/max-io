@@ -80,7 +80,6 @@ export class I18n<
 
   resetLocale(languageCode?: LanguageCode) {
     if (languageCode) {
-      // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
       delete this.repository[languageCode.toLowerCase()];
     } else {
       this.repository = {};
@@ -139,9 +138,7 @@ export class I18n<
   }
 
   public get middleware(): Middleware<Ctx> {
-    // eslint-disable-next-line @typescript-eslint/prefer-readonly-parameter-types
     return async (ctx, next) => {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
       const session: ISessionContext | undefined =
         this.config.useSession && ctx[this.config.sessionName];
 
