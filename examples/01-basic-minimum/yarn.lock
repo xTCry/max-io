@@ -205,10 +205,10 @@ get-tsconfig@^4.7.5:
   dependencies:
     resolve-pkg-maps "^1.0.0"
 
-max-io@^0.0.4:
-  version "0.0.4"
-  resolved "https://registry.yarnpkg.com/max-io/-/max-io-0.0.4.tgz#31a989dfdb13cc347b457db2cf016cd975fee2d8"
-  integrity sha512-ze3FRqhjYxIMextleh+lTw84B/v0eDfk4sj5mnvaTiSPdkD3MTpXMIa5ZXJP5B48FG3tTg8xAllsljac53Wuwg==
+max-io@^0.1.0:
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/max-io/-/max-io-0.1.0.tgz#c3047c8136a376f4d42beb8fddf2b4053b180184"
+  integrity sha512-mUB67qOCqlBxVjH2WlT/SCu1RlBxmwWoJG9WzlzYCoisklIVTInMmVI076BTOQoB8irGEDo3iUkV45+lBhYYAQ==
   dependencies:
     debug "^4.4.3"
     vcf "^2.1.2"

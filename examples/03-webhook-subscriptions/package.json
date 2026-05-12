@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "dotenv": "^17.4.2",
-    "max-io": "^0.0.4"
+    "max-io": "^0.1.0"
   },
   "devDependencies": {
     "@types/node": "^25.0.6",
