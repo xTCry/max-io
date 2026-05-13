@@ -1,5 +1,16 @@
 # Changelog
 
+## <small>0.1.1 (2026-05-13)</small>
+
+* fix(api): deprecate removed chat link lookup ([cde01dc](https://github.com/xTCry/max-io/commit/cde01dc))
+* fix(examples): align scene manager typing ([7bafb08](https://github.com/xTCry/max-io/commit/7bafb08))
+* fix(package): expose root types entry ([4b73288](https://github.com/xTCry/max-io/commit/4b73288))
+* fix(types): allow missing chat page marker ([5b140b7](https://github.com/xTCry/max-io/commit/5b140b7))
+* fix(types): export helper utility types ([3ef558f](https://github.com/xTCry/max-io/commit/3ef558f))
+* chore(examples): update gitignore ([28228ae](https://github.com/xTCry/max-io/commit/28228ae))
+* chore(lint): configure eslint flat config ([5424dd6](https://github.com/xTCry/max-io/commit/5424dd6))
+* sample(examples): update max-io version ([2a0ab9f](https://github.com/xTCry/max-io/commit/2a0ab9f))
+
 ## 0.1.0 (2026-05-11)
 
 * docs: add usage guides and examples overview ([f0abcee](https://github.com/xTCry/max-io/commit/f0abcee))
