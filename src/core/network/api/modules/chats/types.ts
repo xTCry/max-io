@@ -31,8 +31,8 @@ type DefaultPath = {
 export type GetAllChatsResponse = {
   /** Страница чатов. */
   chats: Chat[];
-  /** Маркер следующей страницы или `null`, если данных больше нет. */
-  marker: number | null;
+  /** Маркер следующей страницы или `null`|`undefined`, если данных больше нет. */
+  marker?: number | null;
 };
 
 /** DTO запроса чата по ID. */
