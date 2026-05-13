@@ -28,7 +28,8 @@
   "type": "commonjs",
   "scripts": {
     "format": "prettier --write \"src/**/*.{ts,js}\" \"examples/**/*.{ts,js}\"",
-    "build": "rimraf lib/ && tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json",
+    "build": "rimraf lib/ && tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json && npm run build:types-entry",
+    "build:types-entry": "tsx build/create-types-entry.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "lint": "eslint ./src",
     "lint:fix": "npm run lint -- --fix",
@@ -46,7 +47,9 @@
     "./docs/",
     "./lib/",
     "./src/",
-    "./THIRD_PARTY_NOTICES.md"
+    "./tsconfig.json",
+    "./THIRD_PARTY_NOTICES.md",
+    "types.*"
   ],
   "exports": {
     ".": {
@@ -54,8 +57,9 @@
       "require": "./lib/index.js"
     },
     "./types": {
-      "types": "./lib/types.d.ts",
-      "require": "./lib/types.js"
+      "types": "./types.d.ts",
+      "require": "./types.js",
+      "default": "./types.js"
     },
     "./lib/scene": {
       "types": "./lib/scene/index.d.ts",

@@ -27,3 +27,6 @@ npm-debug.log
 /coverage
 /.nyc_output
 /lib_n
+
+/*.js
+/*.d.ts
