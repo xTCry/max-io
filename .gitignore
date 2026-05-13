@@ -17,7 +17,6 @@ npm-debug.log
 /lib
 /types
 /examples/**/dist
-/examples/**/public/*
 
 .env*
 !.env.example
