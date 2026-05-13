@@ -79,7 +79,7 @@ const introScene = new StepScene<IStepContext<IntroSceneState>>(
   ],
 );
 
-const sceneManager = new SceneManager<IStepContext>({
+const sceneManager = new SceneManager<AppContext>({
   scenes: [introScene, extraScene],
 });
 
