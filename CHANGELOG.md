@@ -1,5 +1,9 @@
 # Changelog
 
+## <small>0.1.2 (2026-05-21)</small>
+
+* fix(types): align api response fields with schema ([9ce93ac](https://github.com/xTCry/max-io/commit/9ce93ac))
+
 ## <small>0.1.1 (2026-05-13)</small>
 
 * fix(api): deprecate removed chat link lookup ([cde01dc](https://github.com/xTCry/max-io/commit/cde01dc))
