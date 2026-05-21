@@ -12,6 +12,8 @@ export type MessageRecipient = {
   chat_id: number | null;
   /** Тип чата-получателя. */
   chat_type: ChatType;
+  /** ID пользователя, если сообщение было отправлено пользователю. */
+  user_id: number | null;
 };
 
 /** Схема, представляющая тело сообщения. */

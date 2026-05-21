@@ -76,6 +76,8 @@ export type VideoAttachmentDetails = {
 export type AudioAttachment = {
   type: 'audio';
   payload: MediaPayload;
+  /** Аудио-транскрипция, если сервер её вернул. */
+  transcription?: string | null;
 };
 
 /** Вложение файла в полученном сообщении. */

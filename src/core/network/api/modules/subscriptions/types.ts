@@ -24,7 +24,7 @@ export type GetUpdatesResponse = {
   /** Полученные updates. */
   updates: Update[];
   /** Маркер для следующего запроса. */
-  marker: number;
+  marker: number | null;
 };
 
 /** DTO получения списка WebHook-подписок. */

@@ -37,7 +37,7 @@ export class Polling {
           this.allowedUpdates,
           { marker: this.state.marker },
         );
-        this.state.marker = marker;
+        this.state.marker = marker ?? undefined;
         await Promise.all(updates.map(handleUpdate));
       } catch (err) {
         if (err instanceof Error) {

@@ -1,3 +1,6 @@
+import type { Message } from './message';
+import type { UserWithPhoto } from './user';
+
 /** Тип чата в Max. В текущей схеме Bot API описан групповой чат `chat`; `dialog` и `channel` встречаются в runtime-ответах. */
 export type ChatType = 'dialog' | 'chat' | 'channel';
 
@@ -35,15 +38,15 @@ export type Chat = {
   /** Публичная ссылка на чат, если она настроена. */
   link?: string | null;
   /** Описание чата. */
-  description?: string | null;
+  description: string | null;
   /** Данные собеседника для чатов типа `dialog`. */
-  dialog_with_user?: {} | null;
+  dialog_with_user?: UserWithPhoto | null;
   /** Количество сообщений, если сервер вернул статистику чата. */
   messages_count?: number | null;
   /** ID сообщения с кнопкой, через которую был создан чат. */
   chat_message_id?: string | null;
   /** Закреплённое сообщение, если запрошен конкретный чат. */
-  pinned_message?: object | null;
+  pinned_message?: Message | null;
 };
 
 /**
@@ -148,4 +151,6 @@ export type ChatMember = {
   join_time: number;
   /** Перечень прав пользователя. Для обычных участников может быть `null`. */
   permissions: ChatAdminPermission[] | null;
+  /** Заголовок администратора, если он задан. */
+  alias?: string;
 };

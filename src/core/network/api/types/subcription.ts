@@ -27,7 +27,7 @@ export type MessageCallbackUpdate = MakeUpdate<
       user: User;
     };
     /** Сообщение, на котором была нажата кнопка. */
-    message?: Message | null;
+    message: Message | null;
     /** Локаль пользователя, если клиент её передал. */
     user_locale?: UserLocale | null;
   }
@@ -332,6 +332,8 @@ export type Subscription = {
   time: number;
   /** Типы обновлений, на которые подписан бот. */
   update_types: UpdateType[] | null;
+  /** Версия подписки, если сервер вернул её в ответе. */
+  version?: string | null;
 };
 
 /** Запрос на настройку подписки WebHook. */
