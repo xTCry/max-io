@@ -6,10 +6,13 @@
   <a href="https://www.npmjs.com/package/max-io"><img src="https://img.shields.io/npm/v/max-io.svg?style=flat-square" alt="npm"></a>
   <a href="https://www.npmjs.com/package/max-io"><img src="https://img.shields.io/npm/dt/max-io.svg?style=flat-square" alt="npm downloads"></a>
   <a href="./LICENSE"><img src="https://img.shields.io/npm/l/max-io.svg?style=flat-square" alt="license"></a>
+  <a href="https://github.com/max-messenger-bot/max-bot-api-schemas"><img src="https://img.shields.io/badge/API%20schema-0.0.30-168de2?style=flat-square" alt="Max Bot API schema 0.0.30"></a>
   <a href="https://github.com/xtcry/max-io"><img src="https://img.shields.io/github/last-commit/xtcry/max-io?style=flat-square" alt="GitHub last commit"></a>
 </p>
 
 > **Max IO** — TypeScript-фреймворк для разработки чат-ботов в мессенджере **Max**. Библиотека даёт middleware-runtime, typed context, long polling, webhook, upload helpers, клавиатуры и дополнительные модули для session/scene/i18n.
+
+Типы API сверяются с официальным архивом OpenAPI-схем [`max-messenger-bot/max-bot-api-schemas`](https://github.com/max-messenger-bot/max-bot-api-schemas). Текущий ориентир: `schema_2026_05_20`, версия Max Bot API `0.0.30`.
 
 ## Возможности
 
