@@ -28,6 +28,15 @@ export type StrikethroughMarkup = MakeMarkup<'strikethrough'>;
 /** Подчёркнутый текст. */
 export type UnderlineMarkup = MakeMarkup<'underline'>;
 
+/** Заголовок. */
+export type HeadingMarkup = MakeMarkup<'heading'>;
+
+/** Выделенный текст. */
+export type HighlightedMarkup = MakeMarkup<'highlighted'>;
+
+/** Цитата. */
+export type QuoteMarkup = MakeMarkup<'quote'>;
+
 /** Упоминание пользователя в тексте сообщения. */
 export type UserMentionMarkup = MakeMarkup<
   'user_mention',
@@ -47,4 +56,7 @@ export type MarkupElement =
   | LinkMarkup
   | StrikethroughMarkup
   | UnderlineMarkup
+  | HeadingMarkup
+  | HighlightedMarkup
+  | QuoteMarkup
   | UserMentionMarkup;

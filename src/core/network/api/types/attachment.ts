@@ -111,6 +111,8 @@ export type ContactAttachment = {
   payload: {
     /** Контакт в формате vCard. */
     vcf_info?: string | null;
+    /** Хеш vCard для проверки номера, привязанного к аккаунту Max. */
+    hash?: string | null;
     /** Пользователь Max, если контакт связан с аккаунтом. */
     max_info?: User | null;
   };

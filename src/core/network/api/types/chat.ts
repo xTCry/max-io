@@ -53,13 +53,16 @@ export type Chat = {
  * Действие, отправляемое участникам чата:
  * `typing_on`, `sending_photo`, `sending_video`, `sending_audio`, `sending_file`, `mark_seen`.
  */
+/** @deprecated Отсутствует в актуальной схеме Bot API 0.0.30; оставлено для совместимости. */
+export type DeprecatedSenderAction = 'mark_seen';
+
 export type SenderAction =
   | 'typing_on'
   | 'sending_photo'
   | 'sending_video'
   | 'sending_audio'
   | 'sending_file'
-  | 'mark_seen';
+  | DeprecatedSenderAction;
 
 /**
  * Права администратора, описанные в Bot API для назначения через `setChatAdmins`.
