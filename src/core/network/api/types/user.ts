@@ -6,7 +6,7 @@ export type User = {
   first_name: string;
   /** Фамилия пользователя или бота, если она указана. */
   last_name?: string | null;
-  /** Отображаемое имя пользователя или бота. */
+  /** @deprecated Используйте `first_name` и `last_name`. */
   name: string | null;
   /** Публичный username. У обычных пользователей часто отсутствует. */
   username: string | null;

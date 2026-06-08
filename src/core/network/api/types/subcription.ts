@@ -217,7 +217,9 @@ export type ChatTitleChangedUpdate = MakeUpdate<
   }
 >;
 
-/** Update запроса на конструирование сообщения клиентом. */
+/**
+ * @deprecated Отсутствует в актуальной схеме Bot API 0.0.32; оставлено для совместимости.
+ */
 export type MessageConstructionRequestUpdate = MakeUpdate<
   'message_construction_request',
   {
@@ -234,7 +236,9 @@ export type MessageConstructionRequestUpdate = MakeUpdate<
   }
 >;
 
-/** Update сообщения, сконструированного клиентом. */
+/**
+ * @deprecated Отсутствует в актуальной схеме Bot API 0.0.32; оставлено для совместимости.
+ */
 export type MessageConstructedUpdate = MakeUpdate<
   'message_constructed',
   {
@@ -247,7 +251,9 @@ export type MessageConstructedUpdate = MakeUpdate<
   }
 >;
 
-/** Update создания чата через кнопку создания чата. */
+/**
+ * @deprecated Не входит в актуальный discriminator `Update` Bot API 0.0.32; оставлено для совместимости.
+ */
 export type MessageChatCreatedUpdate = MakeUpdate<
   'message_chat_created',
   {
