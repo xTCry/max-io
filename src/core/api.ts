@@ -14,7 +14,6 @@ import type {
 } from './helpers/upload';
 import {
   GetMessagesExtra,
-  MaxError,
   RawApi,
   SenderAction,
 } from './network/api';
@@ -75,14 +74,12 @@ export class Api {
   };
 
   /**
-   * @deprecated Max Bot API удалил lookup чата по публичной ссылке.
-   * Метод оставлен временно для мягкой миграции и всегда возвращает ошибку `410 Gone`.
+   * Возвращает информацию о канале по публичной ссылке.
+   *
+   * @remarks По схеме API метод доступен только для каналов; обычные чаты по публичной ссылке не поддерживаются.
    */
-  getChatByLink = async (_link: string): Promise<never> => {
-    throw new MaxError(410, {
-      code: 'chat.link.removed',
-      message: 'Chat lookup by public link was removed from Max Bot API.',
-    });
+  getChatByLink = async (link: string) => {
+    return this.raw.chats.getByLink({ chat_link: link });
   };
 
   /**
@@ -202,7 +199,7 @@ export class Api {
    *
    * @param messageId ID сообщения.
    * @param extra Дополнительные параметры удаления.
-   * @remarks По схеме API удаление доступно для сообщений младше 24 часов.
+   * @remarks Удаляет сообщение в диалоге или чате, если у бота есть разрешение на удаление.
    */
   deleteMessage = async (messageId: string, extra?: DeleteMessageExtra) => {
     return this.raw.messages.delete({ message_id: messageId, ...extra });

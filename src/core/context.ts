@@ -239,10 +239,11 @@ export class Context<U extends Update = Update> {
   }
 
   /**
-   * @deprecated Max Bot API удалил lookup чата по публичной ссылке.
-   * Метод оставлен временно для мягкой миграции и всегда возвращает ошибку `410 Gone`.
+   * Возвращает информацию о канале по публичной ссылке.
+   *
+   * @remarks По схеме API метод доступен только для каналов; обычные чаты по публичной ссылке не поддерживаются.
    */
-  async getChatByLink(link: string): Promise<never> {
+  async getChatByLink(link: string) {
     return this.api.getChatByLink(link);
   }
 

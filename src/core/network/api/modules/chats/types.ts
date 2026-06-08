@@ -42,6 +42,16 @@ export type GetChatByIdDTO = {
 
 export type GetChatByIdResponse = Chat;
 
+/** DTO запроса канала по публичной ссылке. */
+export type GetChatByLinkDTO = {
+  path: {
+    /** Публичная ссылка на канал. */
+    chat_link: string;
+  };
+};
+
+export type GetChatByLinkResponse = Chat;
+
 /** DTO удаления группового чата для всех участников. */
 export type DeleteChatDTO = {
   path: DefaultPath;

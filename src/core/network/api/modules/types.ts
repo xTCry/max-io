@@ -17,6 +17,8 @@ import type {
   GetAllChatsResponse,
   GetChatAdminsDTO,
   GetChatAdminsResponse,
+  GetChatByLinkDTO,
+  GetChatByLinkResponse,
   GetChatByIdDTO,
   GetChatByIdResponse,
   GetChatMembersDTO,
@@ -83,6 +85,10 @@ export type ApiMethods = {
     'chats/{chat_id}': {
       req: GetChatByIdDTO;
       res: GetChatByIdResponse;
+    };
+    'chats/{chat_link}': {
+      req: GetChatByLinkDTO;
+      res: GetChatByLinkResponse;
     };
     'chats/{chat_id}/members/admins': {
       req: GetChatAdminsDTO;
