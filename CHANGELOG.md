@@ -1,5 +1,15 @@
 # Changelog
 
+## <small>0.1.3 (2026-06-08)</small>
+
+* docs(api): document schema compatibility policy ([a84354f](https://github.com/xTCry/max-io/commit/a84354f))
+* docs(readme): document api schema source ([ae25a0c](https://github.com/xTCry/max-io/commit/ae25a0c))
+* docs(readme): update api schema reference ([5be8570](https://github.com/xTCry/max-io/commit/5be8570))
+* chore(types): mark legacy schema fields as deprecated ([1ef01b7](https://github.com/xTCry/max-io/commit/1ef01b7))
+* fix(api): restore chat lookup by channel link ([308b9ad](https://github.com/xTCry/max-io/commit/308b9ad))
+* fix(api): sync chat admin permissions with schema ([409a2e7](https://github.com/xTCry/max-io/commit/409a2e7))
+* fix(types): align markup and contact fields with latest schema ([bc9a27d](https://github.com/xTCry/max-io/commit/bc9a27d))
+
 ## <small>0.1.2 (2026-05-21)</small>
 
 * fix(types): align api response fields with schema ([9ce93ac](https://github.com/xTCry/max-io/commit/9ce93ac))
