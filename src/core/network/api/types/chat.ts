@@ -43,7 +43,7 @@ export type Chat = {
   dialog_with_user?: UserWithPhoto | null;
   /** Количество сообщений, если сервер вернул статистику чата. */
   messages_count?: number | null;
-  /** ID сообщения с кнопкой, через которую был создан чат. */
+  /** @deprecated Отсутствует в актуальной схеме Bot API 0.0.32; оставлено для совместимости с runtime-ответами. */
   chat_message_id?: string | null;
   /** Закреплённое сообщение, если запрошен конкретный чат. */
   pinned_message?: Message | null;
@@ -51,9 +51,9 @@ export type Chat = {
 
 /**
  * Действие, отправляемое участникам чата:
- * `typing_on`, `sending_photo`, `sending_video`, `sending_audio`, `sending_file`, `mark_seen`.
+ * `typing_on`, `sending_photo`, `sending_video`, `sending_audio`, `sending_file`.
  */
-/** @deprecated Отсутствует в актуальной схеме Bot API 0.0.30; оставлено для совместимости. */
+/** @deprecated Отсутствует в актуальной схеме Bot API 0.0.32; оставлено для совместимости. */
 export type DeprecatedSenderAction = 'mark_seen';
 
 export type SenderAction =
@@ -80,6 +80,8 @@ export const CHAT_ADMIN_API_PERMISSIONS = [
   'post_edit_delete_message',
   'edit_message',
   'delete_message',
+  'edit',
+  'delete',
 ] as const;
 
 /** Права, которые обычный admin-бот успешно назначал при ручной проверке. */
@@ -94,11 +96,7 @@ export const CHAT_ADMIN_REGULAR_BOT_ASSIGNABLE_PERMISSIONS = [
 ] as const;
 
 /** Права, которые сервер может вернуть у владельца чата, но обычный admin-бот их не назначает. */
-export const CHAT_ADMIN_OWNER_PERMISSIONS = [
-  'edit',
-  'view_stats',
-  'delete',
-] as const;
+export const CHAT_ADMIN_OWNER_PERMISSIONS = ['view_stats'] as const;
 
 /** Полный известный набор прав, которые могут приходить от сервера. */
 export const CHAT_ADMIN_PERMISSIONS = [

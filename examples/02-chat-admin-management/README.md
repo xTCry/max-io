@@ -31,11 +31,13 @@
 
 `add_remove_members,can_call,edit_link,read_all_messages,pin_message,change_chat_info,write`
 
-Права, которые видны у владельца чата, но не назначались обычным admin-ботом:
+Права, которые схема Bot API разрешает передавать в `set-admin`, но при ручной проверке они могли требовать отдельный уровень доступа:
 
-`edit,view_stats,delete`
+`edit,delete`
 
-Возможно, для таких прав нужен владелец чата или отдельный уровень доступа, которого у обычного бота-администратора нет.
+Право, которое видно у владельца чата, но не описано как назначаемое через `set-admin`:
+
+`view_stats`
 
 Если вызвать `delete-chat` без права `delete`, API может вернуть успешный HTTP-ответ с телом `success: false` и сообщением `Insufficient access rights to perform this action`.
 

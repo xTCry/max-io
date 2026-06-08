@@ -94,7 +94,7 @@ const main = async () => {
         CHAT_ADMIN_REGULAR_BOT_ASSIGNABLE_PERMISSIONS,
       );
       formatResult(
-        'owner permissions observed in clients but not assignable by regular admin bots:',
+        'owner-only permissions observed in clients but not assignable by Bot API schema:',
         CHAT_ADMIN_OWNER_PERMISSIONS,
       );
       formatResult('request:', { admins: [admin] });
