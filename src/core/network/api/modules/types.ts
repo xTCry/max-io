@@ -1,5 +1,7 @@
 import type { ReqOptions } from '../client';
 import type {
+  EditMyCommandsDTO,
+  EditMyCommandsResponse,
   EditMyInfoDTO,
   EditMyInfoResponse,
   GetMyInfoResponse,
@@ -165,6 +167,10 @@ export type ApiMethods = {
     me: {
       req: EditMyInfoDTO;
       res: EditMyInfoResponse;
+    };
+    'me/commands': {
+      req: EditMyCommandsDTO;
+      res: EditMyCommandsResponse;
     };
     'chats/{chat_id}': {
       req: EditChatInfoDTO;

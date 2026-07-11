@@ -75,6 +75,14 @@ bot.on('message_created', async (ctx, next) => {
 bot.start().then();
 ```
 
+Если нужно проверить альтернативный endpoint Bot API, передайте его в options. По умолчанию используется `https://platform-api.max.ru`.
+
+```ts
+const bot = new Bot(token, {
+  apiBaseUrl: 'https://platform-api2.max.ru',
+});
+```
+
 ## Запустите
 
 ```bash

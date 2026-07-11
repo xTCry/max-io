@@ -53,6 +53,8 @@ type WebhookStartOptions = WebhookDomainOptions &
   };
 
 type BotConfig<Ctx extends Context> = {
+  /** Базовый URL Bot API. Удобный alias для `clientOptions.baseUrl`. */
+  apiBaseUrl?: string;
   clientOptions?: ClientOptions;
   commandPrefix?: CommandPrefix;
   contextType: new (...args: ConstructorParameters<typeof Context>) => Ctx;
@@ -83,7 +85,10 @@ const defaultConfig: BotConfig<Context> = {
 const resolveConfig = <Ctx extends Context>(
   config?: Partial<BotConfig<Ctx>>,
 ): BotConfig<Ctx> => ({
-  clientOptions: config?.clientOptions,
+  clientOptions: {
+    ...config?.clientOptions,
+    ...(config?.apiBaseUrl ? { baseUrl: config.apiBaseUrl } : {}),
+  },
   commandPrefix: config?.commandPrefix ?? true,
   contextType: (config?.contextType ??
     defaultConfig.contextType) as BotConfig<Ctx>['contextType'],

@@ -2,11 +2,16 @@ import createDebug from 'debug';
 
 const debug = createDebug('max-io:client');
 
+export const DEFAULT_API_BASE_URL = 'https://platform-api.max.ru';
+
 const defaultOptions = {
-  baseUrl: 'https://platform-api.max.ru',
+  baseUrl: DEFAULT_API_BASE_URL,
 };
 
-export type ClientOptions = Partial<typeof defaultOptions>;
+export type ClientOptions = {
+  /** Базовый URL Bot API. По умолчанию используется стабильный endpoint `platform-api.max.ru`. */
+  baseUrl?: string;
+};
 
 export type HTTPMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 

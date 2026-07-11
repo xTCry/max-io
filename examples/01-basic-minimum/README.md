@@ -65,6 +65,16 @@ yarn start:start-payload
 
 Если отправить обычный текст вместо команды, бот вернёт подсказку по доступным сценарным командам.
 
+## Команды бота
+
+Перед запуском long polling сценарии синхронизируют меню команд через public API:
+
+```ts
+await bot.api.setMyCommands(commands);
+```
+
+Если у сценария нет команд, helper вызывает `bot.api.deleteMyCommands()` и очищает меню.
+
 Сценарий `upload-progress-bot` показывает базовое использование `signal` и `onProgress`:
 
 - `/upload` запускает загрузку `public/video.mp4`;

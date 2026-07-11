@@ -57,12 +57,21 @@ export class Api {
     return this.raw.bots.editMyInfo(extra);
   };
 
+  /**
+   * Изменяет список команд текущего бота.
+   *
+   * @remarks Endpoint добавлен в upstream TS client `@maxhub/max-bot-api@0.2.5`; в архиве схем `0.0.32` пока не описан отдельно.
+   */
+  editMyCommands = async (commands: BotCommand[]) => {
+    return this.raw.bots.editMyCommands({ commands });
+  };
+
   setMyCommands = async (commands: BotCommand[]) => {
-    return this.editMyInfo({ commands });
+    return this.editMyCommands(commands);
   };
 
   deleteMyCommands = async () => {
-    return this.editMyInfo({ commands: [] });
+    return this.editMyCommands([]);
   };
 
   getAllChats = async (extra: GetAllChatsExtra = {}) => {

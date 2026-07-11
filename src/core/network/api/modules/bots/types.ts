@@ -27,3 +27,17 @@ export type EditMyInfoDTO = {
 
 /** Ответ с обновлённой информацией о текущем боте. */
 export type EditMyInfoResponse = BotInfo;
+
+/** DTO изменения списка команд текущего бота. */
+export type EditMyCommandsDTO = {
+  body: {
+    /** Новый список команд бота. Передайте пустой массив, чтобы удалить команды. */
+    commands: BotCommand[];
+  };
+};
+
+/** Ответ с обновлённым списком команд текущего бота. */
+export type EditMyCommandsResponse = {
+  /** Команды, настроенные для бота. */
+  commands: BotCommand[];
+};
