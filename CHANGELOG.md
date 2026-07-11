@@ -1,5 +1,9 @@
 # Changelog
 
+## <small>0.1.4 (2026-07-11)</small>
+
+* feat(api): support custom endpoint and command updates ([24f78a6](github.com/xTCry/max-io/commits/24f78a6))
+
 ## <small>0.1.3 (2026-06-08)</small>
 
 * docs(api): document schema compatibility policy ([a84354f](https://github.com/xTCry/max-io/commit/a84354f))
