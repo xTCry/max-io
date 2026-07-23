@@ -90,10 +90,10 @@ Fallback-подсказка в этом сценарии не отвечает �
 ## Что проверяет сценарий `10-pr-227-upload-progress`
 
 - Проверяет публичные `onProgress` и `signal` в upload API без подмены `fetch`.
-- Даёт 6 команд боту: `/videoPath`, `/audioStream`, `/filePath`, `/fileStream`, `/fileBuffer`, `/imagePath`.
+- Даёт 12 команд боту: `/videoPath`, `/videoStream`, `/videoBuffer`, `/audioPath`, `/audioStream`, `/audioBuffer`, `/filePath`, `/fileStream`, `/fileBuffer`, `/imagePath`, `/imageStream`, `/imageBuffer`.
 - Позволяет руками проверить:
-  - chunked upload для `video` и `audio`;
-  - multipart upload для `file` и `image`;
+  - все варианты `path` / `ReadStream` / `Buffer` для `video`, `audio`, `file` и `image`;
+  - Content-Range и multipart upload;
   - поведение прогресса в консоли для `range` и `multipart`;
   - ручную отмену активного upload по `Esc`.
 

@@ -24,11 +24,17 @@ import {
 
 const commands = [
   { name: 'videoPath', description: 'Upload video from file path' },
+  { name: 'videoStream', description: 'Upload video from ReadStream' },
+  { name: 'videoBuffer', description: 'Upload video from buffer' },
+  { name: 'audioPath', description: 'Upload audio from file path' },
   { name: 'audioStream', description: 'Upload audio from stream' },
+  { name: 'audioBuffer', description: 'Upload audio from buffer' },
   { name: 'filePath', description: 'Upload file from file path' },
   { name: 'fileStream', description: 'Upload file from ReadStream' },
   { name: 'fileBuffer', description: 'Upload file from buffer' },
   { name: 'imagePath', description: 'Upload image via multipart' },
+  { name: 'imageStream', description: 'Upload image from ReadStream' },
+  { name: 'imageBuffer', description: 'Upload image from buffer' },
 ];
 
 type UploadAttachment = {
@@ -61,10 +67,56 @@ bot.command('videoPath', async (ctx) => {
   });
 });
 
+bot.command('videoBuffer', async (ctx) => {
+  return runUploadScenario(ctx, 'videoBuffer', uploadVideoPath, (session) => {
+    return ctx.api.uploadVideo({
+      source: readFileSync(uploadVideoPath),
+      filename: path.basename(uploadVideoPath),
+      timeout: uploadTimeout,
+      signal: session.signal,
+      onProgress: session.onProgress,
+    });
+  });
+});
+
+bot.command('videoStream', async (ctx) => {
+  return runUploadScenario(ctx, 'videoStream', uploadVideoPath, (session) => {
+    return ctx.api.uploadVideo({
+      source: createReadStream(uploadVideoPath),
+      timeout: uploadTimeout,
+      signal: session.signal,
+      onProgress: session.onProgress,
+    });
+  });
+});
+
 bot.command('audioStream', async (ctx) => {
   return runUploadScenario(ctx, 'audioStream', uploadAudioPath, (session) => {
     return ctx.api.uploadAudio({
       source: createReadStream(uploadAudioPath),
+      timeout: uploadTimeout,
+      signal: session.signal,
+      onProgress: session.onProgress,
+    });
+  });
+});
+
+bot.command('audioPath', async (ctx) => {
+  return runUploadScenario(ctx, 'audioPath', uploadAudioPath, (session) => {
+    return ctx.api.uploadAudio({
+      source: uploadAudioPath,
+      timeout: uploadTimeout,
+      signal: session.signal,
+      onProgress: session.onProgress,
+    });
+  });
+});
+
+bot.command('audioBuffer', async (ctx) => {
+  return runUploadScenario(ctx, 'audioBuffer', uploadAudioPath, (session) => {
+    return ctx.api.uploadAudio({
+      source: readFileSync(uploadAudioPath),
+      filename: path.basename(uploadAudioPath),
       timeout: uploadTimeout,
       signal: session.signal,
       onProgress: session.onProgress,
@@ -110,6 +162,29 @@ bot.command('imagePath', async (ctx) => {
   return runUploadScenario(ctx, 'imagePath', uploadImagePath, (session) => {
     return ctx.api.uploadImage({
       source: uploadImagePath,
+      timeout: uploadTimeout,
+      signal: session.signal,
+      onProgress: session.onProgress,
+    });
+  });
+});
+
+bot.command('imageStream', async (ctx) => {
+  return runUploadScenario(ctx, 'imageStream', uploadImagePath, (session) => {
+    return ctx.api.uploadImage({
+      source: createReadStream(uploadImagePath),
+      timeout: uploadTimeout,
+      signal: session.signal,
+      onProgress: session.onProgress,
+    });
+  });
+});
+
+bot.command('imageBuffer', async (ctx) => {
+  return runUploadScenario(ctx, 'imageBuffer', uploadImagePath, (session) => {
+    return ctx.api.uploadImage({
+      source: readFileSync(uploadImagePath),
+      filename: path.basename(uploadImagePath),
       timeout: uploadTimeout,
       signal: session.signal,
       onProgress: session.onProgress,

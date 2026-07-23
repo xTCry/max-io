@@ -350,6 +350,21 @@ type UploadMultipartParams = {
   progress: UploadProgressContext;
 };
 
+type UploadMultipartJsonOptions = {
+  signal?: AbortSignal;
+  responseMode?: 'json';
+};
+
+type UploadMultipartIgnoreOptions = {
+  signal?: AbortSignal;
+  /** Не разбирать служебный ответ, если token уже получен через `POST /uploads`. */
+  responseMode: 'ignore';
+};
+
+type UploadMultipartOptions =
+  | UploadMultipartJsonOptions
+  | UploadMultipartIgnoreOptions;
+
 /**
  * Загрузить файл через Content-Range запрос
  */
@@ -389,10 +404,18 @@ async function uploadRange(
 /**
  * Загрузить файл через Multipart запрос
  */
+function uploadMultipart<Res>(
+  params: UploadMultipartParams,
+  options?: UploadMultipartJsonOptions,
+): Promise<Res>;
+function uploadMultipart(
+  params: UploadMultipartParams,
+  options: UploadMultipartIgnoreOptions,
+): Promise<void>;
 async function uploadMultipart<Res>(
   { uploadUrl, file, progress }: UploadMultipartParams,
-  { signal }: { signal?: AbortSignal } = {},
-): Promise<Res> {
+  { signal, responseMode = 'json' }: UploadMultipartOptions = {},
+): Promise<Res | void> {
   const body = new FormData();
 
   if ('blob' in file) {
@@ -413,6 +436,18 @@ async function uploadMultipart<Res>(
     body,
     signal,
   });
+
+  if (result.status >= 400) {
+    const error = await result.json();
+    throw new MaxError(result.status, error);
+  }
+
+  if (responseMode === 'ignore') {
+    await result.text();
+    emitProgress(progress, 'complete', progress.total ?? 0);
+
+    return;
+  }
 
   const response = (await result.json()) as Res;
   emitProgress(progress, 'complete', progress.total ?? 0);
@@ -600,6 +635,7 @@ export class Upload {
           file,
           uploadUrl,
           signal,
+          token,
           progress,
         });
       }
@@ -608,6 +644,7 @@ export class Upload {
         file,
         uploadUrl,
         signal,
+        token,
         progress,
       });
     } finally {
@@ -645,13 +682,24 @@ export class Upload {
     file,
     uploadUrl,
     signal,
+    token,
     progress,
   }: {
     file: FileBlob;
     uploadUrl: string;
     signal?: AbortSignal;
+    token?: string;
     progress: UploadProgressContext;
   }): Promise<Res> => {
+    if (token) {
+      await uploadMultipart(
+        { file, uploadUrl, progress },
+        { signal, responseMode: 'ignore' },
+      );
+
+      return { token } as Res;
+    }
+
     return uploadMultipart<Res>({ file, uploadUrl, progress }, { signal });
   };
 
@@ -659,22 +707,31 @@ export class Upload {
     file,
     uploadUrl,
     signal,
+    token,
     progress,
   }: {
     file: FileBuffer;
     uploadUrl: string;
     signal?: AbortSignal;
+    token?: string;
     progress: UploadProgressContext;
   }): Promise<Res> => {
+    const multipartFile: FileBlob = {
+      fileName: file.fileName,
+      blob: new Blob([new Uint8Array(file.buffer)]),
+    };
+
+    if (token) {
+      await uploadMultipart(
+        { uploadUrl, progress, file: multipartFile },
+        { signal, responseMode: 'ignore' },
+      );
+
+      return { token } as Res;
+    }
+
     return uploadMultipart<Res>(
-      {
-        uploadUrl,
-        progress,
-        file: {
-          fileName: file.fileName,
-          blob: new Blob([new Uint8Array(file.buffer)]),
-        },
-      },
+      { uploadUrl, progress, file: multipartFile },
       { signal },
     );
   };
