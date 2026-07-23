@@ -230,9 +230,8 @@ const throwIfAborted = (signal?: AbortSignal) => {
 
 const getUploadMode = (
   file: UploadFile,
-  token?: string,
 ): UploadProgressMode => {
-  if ('stream' in file && token) {
+  if ('stream' in file) {
     return 'range';
   }
 
@@ -339,7 +338,7 @@ type UploadMultipartParams = {
   /**
    * Файл для multipart-загрузки
    */
-  file: FileStream | FileBlob;
+  file: FileBlob;
   /**
    * URL для загрузки файла
    */
@@ -418,16 +417,7 @@ async function uploadMultipart<Res>(
 ): Promise<Res | void> {
   const body = new FormData();
 
-  if ('blob' in file) {
-    body.append('data', file.blob, file.fileName);
-  } else {
-    body.append('data', {
-      [Symbol.toStringTag]: 'File',
-      name: file.fileName,
-      stream: () => file.stream,
-      size: file.contentLength,
-    } as unknown as File);
-  }
+  body.append('data', file.blob, file.fileName);
 
   emitProgress(progress, 'upload', 0);
 
@@ -454,6 +444,17 @@ async function uploadMultipart<Res>(
 
   return response;
 }
+
+const toMultipartFile = (file: FileBuffer | FileBlob): FileBlob => {
+  if ('blob' in file) {
+    return file;
+  }
+
+  return {
+    fileName: file.fileName,
+    blob: new Blob([new Uint8Array(file.buffer)]),
+  };
+};
 
 const openAsBlob =
   'openAsBlob' in fs && typeof fs.openAsBlob === 'function'
@@ -489,6 +490,12 @@ export class Upload {
         buffer: source,
         fileName: getFileName(source, filename),
       };
+    }
+
+    if (typeof source.path !== 'string') {
+      // Stream без пути нельзя повторно открыть для range upload. Буферизуем его,
+      // чтобы передать корректный multipart body с явно заданным filename.
+      return this.getBufferFromSource(source, filename);
     }
 
     const stat = await fs.promises.stat(source.path);
@@ -602,10 +609,11 @@ export class Upload {
   ) => {
     throwIfAborted(options?.signal);
 
-    const res = await this.api.raw.uploads.getUploadUrl({ type });
-    const { url: uploadUrl, token } = res;
+    const { url: uploadUrl } = await this.api.raw.uploads.getUploadUrl({
+      type,
+    });
     const progress: UploadProgressContext = {
-      mode: getUploadMode(file, token),
+      mode: getUploadMode(file),
       fileName: file.fileName,
       total: getUploadTotal(file),
       onProgress: options?.onProgress,
@@ -621,119 +629,69 @@ export class Upload {
 
     try {
       if ('stream' in file) {
-        return await this.uploadFromStream<Res>({
-          file,
-          uploadUrl,
-          signal,
-          token,
-          progress,
-        });
+        throw new Error('Multipart upload requires a Blob or Buffer source');
       }
 
-      if ('blob' in file) {
-        return await this.uploadFromBlob<Res>({
-          file,
+      return uploadMultipart<Res>(
+        {
+          file: toMultipartFile(file),
           uploadUrl,
-          signal,
-          token,
           progress,
-        });
-      }
-
-      return await this.uploadFromBuffer<Res>({
-        file,
-        uploadUrl,
-        signal,
-        token,
-        progress,
-      });
+        },
+        { signal },
+      );
     } finally {
       clearTimeout(uploadInterval);
     }
   };
 
-  private uploadFromStream = async <Res>({
-    file,
-    uploadUrl,
-    token,
-    signal,
-    progress,
-  }: {
-    file: FileStream;
-    uploadUrl: string;
-    signal?: AbortSignal;
-    token?: string;
-    progress: UploadProgressContext;
-  }): Promise<Res> => {
-    if (token) {
-      await uploadRange({ file, uploadUrl, progress }, { signal });
+  private uploadMedia = async (
+    type: 'video' | 'audio',
+    file: UploadFile,
+    options?: DefaultOptions,
+  ): Promise<{ token: string }> => {
+    throwIfAborted(options?.signal);
 
-      return {
-        token,
-        file,
-        uploadUrl,
-      } as Res;
+    const { url: uploadUrl, token } =
+      await this.api.raw.uploads.getUploadUrl({ type });
+
+    if (!token) {
+      throw new Error(`Upload URL response for ${type} does not include token`);
     }
 
-    return uploadMultipart<Res>({ file, uploadUrl, progress }, { signal });
-  };
-
-  private uploadFromBlob = async <Res>({
-    file,
-    uploadUrl,
-    signal,
-    token,
-    progress,
-  }: {
-    file: FileBlob;
-    uploadUrl: string;
-    signal?: AbortSignal;
-    token?: string;
-    progress: UploadProgressContext;
-  }): Promise<Res> => {
-    if (token) {
-      await uploadMultipart(
-        { file, uploadUrl, progress },
-        { signal, responseMode: 'ignore' },
-      );
-
-      return { token } as Res;
-    }
-
-    return uploadMultipart<Res>({ file, uploadUrl, progress }, { signal });
-  };
-
-  private uploadFromBuffer = async <Res>({
-    file,
-    uploadUrl,
-    signal,
-    token,
-    progress,
-  }: {
-    file: FileBuffer;
-    uploadUrl: string;
-    signal?: AbortSignal;
-    token?: string;
-    progress: UploadProgressContext;
-  }): Promise<Res> => {
-    const multipartFile: FileBlob = {
+    const progress: UploadProgressContext = {
+      mode: getUploadMode(file),
       fileName: file.fileName,
-      blob: new Blob([new Uint8Array(file.buffer)]),
+      total: getUploadTotal(file),
+      onProgress: options?.onProgress,
     };
+    const timeoutController = new AbortController();
+    const signal = combineSignals([options?.signal, timeoutController.signal]);
 
-    if (token) {
-      await uploadMultipart(
-        { uploadUrl, progress, file: multipartFile },
-        { signal, responseMode: 'ignore' },
-      );
+    emitProgress(progress, 'prepare', 0);
 
-      return { token } as Res;
+    const uploadInterval = setTimeout(() => {
+      timeoutController.abort(new Error('Upload timeout exceeded'));
+    }, options?.timeout ?? DEFAULT_UPLOAD_TIMEOUT);
+
+    try {
+      if ('stream' in file) {
+        await uploadRange({ file, uploadUrl, progress }, { signal });
+      } else {
+        await uploadMultipart(
+          {
+            file: toMultipartFile(file),
+            uploadUrl,
+            progress,
+          },
+          { signal, responseMode: 'ignore' },
+        );
+      }
+
+      return { token };
+    } finally {
+      clearTimeout(uploadInterval);
     }
-
-    return uploadMultipart<Res>(
-      { uploadUrl, progress, file: multipartFile },
-      { signal },
-    );
   };
 
   image = async ({
@@ -764,10 +722,7 @@ export class Upload {
   video = async ({ source, filename, ...options }: UploadVideoOptions) => {
     const fileBlob = await this.getStreamFromSource(source, filename);
 
-    return this.upload<{
-      id: number;
-      token: string;
-    }>('video', fileBlob, options);
+    return this.uploadMedia('video', fileBlob, options);
   };
 
   file = async ({ source, filename, ...options }: UploadFileOptions) => {
@@ -787,9 +742,6 @@ export class Upload {
   audio = async ({ source, filename, ...options }: UploadAudioOptions) => {
     const fileBlob = await this.getStreamFromSource(source, filename);
 
-    return this.upload<{
-      id: number;
-      token: string;
-    }>('audio', fileBlob, options);
+    return this.uploadMedia('audio', fileBlob, options);
   };
 }

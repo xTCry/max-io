@@ -4,7 +4,7 @@ import { Bot, MaxError, type Context } from 'max-io';
 import type { AttachmentRequest } from 'max-io/types';
 
 import { createReadStream, readFileSync } from 'node:fs';
-import { stat } from 'node:fs/promises';
+import { open, stat } from 'node:fs/promises';
 import path from 'node:path';
 
 import {
@@ -26,15 +26,19 @@ const commands = [
   { name: 'videoPath', description: 'Upload video from file path' },
   { name: 'videoStream', description: 'Upload video from ReadStream' },
   { name: 'videoBuffer', description: 'Upload video from buffer' },
+  { name: 'videoHandleStream', description: 'Upload video from FD stream' },
   { name: 'audioPath', description: 'Upload audio from file path' },
   { name: 'audioStream', description: 'Upload audio from stream' },
   { name: 'audioBuffer', description: 'Upload audio from buffer' },
+  { name: 'audioHandleStream', description: 'Upload audio from FD stream' },
   { name: 'filePath', description: 'Upload file from file path' },
   { name: 'fileStream', description: 'Upload file from ReadStream' },
   { name: 'fileBuffer', description: 'Upload file from buffer' },
+  { name: 'fileHandleStream', description: 'Upload file from FD stream' },
   { name: 'imagePath', description: 'Upload image via multipart' },
   { name: 'imageStream', description: 'Upload image from ReadStream' },
   { name: 'imageBuffer', description: 'Upload image from buffer' },
+  { name: 'imageHandleStream', description: 'Upload image from FD stream' },
 ];
 
 type UploadAttachment = {
@@ -90,6 +94,23 @@ bot.command('videoStream', async (ctx) => {
   });
 });
 
+bot.command('videoHandleStream', async (ctx) => {
+  return runFileHandleStreamScenario(
+    ctx,
+    'videoHandleStream',
+    uploadVideoPath,
+    (source, session) => {
+      return ctx.api.uploadVideo({
+        source,
+        filename: path.basename(uploadVideoPath),
+        timeout: uploadTimeout,
+        signal: session.signal,
+        onProgress: session.onProgress,
+      });
+    },
+  );
+});
+
 bot.command('audioStream', async (ctx) => {
   return runUploadScenario(ctx, 'audioStream', uploadAudioPath, (session) => {
     return ctx.api.uploadAudio({
@@ -122,6 +143,23 @@ bot.command('audioBuffer', async (ctx) => {
       onProgress: session.onProgress,
     });
   });
+});
+
+bot.command('audioHandleStream', async (ctx) => {
+  return runFileHandleStreamScenario(
+    ctx,
+    'audioHandleStream',
+    uploadAudioPath,
+    (source, session) => {
+      return ctx.api.uploadAudio({
+        source,
+        filename: path.basename(uploadAudioPath),
+        timeout: uploadTimeout,
+        signal: session.signal,
+        onProgress: session.onProgress,
+      });
+    },
+  );
 });
 
 bot.command('fileBuffer', async (ctx) => {
@@ -158,6 +196,23 @@ bot.command('fileStream', async (ctx) => {
   });
 });
 
+bot.command('fileHandleStream', async (ctx) => {
+  return runFileHandleStreamScenario(
+    ctx,
+    'fileHandleStream',
+    uploadFilePath,
+    (source, session) => {
+      return ctx.api.uploadFile({
+        source,
+        filename: path.basename(uploadFilePath),
+        timeout: uploadTimeout,
+        signal: session.signal,
+        onProgress: session.onProgress,
+      });
+    },
+  );
+});
+
 bot.command('imagePath', async (ctx) => {
   return runUploadScenario(ctx, 'imagePath', uploadImagePath, (session) => {
     return ctx.api.uploadImage({
@@ -190,6 +245,23 @@ bot.command('imageBuffer', async (ctx) => {
       onProgress: session.onProgress,
     });
   });
+});
+
+bot.command('imageHandleStream', async (ctx) => {
+  return runFileHandleStreamScenario(
+    ctx,
+    'imageHandleStream',
+    uploadImagePath,
+    (source, session) => {
+      return ctx.api.uploadImage({
+        source,
+        filename: path.basename(uploadImagePath),
+        timeout: uploadTimeout,
+        signal: session.signal,
+        onProgress: session.onProgress,
+      });
+    },
+  );
 });
 
 startScenarioBot(bot, {
@@ -296,6 +368,31 @@ async function runUploadScenario(
         `Ошибка: ${message}`,
       ].join('\n'),
     );
+  }
+}
+
+/**
+ * Проверяет ReadStream без `stream.path`, созданный через FileHandle.
+ * Такой поток нельзя повторно открыть для Content-Range, поэтому библиотека
+ * должна безопасно перейти на multipart с буферизацией.
+ */
+async function runFileHandleStreamScenario(
+  ctx: Context,
+  scenarioName: string,
+  sourcePath: string,
+  upload: (
+    source: ReturnType<Awaited<ReturnType<typeof open>>['createReadStream']>,
+    session: ReturnType<typeof createUploadDebugSession>,
+  ) => Promise<UploadAttachment>,
+) {
+  const fileHandle = await open(sourcePath, 'r');
+
+  try {
+    return await runUploadScenario(ctx, scenarioName, sourcePath, (session) => {
+      return upload(fileHandle.createReadStream(), session);
+    });
+  } finally {
+    await fileHandle.close();
   }
 }
 
