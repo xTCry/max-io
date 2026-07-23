@@ -60,7 +60,8 @@ export class Api {
   /**
    * Изменяет список команд текущего бота.
    *
-   * @remarks Endpoint добавлен в upstream TS client `@maxhub/max-bot-api@0.2.5`; в архиве схем `0.0.32` пока не описан отдельно.
+   * @remarks Endpoint описан в архивной схеме Bot API 0.0.32 от 22 июля 2026 года.
+   * Передайте пустой массив, чтобы удалить все команды.
    */
   editMyCommands = async (commands: BotCommand[]) => {
     return this.raw.bots.editMyCommands({ commands });
@@ -85,7 +86,10 @@ export class Api {
   /**
    * Возвращает информацию о канале по публичной ссылке.
    *
-   * @remarks По схеме API метод доступен только для каналов; обычные чаты по публичной ссылке не поддерживаются.
+   * @deprecated Endpoint отсутствует в архивных схемах Bot API 0.0.32 от 10 и 22 июля 2026 года.
+   * Ручная проверка `GET /chats/max_news` на основном endpoint 23 июля 2026 года вернула `404 chat.not.found`.
+   * Оставлен для обратной совместимости.
+   * @remarks Ранее метод был доступен только для каналов; обычные чаты по публичной ссылке не поддерживались.
    */
   getChatByLink = async (link: string) => {
     return this.raw.chats.getByLink({ chat_link: link });
@@ -194,7 +198,9 @@ export class Api {
    *
    * @param messageId ID сообщения.
    * @param extra Новый текст, вложения, формат и настройки превью ссылок.
-   * @remarks По схеме API редактирование доступно для сообщений младше 24 часов.
+   * @remarks По схеме API сообщения в диалогах можно редактировать до 7 суток,
+   * а сообщения с inline-кнопками, в групповых чатах и каналах — без ограничения срока.
+   * Не отправляйте более двух запросов редактирования в секунду для одного диалога, чата или канала.
    */
   editMessage = async (messageId: string, extra?: EditMessageExtra) => {
     return this.raw.messages.edit({
@@ -208,7 +214,9 @@ export class Api {
    *
    * @param messageId ID сообщения.
    * @param extra Дополнительные параметры удаления.
-   * @remarks Удаляет сообщение в диалоге или чате, если у бота есть разрешение на удаление.
+   * @remarks По схеме API бот должен быть администратором с правом удаления:
+   * в канале и групповом чате можно удалить любое сообщение, в диалоге — только отправленное ботом.
+   * Не отправляйте более двух запросов удаления в секунду для одного диалога, чата или канала.
    */
   deleteMessage = async (messageId: string, extra?: DeleteMessageExtra) => {
     return this.raw.messages.delete({ message_id: messageId, ...extra });
@@ -218,7 +226,7 @@ export class Api {
    * Отвечает на callback-кнопку.
    *
    * @param callbackId ID callback-запроса.
-   * @param extra Сообщение для изменения текущего сообщения или одноразовое уведомление пользователю.
+   * @param extra Новое содержимое текущего сообщения или однократное уведомление пользователю.
    */
   answerOnCallback = async (
     callbackId: string,
@@ -268,6 +276,11 @@ export class Api {
     return this.raw.chats.deleteChatAdmin({ chat_id: chatId, user_id: userId });
   };
 
+  /**
+   * Добавляет пользователей в групповой чат.
+   *
+   * @remarks По актуальной схеме метод не добавляет подписчиков в каналы.
+   */
   addChatMembers = (chatId: number, userIds: number[]) => {
     return this.raw.chats.addChatMembers({
       chat_id: chatId,

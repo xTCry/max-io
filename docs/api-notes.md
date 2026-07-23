@@ -37,10 +37,15 @@ Long polling подходит для разработки и ручной про
 
 OpenAPI-схема, Go SDK и фактическое поведение API иногда расходятся. Для новых публичных типов и методов лучше фиксировать источник: схема, runtime-проверка или payload из живого API.
 
-Текущий ориентир для типизации — архив OpenAPI-схем [`max-messenger-bot/max-bot-api-schemas`](https://github.com/max-messenger-bot/max-bot-api-schemas), файл `schema_2026_07_01`, версия Bot API `0.0.32`.
+Текущий ориентир для типизации — архив OpenAPI-схем [`max-messenger-bot/max-bot-api-schemas`](https://github.com/max-messenger-bot/max-bot-api-schemas), файл `schema_2026_07_22`, версия Bot API `0.0.32`.
 
 Если поле или событие исчезло из актуальной схемы, но уже было частью публичных типов `max-io` или встречалось в runtime-ответах, библиотека временно оставляет его и помечает `@deprecated`. Это снижает риск breaking changes при обновлении схемы.
 
-Схема `schema_2026_07_01` указывает server URL `https://platform-api2.max.ru`. В `max-io` дефолт пока остаётся `https://platform-api.max.ru`, но endpoint можно переопределить через `new Bot(token, { apiBaseUrl })` или `createClient(token, { baseUrl })`.
+Схема `schema_2026_07_22` указывает server URL `https://platform-api2.max.ru`.
+В `max-io` дефолт пока остаётся `https://platform-api.max.ru`, но endpoint можно
+переопределить через `new Bot(token, { apiBaseUrl })` или
+`createClient(token, { baseUrl })`. У альтернативного endpoint может быть
+сертификат, который не доверен в конкретной ОС или Node.js runtime; в таком случае
+запрос завершится TLS-ошибкой до обращения к API.
 
-Метод обновления команд через `PATCH /me/commands` добавлен по upstream TS client `@maxhub/max-bot-api@0.2.5`; в архиве схем `0.0.32` он пока не описан отдельным path.
+Метод обновления команд через `PATCH /me/commands` описан в `schema_2026_07_22`.

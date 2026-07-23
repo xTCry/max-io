@@ -42,7 +42,13 @@ export type GetChatByIdDTO = {
 
 export type GetChatByIdResponse = Chat;
 
-/** DTO запроса канала по публичной ссылке. */
+/**
+ * DTO запроса канала по публичной ссылке.
+ *
+ * @deprecated Endpoint отсутствует в архивных схемах Bot API 0.0.32 от 10 и 22 июля 2026 года.
+ * Ручная проверка `GET /chats/max_news` на основном endpoint 23 июля 2026 года вернула `404 chat.not.found`.
+ * Оставлен для обратной совместимости.
+ */
 export type GetChatByLinkDTO = {
   path: {
     /** Публичная ссылка на канал. */
@@ -50,6 +56,9 @@ export type GetChatByLinkDTO = {
   };
 };
 
+/**
+ * @deprecated Используется только устаревшим методом `getChatByLink`.
+ */
 export type GetChatByLinkResponse = Chat;
 
 /** DTO удаления группового чата для всех участников. */
@@ -214,18 +223,18 @@ export type GetChatMembersResponse = {
   marker?: number | null;
 };
 
-/** DTO добавления пользователей в чат. */
+/** DTO добавления пользователей в групповой чат. */
 export type AddChatMembersDTO = {
   path: DefaultPath;
   body: {
-    /** ID пользователей, которых нужно добавить. */
+    /** ID пользователей, которых нужно добавить в групповой чат. */
     user_ids: number[];
   };
 };
 
-/** Результат добавления пользователей в чат. */
+/** Результат добавления пользователей в групповой чат. */
 export type AddChatMembersResponse = ActionResponse & {
-  /** ID пользователей, которых не удалось добавить. */
+  /** ID пользователей, которых не удалось добавить в групповой чат. */
   failed_user_ids?: number[] | null;
   /** Детализация ошибок по пользователям, если сервер её вернул. */
   failed_user_details?:

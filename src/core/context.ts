@@ -241,7 +241,10 @@ export class Context<U extends Update = Update> {
   /**
    * Возвращает информацию о канале по публичной ссылке.
    *
-   * @remarks По схеме API метод доступен только для каналов; обычные чаты по публичной ссылке не поддерживаются.
+   * @deprecated Endpoint отсутствует в архивных схемах Bot API 0.0.32 от 10 и 22 июля 2026 года.
+   * Ручная проверка `GET /chats/max_news` на основном endpoint 23 июля 2026 года вернула `404 chat.not.found`.
+   * Оставлен для обратной совместимости.
+   * @remarks Ранее метод был доступен только для каналов; обычные чаты по публичной ссылке не поддерживались.
    */
   async getChatByLink(link: string) {
     return this.api.getChatByLink(link);
@@ -312,6 +315,11 @@ export class Context<U extends Update = Update> {
     return this.api.deleteChatAdmin(this.chatId, userId);
   }
 
+  /**
+   * Добавляет пользователей в текущий групповой чат.
+   *
+   * @remarks По актуальной схеме метод не добавляет подписчиков в каналы.
+   */
   async addChatMembers(userIds: number[]) {
     this.assert(this.chatId, 'addChatMembers');
     return this.api.addChatMembers(this.chatId, userIds);

@@ -54,6 +54,11 @@ export class ChatsApi extends BaseApi {
     });
   }
 
+  /**
+   * @deprecated Endpoint отсутствует в архивных схемах Bot API 0.0.32 от 10 и 22 июля 2026 года.
+   * Ручная проверка `GET /chats/max_news` на основном endpoint 23 июля 2026 года вернула `404 chat.not.found`.
+   * Оставлен для обратной совместимости.
+   */
   async getByLink({
     chat_link,
   }: FlattenReq<GetChatByLinkDTO>): Promise<GetChatByLinkResponse> {

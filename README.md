@@ -12,7 +12,7 @@
 
 > **Max IO** — TypeScript-фреймворк для разработки чат-ботов в мессенджере **Max**. Библиотека даёт middleware-runtime, typed context, long polling, webhook, upload helpers, клавиатуры и дополнительные модули для session/scene/i18n.
 
-Типы API сверяются с архивом OpenAPI-схем [`max-messenger-bot/max-bot-api-schemas`](https://github.com/max-messenger-bot/max-bot-api-schemas). Текущий ориентир: `schema_2026_07_01`, версия Max Bot API `0.0.32`.
+Типы API сверяются с архивом OpenAPI-схем [`max-messenger-bot/max-bot-api-schemas`](https://github.com/max-messenger-bot/max-bot-api-schemas). Текущий ориентир: `schema_2026_07_22`, версия Max Bot API `0.0.32`.
 
 ## Возможности
 
@@ -129,7 +129,14 @@ await bot.start({ marker: bot.polling.marker });
 
 ## API endpoint
 
-По умолчанию `max-io` использует `https://platform-api.max.ru`. Если нужно проверить новый endpoint API, его можно переопределить при создании бота:
+По умолчанию `max-io` использует `https://platform-api.max.ru`. Альтернативный
+`https://platform-api2.max.ru` может использовать сертификат, который не входит
+в доверенное хранилище конкретной ОС или runtime. Если соединение с ним завершается
+TLS-ошибкой, используйте основной endpoint либо настройте доверие к сертификату в
+своём окружении.
+
+Если нужно проверить альтернативный endpoint API, его можно переопределить при
+создании бота:
 
 ```ts
 const bot = new Bot(process.env.MAX_BOT_TOKEN!, {

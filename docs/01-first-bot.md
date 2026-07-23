@@ -75,7 +75,11 @@ bot.on('message_created', async (ctx, next) => {
 bot.start().then();
 ```
 
-Если нужно проверить альтернативный endpoint Bot API, передайте его в options. По умолчанию используется `https://platform-api.max.ru`.
+Если нужно проверить альтернативный endpoint Bot API, передайте его в options.
+По умолчанию используется `https://platform-api.max.ru`. Endpoint
+`https://platform-api2.max.ru` может использовать сертификат, который не доверен
+в конкретной ОС или Node.js runtime; при TLS-ошибке используйте основной endpoint
+либо настройте доверие к сертификату в окружении.
 
 ```ts
 const bot = new Bot(token, {
