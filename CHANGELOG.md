@@ -1,5 +1,14 @@
 # Changelog
 
+## <small>0.1.5 (2026-07-23)</small>
+
+* fix(upload): handle multipart media uploads consistently ([a59713e](github.com/xTCry/max-io/commits/a59713e))
+* fix(upload): support file uploads from paths and streams ([c1d4002](github.com/xTCry/max-io/commits/c1d4002))
+* fix(upload): support media uploads from all source types ([17a08bf](github.com/xTCry/max-io/commits/17a08bf))
+* feat(upload): support custom upload filenames ([ab8d873](github.com/xTCry/max-io/commits/ab8d873))
+* test(examples): add schema compatibility smoke scenario ([894f160](github.com/xTCry/max-io/commits/894f160))
+* docs(api): align schema compatibility notes ([b8497d0](github.com/xTCry/max-io/commits/b8497d0))
+
 ## <small>0.1.4 (2026-07-11)</small>
 
 * feat(api): support custom endpoint and command updates ([24f78a6](github.com/xTCry/max-io/commits/24f78a6))
