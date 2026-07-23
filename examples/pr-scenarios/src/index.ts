@@ -5,6 +5,7 @@ const scenarioScripts = [
   'yarn start:20-chat-moderation-bot',
   'yarn start:30-video-attachment-details',
   'yarn start:40-reply-keyboard-data',
+  'yarn start:50-schema-compatibility-smoke',
 ];
 
 console.log('Доступные сценарии examples/pr-scenarios:');

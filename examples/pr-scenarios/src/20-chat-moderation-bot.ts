@@ -169,12 +169,15 @@ const parseTarget = (input: string): ParsedTarget => {
 const getLinkedMessageTarget = (ctx: Context): ModerationTarget | undefined => {
   const linkedSender = ctx.message?.link?.sender;
   if (!linkedSender?.user_id) return undefined;
+  const displayName = [linkedSender.first_name, linkedSender.last_name]
+    .filter((part): part is string => Boolean(part))
+    .join(' ');
 
   return {
     userId: linkedSender.user_id,
     label: linkedSender.username
       ? `@${linkedSender.username}`
-      : linkedSender.name,
+      : displayName || `user ${linkedSender.user_id}`,
   };
 };
 
