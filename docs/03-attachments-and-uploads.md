@@ -48,6 +48,16 @@ await ctx.reply('Готово', {
 
 `source` может быть путём к файлу, `Buffer` или `ReadStream`.
 
+Для `Buffer` нельзя автоматически определить исходное имя файла. Передайте
+`filename`, чтобы оно отображалось у получателя:
+
+```ts
+const report = await ctx.api.uploadFile({
+  source: await fs.promises.readFile('./public/report.pdf'),
+  filename: 'report.pdf',
+});
+```
+
 ## Изображение по URL
 
 Для изображения можно передать URL без загрузки файла через upload endpoint:

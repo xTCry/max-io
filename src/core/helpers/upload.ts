@@ -45,6 +45,8 @@ type DefaultOptions = UploadRequestOptions;
 type UploadFromSourceOptions = {
   /** Источник файла: путь, `ReadStream` или `Buffer`. */
   source: FileSource;
+  /** Имя файла для upload endpoint. Для `Buffer` нужно указать явно, чтобы не использовать UUID. */
+  filename?: string;
 };
 
 type UploadFromUrlOptions = {
@@ -192,6 +194,30 @@ const getAbortError = (reason?: unknown) => {
   error.name = 'AbortError';
 
   return error;
+};
+
+const getFileName = (source: FileSource, filename?: string) => {
+  if (filename !== undefined) {
+    if (
+      !filename ||
+      filename !== path.basename(filename) ||
+      /[\r\n]/.test(filename)
+    ) {
+      throw new Error('filename must be a file name without path separators');
+    }
+
+    return filename;
+  }
+
+  if (typeof source === 'string') {
+    return path.basename(source);
+  }
+
+  if (!Buffer.isBuffer(source) && typeof source.path === 'string') {
+    return path.basename(source.path);
+  }
+
+  return randomUUID();
 };
 
 const throwIfAborted = (signal?: AbortSignal) => {
@@ -404,10 +430,11 @@ export class Upload {
 
   private getStreamFromSource = async (
     source: FileSource,
+    filename?: string,
   ): Promise<UploadFile> => {
     if (typeof source === 'string') {
       const stat = await fs.promises.stat(source);
-      const fileName = path.basename(source);
+      const fileName = getFileName(source, filename);
 
       if (!stat.isFile()) {
         throw new Error(`Failed to upload ${fileName}. Not a file`);
@@ -425,15 +452,12 @@ export class Upload {
     if (Buffer.isBuffer(source)) {
       return {
         buffer: source,
-        fileName: randomUUID(),
+        fileName: getFileName(source, filename),
       };
     }
 
     const stat = await fs.promises.stat(source.path);
-    const fileName =
-      typeof source.path === 'string'
-        ? path.basename(source.path)
-        : randomUUID();
+    const fileName = getFileName(source, filename);
 
     if (!stat.isFile()) {
       throw new Error(`Failed to upload ${fileName}. Not a file`);
@@ -448,6 +472,7 @@ export class Upload {
 
   private getBlobFromSource = async (
     source: FileSource,
+    filename?: string,
   ): Promise<FileBlob | null> => {
     if (!openAsBlob) {
       return null;
@@ -455,7 +480,7 @@ export class Upload {
 
     if (typeof source === 'string') {
       const stat = await fs.promises.stat(source);
-      const fileName = path.basename(source);
+      const fileName = getFileName(source, filename);
 
       if (!stat.isFile()) {
         throw new Error(`Failed to upload ${fileName}. Not a file`);
@@ -471,7 +496,7 @@ export class Upload {
       return null;
     }
 
-    const fileName = path.basename(source.path);
+    const fileName = getFileName(source, filename);
     const stat = await fs.promises.stat(source.path);
 
     if (!stat.isFile()) {
@@ -486,10 +511,11 @@ export class Upload {
 
   private getBufferFromSource = async (
     source: FileSource,
+    filename?: string,
   ): Promise<FileBuffer> => {
     if (typeof source === 'string') {
       const stat = await fs.promises.stat(source);
-      const fileName = path.basename(source);
+      const fileName = getFileName(source, filename);
 
       if (!stat.isFile()) {
         throw new Error(`Failed to upload ${fileName}. Not a file`);
@@ -504,12 +530,12 @@ export class Upload {
     if (Buffer.isBuffer(source)) {
       return {
         buffer: source,
-        fileName: randomUUID(),
+        fileName: getFileName(source, filename),
       };
     }
 
     if (typeof source.path === 'string') {
-      const fileName = path.basename(source.path);
+      const fileName = getFileName(source, filename);
       const stat = await fs.promises.stat(source.path);
 
       if (!stat.isFile()) {
@@ -530,7 +556,7 @@ export class Upload {
 
     return {
       buffer: Buffer.concat(chunks),
-      fileName: randomUUID(),
+      fileName: getFileName(source, filename),
     };
   };
 
@@ -657,25 +683,29 @@ export class Upload {
     timeout,
     signal,
     onProgress,
-    ...source
+    ...options
   }: UploadImageOptions) => {
-    if ('url' in source) {
-      return { url: source.url };
+    if ('url' in options) {
+      return { url: options.url };
     }
 
     // Для файлового image source используем нативный Blob, чтобы multipart
     // был корректным без полной загрузки файла в JS-память.
-    const fileBlob = await this.getBlobFromSource(source.source);
+    const fileBlob = await this.getBlobFromSource(
+      options.source,
+      options.filename,
+    );
     const uploadFile =
-      fileBlob ?? (await this.getBufferFromSource(source.source));
+      fileBlob ??
+      (await this.getBufferFromSource(options.source, options.filename));
 
     return this.upload<{
       photos: { [key: string]: { token: string } };
     }>('image', uploadFile, { timeout, signal, onProgress });
   };
 
-  video = async ({ source, ...options }: UploadVideoOptions) => {
-    const fileBlob = await this.getStreamFromSource(source);
+  video = async ({ source, filename, ...options }: UploadVideoOptions) => {
+    const fileBlob = await this.getStreamFromSource(source, filename);
 
     return this.upload<{
       id: number;
@@ -683,13 +713,13 @@ export class Upload {
     }>('video', fileBlob, options);
   };
 
-  file = async ({ source, ...options }: UploadFileOptions) => {
+  file = async ({ source, filename, ...options }: UploadFileOptions) => {
     // Для `file` upload endpoint возвращает token только после multipart-загрузки.
     // Node.js FormData не умеет надёжно сериализовать ReadStream как File,
     // поэтому используем нативный Blob, а stream без пути буферизуем.
     const fileBlob =
-      (await this.getBlobFromSource(source)) ??
-      (await this.getBufferFromSource(source));
+      (await this.getBlobFromSource(source, filename)) ??
+      (await this.getBufferFromSource(source, filename));
 
     return this.upload<{
       id: number;
@@ -697,8 +727,8 @@ export class Upload {
     }>('file', fileBlob, options);
   };
 
-  audio = async ({ source, ...options }: UploadAudioOptions) => {
-    const fileBlob = await this.getStreamFromSource(source);
+  audio = async ({ source, filename, ...options }: UploadAudioOptions) => {
+    const fileBlob = await this.getStreamFromSource(source, filename);
 
     return this.upload<{
       id: number;

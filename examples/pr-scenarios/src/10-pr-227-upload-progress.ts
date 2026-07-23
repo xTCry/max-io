@@ -5,6 +5,7 @@ import type { AttachmentRequest } from 'max-io/types';
 
 import { createReadStream, readFileSync } from 'node:fs';
 import { stat } from 'node:fs/promises';
+import path from 'node:path';
 
 import {
   token,
@@ -75,6 +76,7 @@ bot.command('fileBuffer', async (ctx) => {
   return runUploadScenario(ctx, 'fileBuffer', uploadFilePath, (session) => {
     return ctx.api.uploadFile({
       source: readFileSync(uploadFilePath),
+      filename: path.basename(uploadFilePath),
       timeout: uploadTimeout,
       signal: session.signal,
       onProgress: session.onProgress,

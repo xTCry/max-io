@@ -103,7 +103,7 @@ Fallback-подсказка в этом сценарии не отвечает �
 
 1. `/filePath` — путь к файлу;
 2. `/fileStream` — `createReadStream` того же файла;
-3. `/fileBuffer` — `Buffer` того же файла.
+3. `/fileBuffer` — `Buffer` того же файла с явно переданным `filename`.
 
 Для чистого результата задай небольшой локальный PDF, ZIP или другой файл через
 `MAX_UPLOAD_PROGRESS_FILE_PATH`, затем запускай команды в указанном порядке.
