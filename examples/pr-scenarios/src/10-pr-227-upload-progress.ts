@@ -1,6 +1,6 @@
 import 'dotenv/config';
 
-import { Bot, type Context } from 'max-io';
+import { Bot, MaxError, type Context } from 'max-io';
 import type { AttachmentRequest } from 'max-io/types';
 
 import { createReadStream, readFileSync } from 'node:fs';
@@ -24,6 +24,8 @@ import {
 const commands = [
   { name: 'videoPath', description: 'Upload video from file path' },
   { name: 'audioStream', description: 'Upload audio from stream' },
+  { name: 'filePath', description: 'Upload file from file path' },
+  { name: 'fileStream', description: 'Upload file from ReadStream' },
   { name: 'fileBuffer', description: 'Upload file from buffer' },
   { name: 'imagePath', description: 'Upload image via multipart' },
 ];
@@ -73,6 +75,28 @@ bot.command('fileBuffer', async (ctx) => {
   return runUploadScenario(ctx, 'fileBuffer', uploadFilePath, (session) => {
     return ctx.api.uploadFile({
       source: readFileSync(uploadFilePath),
+      timeout: uploadTimeout,
+      signal: session.signal,
+      onProgress: session.onProgress,
+    });
+  });
+});
+
+bot.command('filePath', async (ctx) => {
+  return runUploadScenario(ctx, 'filePath', uploadFilePath, (session) => {
+    return ctx.api.uploadFile({
+      source: uploadFilePath,
+      timeout: uploadTimeout,
+      signal: session.signal,
+      onProgress: session.onProgress,
+    });
+  });
+});
+
+bot.command('fileStream', async (ctx) => {
+  return runUploadScenario(ctx, 'fileStream', uploadFilePath, (session) => {
+    return ctx.api.uploadFile({
+      source: createReadStream(uploadFilePath),
       timeout: uploadTimeout,
       signal: session.signal,
       onProgress: session.onProgress,
@@ -146,6 +170,8 @@ async function runUploadScenario(
     console.log(
       `[pr-227:${scenarioName}] UPLOADED | duration=${uploadDuration}ms`,
     );
+    console.log(`[pr-227:${scenarioName}] UPLOAD_RESPONSE`);
+    console.dir(formatAttachmentForLog(attachment), { depth: 10 });
 
     const sentMessage = await ctx.reply(
       [
@@ -168,6 +194,8 @@ async function runUploadScenario(
         `duration=${duration}ms`,
       ].join(' | '),
     );
+    console.log(`[pr-227:${scenarioName}] SENT_ATTACHMENTS`);
+    console.dir(sanitizeForLog(sentMessage.body.attachments), { depth: 10 });
 
     return sentMessage;
   } catch (error) {
@@ -199,6 +227,10 @@ function getScenarioErrorMessage(error: unknown, wasCanceled: boolean) {
     return 'Загрузка прервана по Esc';
   }
 
+  if (error instanceof MaxError) {
+    return `${error.status} | ${error.code} | ${error.description}`;
+  }
+
   if (error instanceof Error) {
     if (error.name === 'AbortError') {
       return 'Загрузка была прервана';
@@ -208,6 +240,65 @@ function getScenarioErrorMessage(error: unknown, wasCanceled: boolean) {
   }
 
   return 'Unknown upload error';
+}
+
+/**
+ * Формирует безопасную для терминала сводку upload-вложения.
+ *
+ * Токены и URL нельзя выводить полностью: они могут давать доступ к загрузке
+ * или вложению и должны оставаться только в защищённом окружении.
+ */
+function formatAttachmentForLog(attachment: UploadAttachment) {
+  return sanitizeForLog(attachment.toJson());
+}
+
+type SafeLogValue =
+  | string
+  | number
+  | boolean
+  | null
+  | SafeLogValue[]
+  | { [key: string]: SafeLogValue };
+
+function sanitizeForLog(value: unknown): SafeLogValue {
+  if (
+    value === null ||
+    typeof value === 'boolean' ||
+    typeof value === 'number'
+  ) {
+    return value;
+  }
+
+  if (typeof value === 'string') {
+    return value;
+  }
+
+  if (Array.isArray(value)) {
+    return value.map(sanitizeForLog);
+  }
+
+  if (typeof value === 'object') {
+    return Object.fromEntries(
+      Object.entries(value).map(([key, entry]) => [
+        key,
+        isSensitiveField(key) && typeof entry === 'string'
+          ? maskSecret(entry)
+          : sanitizeForLog(entry),
+      ]),
+    );
+  }
+
+  return String(value);
+}
+
+function isSensitiveField(key: string) {
+  return key.toLowerCase() === 'token' || key.toLowerCase() === 'url';
+}
+
+function maskSecret(value: string) {
+  if (value.length <= 10) return '***';
+
+  return `${value.slice(0, 6)}...${value.slice(-4)}`;
 }
 
 async function describeFile(filePath: string): Promise<FileInfo> {

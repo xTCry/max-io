@@ -21,7 +21,7 @@
 - `DEBUG` — namespace для отладки `debug`. Загружается из `.env` через `dotenv/config` до старта бота.
 - `MAX_UPLOAD_PROGRESS_VIDEO_PATH` — путь к файлу для `uploadVideo`. По умолчанию: `public/video.mp4`.
 - `MAX_UPLOAD_PROGRESS_AUDIO_PATH` — путь к файлу для `uploadAudio`. По умолчанию: `public/audio.mp3`.
-- `MAX_UPLOAD_PROGRESS_FILE_PATH` — путь к файлу для `uploadFile` через buffer. По умолчанию: `public/video.mp4`.
+- `MAX_UPLOAD_PROGRESS_FILE_PATH` — путь к одному файлу для проверки `uploadFile` из пути, `ReadStream` и `Buffer`. По умолчанию: `public/video.mp4`.
 - `MAX_UPLOAD_PROGRESS_IMAGE_PATH` — путь к файлу для `uploadImage` через multipart. По умолчанию: `public/image.png`.
 - `MAX_UPLOAD_PROGRESS_TIMEOUT` — timeout загрузки в миллисекундах. По умолчанию: `60000`.
 - `MAX_MODERATION_USERNAME_LOOKUP_LIMIT` — максимальное количество участников, среди которых сценарий ищет `@username`. По умолчанию: `300`.
@@ -90,12 +90,34 @@ Fallback-подсказка в этом сценарии не отвечает �
 ## Что проверяет сценарий `10-pr-227-upload-progress`
 
 - Проверяет публичные `onProgress` и `signal` в upload API без подмены `fetch`.
-- Даёт 4 команды боту: `/videoPath`, `/audioStream`, `/fileBuffer`, `/imagePath`.
+- Даёт 6 команд боту: `/videoPath`, `/audioStream`, `/filePath`, `/fileStream`, `/fileBuffer`, `/imagePath`.
 - Позволяет руками проверить:
   - chunked upload для `video` и `audio`;
   - multipart upload для `file` и `image`;
   - поведение прогресса в консоли для `range` и `multipart`;
   - ручную отмену активного upload по `Esc`.
+
+### Воспроизведение issue `nestjs-max#3`
+
+Сценарий также сравнивает три способа передачи одного файла в `uploadFile`:
+
+1. `/filePath` — путь к файлу;
+2. `/fileStream` — `createReadStream` того же файла;
+3. `/fileBuffer` — `Buffer` того же файла.
+
+Для чистого результата задай небольшой локальный PDF, ZIP или другой файл через
+`MAX_UPLOAD_PROGRESS_FILE_PATH`, затем запускай команды в указанном порядке.
+После каждой команды зафиксируй режим из progressbar, блоки `UPLOAD_RESPONSE` и
+`SENT_ATTACHMENTS`, а также факт доставки вложения в чат.
+
+Если для `/filePath` или `/fileStream` в `UPLOAD_RESPONSE` виден
+`payload.token: undefined`, а отправка завершается ошибкой
+`400 | ... | Missing token in video attachment`, это воспроизводит проблему:
+файл не был корректно передан multipart upload endpoint. Успешная доставка во
+всех трёх вариантах означает, что проблема на выбранном файле и окружении не
+воспроизвелась.
+
+Полные token и upload URL сценарий не печатает: в диагностике они маскируются.
 
 ## Что проверяет сценарий `30-video-attachment-details`
 

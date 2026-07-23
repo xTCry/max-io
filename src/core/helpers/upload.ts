@@ -684,7 +684,12 @@ export class Upload {
   };
 
   file = async ({ source, ...options }: UploadFileOptions) => {
-    const fileBlob = await this.getStreamFromSource(source);
+    // Для `file` upload endpoint возвращает token только после multipart-загрузки.
+    // Node.js FormData не умеет надёжно сериализовать ReadStream как File,
+    // поэтому используем нативный Blob, а stream без пути буферизуем.
+    const fileBlob =
+      (await this.getBlobFromSource(source)) ??
+      (await this.getBufferFromSource(source));
 
     return this.upload<{
       id: number;
