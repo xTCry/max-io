@@ -1,5 +1,9 @@
 # Changelog
 
+## <small>0.1.5-ca.0 (2026-07-24)</small>
+
+* feat(tls): add local `Russian CA` fallback for api2 ([dfb2723](github.com/xTCry/max-io/commits/dfb2723))
+
 ## <small>0.1.5 (2026-07-23)</small>
 
 * fix(upload): handle multipart media uploads consistently ([a59713e](github.com/xTCry/max-io/commits/a59713e))
