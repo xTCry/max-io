@@ -9,6 +9,7 @@
 - `30-video-attachment-details` — ручной сценарий проверки `getVideoAttachmentDetails` по готовому video token или через загрузку demo-видео.
 - `40-reply-keyboard-data` — ручной сценарий проверки reply keyboard и входящего `data` attachment от message-кнопки.
 - `50-schema-compatibility-smoke` — read-only проверка спорных методов API на обоих известных endpoint.
+- `60-russian-ca-api2-smoke` — read-only проверка доступа к `platform-api2.max.ru` и автоматического CA fallback.
 
 ## Переменные окружения
 
@@ -50,6 +51,7 @@ yarn start:20-chat-moderation-bot
 yarn start:30-video-attachment-details
 yarn start:40-reply-keyboard-data
 yarn start:50-schema-compatibility-smoke
+yarn start:60-russian-ca-api2-smoke
 ```
 
 Во время upload сценарий показывает в консоли:
@@ -156,9 +158,23 @@ endpoint:
 кодом ошибки. Если оба endpoint вернули ошибку, сценарий завершится с кодом `1`.
 
 `platform-api2.max.ru` может не подключиться в среде, где его сертификат не
-добавлен в доверенное хранилище ОС или Node.js runtime. В этом случае сценарий
-выведет `REQUEST_ERROR`; это ошибка TLS до выполнения запроса API, а не результат
-проверки метода.
+добавлен в доверенное хранилище ОС или Node.js runtime. В этой ветке обычный
+клиент автоматически подготавливает локальный CA-bundle для `platform-api2.max.ru`;
+сценарий `50` намеренно проверяет оба endpoint напрямую и может всё равно вывести
+`REQUEST_ERROR`.
+
+## Что проверяет сценарий `60-russian-ca-api2-smoke`
+
+Сценарий выполняет только `getMyInfo()` через дефолтный `platform-api2.max.ru`.
+Если сертификат уже доверен Node.js, запрос идёт обычным `fetch`. При ошибке
+недоверенного сертификата библиотека создаёт или переиспользует bundle в
+`.max-io/certs`, затем повторяет один API-запрос с локальным HTTPS Agent.
+
+Перед запуском можно подготовить bundle вручную из корня проекта:
+
+```bash
+npx max-io-install-russian-ca
+```
 
 ## Тяжёлые demo-файлы
 

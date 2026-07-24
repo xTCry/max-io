@@ -41,6 +41,9 @@
   },
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
+  "bin": {
+    "max-io-install-russian-ca": "./lib/cli/install-russian-ca.js"
+  },
   "files": [
     "./README.md",
     "./LICENSE",

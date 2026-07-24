@@ -6,6 +6,7 @@ const scenarioScripts = [
   'yarn start:30-video-attachment-details',
   'yarn start:40-reply-keyboard-data',
   'yarn start:50-schema-compatibility-smoke',
+  'yarn start:60-russian-ca-api2-smoke',
 ];
 
 console.log('Доступные сценарии examples/pr-scenarios:');

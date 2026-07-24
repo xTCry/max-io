@@ -75,15 +75,23 @@ bot.on('message_created', async (ctx, next) => {
 bot.start().then();
 ```
 
-Если нужно проверить альтернативный endpoint Bot API, передайте его в options.
-По умолчанию используется `https://platform-api.max.ru`. Endpoint
-`https://platform-api2.max.ru` может использовать сертификат, который не доверен
-в конкретной ОС или Node.js runtime; при TLS-ошибке используйте основной endpoint
-либо настройте доверие к сертификату в окружении.
+В этой ветке по умолчанию используется `https://platform-api2.max.ru`. В части
+окружений Node.js его российский TLS-сертификат отсутствует в стандартном trust
+store. При такой ошибке `max-io` автоматически сохраняет локальный bundle
+сертификатов Минцифры в `.max-io/certs` и повторяет только API-запрос.
+Глобальные TLS-настройки и upload endpoint не меняются.
+
+Bundle можно подготовить заранее:
+
+```bash
+npx max-io-install-russian-ca
+```
+
+Другой endpoint можно указать явно:
 
 ```ts
 const bot = new Bot(token, {
-  apiBaseUrl: 'https://platform-api2.max.ru',
+  apiBaseUrl: 'https://platform-api.max.ru',
 });
 ```
 

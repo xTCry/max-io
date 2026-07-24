@@ -1,16 +1,30 @@
 import createDebug from 'debug';
 
+import {
+  requestWithRussianCa,
+  isRussianCaCertificateError,
+} from './russian-ca-transport';
+import {
+  DEFAULT_RUSSIAN_CA_HOSTS,
+  type RussianCaInstallOptions,
+} from '../../../tls/russian-ca';
+
 const debug = createDebug('max-io:client');
 
-export const DEFAULT_API_BASE_URL = 'https://platform-api.max.ru';
+export const DEFAULT_API_BASE_URL = 'https://platform-api2.max.ru';
 
 const defaultOptions = {
   baseUrl: DEFAULT_API_BASE_URL,
 };
 
 export type ClientOptions = {
-  /** Базовый URL Bot API. По умолчанию используется стабильный endpoint `platform-api.max.ru`. */
+  /** Базовый URL Bot API. По умолчанию используется `platform-api2.max.ru`. */
   baseUrl?: string;
+  /**
+   * Включает автоматическую подготовку сертификатов Минцифры для
+   * `platform-api2.max.ru` после TLS-ошибки. Передайте `false`, чтобы отключить.
+   */
+  russianCa?: boolean | RussianCaInstallOptions;
 };
 
 export type HTTPMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
@@ -28,8 +42,19 @@ type CallOptions = {
   options: ReqOptions;
 };
 
-export const createClient = (token: string, options: ClientOptions = {}) => {
-  const { baseUrl } = { ...defaultOptions, ...options };
+type ClientCallResult = {
+  status: number;
+  /** Данные JSON-ответа до проверки конкретным API-модулем. */
+  data: unknown;
+};
+
+export const createClient = (
+  token: string,
+  options: ClientOptions = {},
+): {
+  call: (options: CallOptions) => Promise<ClientCallResult>;
+} => {
+  const { baseUrl, russianCa = true } = { ...defaultOptions, ...options };
 
   const call = async ({ method, options: callOptions }: CallOptions) => {
     const httpMethod = callOptions.method || 'GET';
@@ -63,9 +88,35 @@ export const createClient = (token: string, options: ClientOptions = {}) => {
     };
     init.headers = { ...init.headers, Authorization: token };
 
-    const res = await fetch(url.href, init);
+    let status: number;
+    let data: unknown;
 
-    if (res.status === 401) {
+    try {
+      const res = await fetch(url.href, init);
+      status = res.status;
+      data = await res.json();
+    } catch (error) {
+      if (
+        russianCa !== false &&
+        DEFAULT_RUSSIAN_CA_HOSTS.includes(url.hostname) &&
+        isRussianCaCertificateError(error)
+      ) {
+        debug(
+          `TLS certificate for ${url.hostname} is not trusted, retrying with local Russian CA bundle`,
+        );
+        const result = await requestWithRussianCa(
+          url,
+          init,
+          russianCa === true ? {} : russianCa,
+        );
+        status = result.status;
+        data = result.data;
+      } else {
+        throw error;
+      }
+    }
+
+    if (status === 401) {
       return {
         status: 401,
         data: {
@@ -76,8 +127,8 @@ export const createClient = (token: string, options: ClientOptions = {}) => {
     }
 
     return {
-      status: res.status,
-      data: await res.json(),
+      status,
+      data,
     };
   };
 

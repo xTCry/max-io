@@ -129,22 +129,31 @@ await bot.start({ marker: bot.polling.marker });
 
 ## API endpoint
 
-По умолчанию `max-io` использует `https://platform-api.max.ru`. Альтернативный
-`https://platform-api2.max.ru` может использовать сертификат, который не входит
-в доверенное хранилище конкретной ОС или runtime. Если соединение с ним завершается
-TLS-ошибкой, используйте основной endpoint либо настройте доверие к сертификату в
-своём окружении.
+В этой ветке `max-io` по умолчанию использует `https://platform-api2.max.ru`.
+Этот адрес использует российский TLS-сертификат, поэтому в части окружений
+Node.js может не доверять ему из коробки. При такой TLS-ошибке библиотека
+автоматически скачивает проверенный bundle сертификатов Минцифры в
+`.max-io/certs` текущего проекта и повторяет **только** запрос Bot API.
+Глобальные настройки TLS, `fetch` и upload URL не изменяются.
 
-Если нужно проверить альтернативный endpoint API, его можно переопределить при
-создании бота:
+Bundle можно подготовить заранее:
+
+```bash
+npx max-io-install-russian-ca
+```
+
+Для повторной загрузки есть `--force`, для другого каталога — `--dir <path>`.
+Автоматическую подготовку можно отключить:
 
 ```ts
 const bot = new Bot(process.env.MAX_BOT_TOKEN!, {
-  apiBaseUrl: 'https://platform-api2.max.ru',
+  clientOptions: { russianCa: false },
 });
 ```
 
-Низкоуровневый клиент принимает тот же URL через `createClient(token, { baseUrl })` или `new Bot(token, { clientOptions: { baseUrl } })`.
+Другой API endpoint задаётся через `apiBaseUrl`, `clientOptions.baseUrl` или
+`createClient(token, { baseUrl })`. Поддержка сертификатов Минцифры применяется
+только к точному хосту `platform-api2.max.ru`.
 
 ## Upload и вложения
 

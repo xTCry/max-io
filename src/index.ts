@@ -28,6 +28,22 @@ export {
   MaxError,
 } from './core/network/api';
 export {
+  DEFAULT_RUSSIAN_CA_ARCHIVE_SHA256,
+  DEFAULT_RUSSIAN_CA_HOSTS,
+  DEFAULT_RUSSIAN_CA_SOURCES,
+  ensureRussianTrustedCa,
+  getDefaultNodeCaCertificates,
+  isHostTrustedByNode,
+  isRussianCaCertificateError,
+  resolveRussianCaList,
+} from './tls/russian-ca';
+export type {
+  RussianCaConnectionOptions,
+  RussianCaInstallOptions,
+  RussianCaInstallResult,
+  RussianCaSources,
+} from './tls/russian-ca';
+export {
   BaseApi,
   BotsApi,
   ChatsApi,

@@ -41,11 +41,16 @@ OpenAPI-схема, Go SDK и фактическое поведение API ин
 
 Если поле или событие исчезло из актуальной схемы, но уже было частью публичных типов `max-io` или встречалось в runtime-ответах, библиотека временно оставляет его и помечает `@deprecated`. Это снижает риск breaking changes при обновлении схемы.
 
-Схема `schema_2026_07_22` указывает server URL `https://platform-api2.max.ru`.
-В `max-io` дефолт пока остаётся `https://platform-api.max.ru`, но endpoint можно
-переопределить через `new Bot(token, { apiBaseUrl })` или
-`createClient(token, { baseUrl })`. У альтернативного endpoint может быть
-сертификат, который не доверен в конкретной ОС или Node.js runtime; в таком случае
-запрос завершится TLS-ошибкой до обращения к API.
+Схема `schema_2026_07_22` указывает server URL `https://platform-api2.max.ru`;
+в этой ветке он используется по умолчанию. Его TLS-цепочка может отсутствовать в
+стандартном trust store конкретного Node.js runtime. Если это вызывает ошибку
+проверки сертификата, `max-io` загружает в `.max-io/certs` локальный bundle
+сертификатов Минцифры и повторяет только API-запрос к `platform-api2.max.ru`.
+Глобальный TLS state и upload endpoint не изменяются. Для предварительной
+подготовки bundle выполните `npx max-io-install-russian-ca`; для отключения
+автоматического fallback передайте `clientOptions: { russianCa: false }`.
+
+Другой endpoint задаётся через `new Bot(token, { apiBaseUrl })` или
+`createClient(token, { baseUrl })`; к нему локальный CA fallback не применяется.
 
 Метод обновления команд через `PATCH /me/commands` описан в `schema_2026_07_22`.
