@@ -113,6 +113,7 @@
     "release-it": "^19.2.3",
     "rimraf": "^6.1.2",
     "tsc-alias": "^1.8.17",
+    "tsx": "^4.21.0",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.50.0"
   },
