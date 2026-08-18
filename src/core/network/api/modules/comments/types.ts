@@ -1,8 +1,5 @@
 import type { ReqOptions } from '../../client';
-import type {
-  ActionResponse,
-  CommentMessage,
-} from '../../types';
+import type { ActionResponse, CommentMessage } from '../../types';
 import type { FlattenReq } from '../types';
 
 type CommentPath = {

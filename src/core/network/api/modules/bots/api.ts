@@ -11,9 +11,7 @@ export class BotsApi extends BaseApi {
     return this._patch('me', { body });
   };
 
-  editMyCommands = async ({
-    ...body
-  }: FlattenReq<EditMyCommandsDTO>) => {
+  editMyCommands = async ({ ...body }: FlattenReq<EditMyCommandsDTO>) => {
     return this._patch('me/commands', { body });
   };
 }

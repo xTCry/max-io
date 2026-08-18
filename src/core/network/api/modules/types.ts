@@ -19,10 +19,10 @@ import type {
   GetAllChatsResponse,
   GetChatAdminsDTO,
   GetChatAdminsResponse,
-  GetChatByLinkDTO,
-  GetChatByLinkResponse,
   GetChatByIdDTO,
   GetChatByIdResponse,
+  GetChatByLinkDTO,
+  GetChatByLinkResponse,
   GetChatMembersDTO,
   GetChatMembershipDTO,
   GetChatMembershipResponse,
@@ -43,6 +43,18 @@ import type {
   UnpinMessageResponse,
 } from './chats/types';
 import type {
+  DeleteCommentDTO,
+  DeleteCommentResponse,
+  EditCommentDTO,
+  EditCommentResponse,
+  GetCommentByIdDTO,
+  GetCommentByIdResponse,
+  GetCommentsDTO,
+  GetCommentsResponse,
+  SendCommentDTO,
+  SendCommentResponse,
+} from './comments/types';
+import type {
   AnswerOnCallbackDTO,
   AnswerOnCallbackResponse,
   DeleteMessageDTO,
@@ -58,18 +70,6 @@ import type {
   SendMessageDTO,
   SendMessageResponse,
 } from './messages/types';
-import type {
-  DeleteCommentDTO,
-  DeleteCommentResponse,
-  EditCommentDTO,
-  EditCommentResponse,
-  GetCommentByIdDTO,
-  GetCommentByIdResponse,
-  GetCommentsDTO,
-  GetCommentsResponse,
-  SendCommentDTO,
-  SendCommentResponse,
-} from './comments/types';
 import type {
   GetSubscriptionsDTO,
   GetSubscriptionsResponse,

@@ -26,9 +26,7 @@ async function run() {
   try {
     const page = await bot.api.getComments(postId, { count: 10 });
 
-    console.log(
-      `[${scenarioName}] SUCCESS | comments=${page.messages.length}`,
-    );
+    console.log(`[${scenarioName}] SUCCESS | comments=${page.messages.length}`);
     console.dir(page, { depth: 6 });
   } catch (error) {
     if (error instanceof MaxError) {

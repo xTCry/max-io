@@ -229,9 +229,7 @@ const throwIfAborted = (signal?: AbortSignal) => {
   throw getAbortError(signal.reason);
 };
 
-const getUploadMode = (
-  file: UploadFile,
-): UploadProgressMode => {
+const getUploadMode = (file: UploadFile): UploadProgressMode => {
   if ('stream' in file) {
     return 'range';
   }
@@ -664,8 +662,9 @@ export class Upload {
   ): Promise<{ token: string }> => {
     throwIfAborted(options?.signal);
 
-    const { url: uploadUrl, token } =
-      await this.api.raw.uploads.getUploadUrl({ type });
+    const { url: uploadUrl, token } = await this.api.raw.uploads.getUploadUrl({
+      type,
+    });
 
     if (!token) {
       throw new Error(`Upload URL response for ${type} does not include token`);

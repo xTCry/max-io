@@ -1,10 +1,6 @@
 import 'dotenv/config';
 
-import {
-  Bot,
-  DEFAULT_API_BASE_URL,
-  MaxError,
-} from 'max-io';
+import { Bot, DEFAULT_API_BASE_URL, MaxError } from 'max-io';
 
 import { token } from './env';
 
@@ -73,7 +69,10 @@ async function checkGetChatByLink(baseUrl: string): Promise<CheckResult> {
         ].join(' | '),
       );
     } else {
-      console.error(`[${scenarioName}] REQUEST_ERROR | baseUrl=${baseUrl}`, error);
+      console.error(
+        `[${scenarioName}] REQUEST_ERROR | baseUrl=${baseUrl}`,
+        error,
+      );
     }
 
     return { baseUrl, success: false };

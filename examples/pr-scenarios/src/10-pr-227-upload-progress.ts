@@ -1,6 +1,6 @@
 import 'dotenv/config';
 
-import { Bot, MaxError, type Context } from 'max-io';
+import { Bot, type Context, MaxError } from 'max-io';
 import type { AttachmentRequest } from 'max-io/types';
 
 import { createReadStream, readFileSync } from 'node:fs';
