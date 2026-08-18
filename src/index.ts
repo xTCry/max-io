@@ -1,5 +1,13 @@
 export { Api } from './core/api';
-export { Bot } from './core/bot';
+export {
+  Bot,
+  type BotConfig,
+  type BotPollingConfig,
+  type LaunchOptions,
+  type WebhookCallbackOptions,
+  type WebhookDomainOptions,
+  type WebhookStartOptions,
+} from './core/bot';
 export { Composer } from './core/composer';
 export { Context } from './core/context';
 export type { FilteredContext } from './core/context';
@@ -27,6 +35,11 @@ export {
   createClient,
   MaxError,
 } from './core/network/api';
+export type {
+  Client,
+  ClientOptions,
+  ReqOptions,
+} from './core/network/api/client';
 export {
   BaseApi,
   BotsApi,

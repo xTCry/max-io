@@ -19,24 +19,28 @@ import { Polling, type PollingState } from './network/polling';
 const debug = createDebug('max-io:main');
 const webhookDebug = createDebug('max-io:webhook');
 
-type BotPollingConfig = {
+/** Начальная конфигурация long polling. */
+export type BotPollingConfig = {
   /** Marker, с которого long polling начнёт получать updates. */
   marker?: number;
 };
 
-type WebhookCallbackOptions = {
+/** Параметры проверки входящего WebHook-запроса. */
+export type WebhookCallbackOptions = {
   /** Секрет из заголовка `X-Max-Bot-Api-Secret`. */
   secret?: string;
 };
 
-type WebhookDomainOptions = {
+/** Публичный адрес WebHook. */
+export type WebhookDomainOptions = {
   /** Публичный HTTPS-домен или полный URL webhook. */
   domain: string;
   /** Путь webhook endpoint. Если не указан, будет использован стабильный путь по токену. */
   path?: string;
 };
 
-type WebhookStartOptions = WebhookDomainOptions &
+/** Параметры встроенного WebHook-сервера. */
+export type WebhookStartOptions = WebhookDomainOptions &
   WebhookCallbackOptions & {
     /** Порт локального HTTP-сервера. */
     port?: number;
@@ -52,7 +56,8 @@ type WebhookStartOptions = WebhookDomainOptions &
     extra?: Omit<SubscribeExtra, 'url' | 'update_types' | 'secret'>;
   };
 
-type BotConfig<Ctx extends Context> = {
+/** Конфигурация экземпляра бота. */
+export type BotConfig<Ctx extends Context = Context> = {
   /** Базовый URL Bot API. Удобный alias для `clientOptions.baseUrl`. */
   apiBaseUrl?: string;
   clientOptions?: ClientOptions;
@@ -61,7 +66,8 @@ type BotConfig<Ctx extends Context> = {
   polling?: BotPollingConfig;
 };
 
-type LaunchOptions = {
+/** Параметры запуска long polling или WebHook runtime. */
+export type LaunchOptions = {
   /** Список update-типов, которые нужно получать через long polling. */
   allowedUpdates?: UpdateType[];
   /** Marker, с которого нужно начать текущий запуск long polling. */

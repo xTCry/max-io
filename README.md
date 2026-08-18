@@ -203,13 +203,13 @@ import { SessionManager } from 'max-io/lib/session';
 
 ## Entry points
 
-| Import               | Назначение                                               |
-| -------------------- | -------------------------------------------------------- |
-| `max-io`             | Runtime, `Bot`, `Context`, `Api`, helpers, основные типы |
-| `max-io/types`       | Публичные типы Bot API                                   |
-| `max-io/lib/session` | Session middleware                                       |
-| `max-io/lib/scene`   | Scene manager                                            |
-| `max-io/lib/i18n`    | I18n middleware                                          |
+| Import               | Назначение                                                            |
+| -------------------- | --------------------------------------------------------------------- |
+| `max-io`             | Runtime, `Bot`, `Context`, `Api`, helpers и типы конфигурации runtime |
+| `max-io/types`       | Типы данных и DTO Max Bot API                                         |
+| `max-io/lib/session` | Session middleware                                                    |
+| `max-io/lib/scene`   | Scene manager                                                         |
+| `max-io/lib/i18n`    | I18n middleware                                                       |
 
 ## Примеры
 
