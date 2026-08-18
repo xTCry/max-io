@@ -1,10 +1,14 @@
 import { BaseApi } from '../../base-api';
+import type { ReqOptions } from '../../client';
 import type { FlattenReq } from '../types';
 import type { GetUpdatesDTO, SubscribeDTO, UnsubscribeDTO } from './types';
 
 export class SubscriptionsApi extends BaseApi {
-  getUpdates = async ({ ...query }: FlattenReq<GetUpdatesDTO>) => {
-    return this._get('updates', { query });
+  getUpdates = async ({
+    signal,
+    ...query
+  }: FlattenReq<GetUpdatesDTO> & Pick<ReqOptions, 'signal'>) => {
+    return this._get('updates', { query, signal });
   };
 
   getSubscriptions = async () => {

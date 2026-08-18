@@ -12,10 +12,7 @@ import type {
   UploadImageOptions,
   UploadVideoOptions,
 } from './helpers/upload';
-import {
-  RawApi,
-  SenderAction,
-} from './network/api';
+import { RawApi, SenderAction } from './network/api';
 import type {
   AnswerOnCallbackExtra,
   BotCommand,
@@ -28,7 +25,7 @@ import type {
   FlattenReq,
   GetCommentsExtra,
   GetMessagesExtra,
-  GetUpdatesDTO,
+  GetUpdatesExtra,
   SendCommentExtra,
   SendMessageExtra,
   SubscribeExtra,
@@ -400,7 +397,7 @@ export class Api {
 
   getUpdates = async (
     types: MaybeArray<UpdateType> = [],
-    extra: Omit<FlattenReq<GetUpdatesDTO>, 'types'> = {},
+    extra: GetUpdatesExtra = {},
   ) => {
     return this.raw.subscriptions.getUpdates({
       types: Array.isArray(types) ? types.join(',') : types,

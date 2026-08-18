@@ -35,7 +35,10 @@ export class Polling {
       try {
         const { updates, marker } = await this.api.getUpdates(
           this.allowedUpdates,
-          { marker: this.state.marker },
+          {
+            marker: this.state.marker,
+            signal: this.abortController.signal,
+          },
         );
         this.state.marker = marker ?? undefined;
         await Promise.all(updates.map(handleUpdate));
@@ -51,9 +54,7 @@ export class Polling {
               `Failed to fetch updates, retrying after ${RETRY_INTERVAL}ms.`,
               err,
             );
-            await new Promise((resolve) => {
-              setTimeout(resolve, RETRY_INTERVAL);
-            });
+            await waitForRetry(this.abortController.signal);
             continue;
           }
         }
@@ -68,3 +69,19 @@ export class Polling {
     this.abortController.abort();
   };
 }
+
+/** Ожидает следующий polling-запрос и завершается сразу при остановке бота. */
+const waitForRetry = (signal: AbortSignal) => {
+  return new Promise<void>((resolve) => {
+    const timeout = setTimeout(resolve, RETRY_INTERVAL);
+
+    signal.addEventListener(
+      'abort',
+      () => {
+        clearTimeout(timeout);
+        resolve();
+      },
+      { once: true },
+    );
+  });
+};

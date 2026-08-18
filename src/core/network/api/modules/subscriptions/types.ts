@@ -1,9 +1,11 @@
+import type { ReqOptions } from '../../client';
 import type {
   ActionResponse,
   Subscription,
   SubscriptionRequestBody,
   Update,
 } from '../../types';
+import type { FlattenReq } from '../types';
 
 /** DTO получения updates через long polling. */
 export type GetUpdatesDTO = {
@@ -17,7 +19,13 @@ export type GetUpdatesDTO = {
     /** Типы updates через запятую для raw API. */
     types?: string;
   };
+  /** Сигнал отмены активного long polling-запроса. */
+  signal?: AbortSignal;
 };
+
+/** Параметры public API для long polling без raw-поля `types`. */
+export type GetUpdatesExtra = Omit<FlattenReq<GetUpdatesDTO>, 'types'> &
+  Pick<ReqOptions, 'signal'>;
 
 /** Ответ long polling со следующей позицией маркера. */
 export type GetUpdatesResponse = {
