@@ -4,6 +4,7 @@ import path from 'node:path';
 
 import { type Api } from '../api';
 import { MaxError, type UploadType } from '../network/api';
+import { parseResponse } from '../network/api/response';
 
 type FileSource = string | fs.ReadStream | Buffer;
 
@@ -309,8 +310,8 @@ async function uploadRangeChunk(
   });
 
   if (uploadRes.status >= 400) {
-    const error = await uploadRes.json();
-    throw new MaxError(uploadRes.status, error);
+    const response = await parseResponse(uploadRes);
+    throw new MaxError(uploadRes.status, response.data, response.text);
   }
 
   return uploadRes.text();
@@ -428,8 +429,8 @@ async function uploadMultipart<Res>(
   });
 
   if (result.status >= 400) {
-    const error = await result.json();
-    throw new MaxError(result.status, error);
+    const response = await parseResponse(result);
+    throw new MaxError(result.status, response.data, response.text);
   }
 
   if (responseMode === 'ignore') {
@@ -439,10 +440,21 @@ async function uploadMultipart<Res>(
     return;
   }
 
-  const response = (await result.json()) as Res;
+  const response = await parseResponse(result);
+  if (!response.isJson) {
+    throw new MaxError(
+      result.status,
+      {
+        code: 'upload.response.invalid',
+        message: 'Upload endpoint returned an invalid JSON response',
+      },
+      response.text,
+    );
+  }
+
   emitProgress(progress, 'complete', progress.total ?? 0);
 
-  return response;
+  return response.data as Res;
 }
 
 const toMultipartFile = (file: FileBuffer | FileBlob): FileBlob => {

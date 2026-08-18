@@ -1,5 +1,7 @@
 import createDebug from 'debug';
 
+import { parseResponse } from './response';
+
 const debug = createDebug('max-io:client');
 
 export const DEFAULT_API_BASE_URL = 'https://platform-api.max.ru';
@@ -75,9 +77,12 @@ export const createClient = (token: string, options: ClientOptions = {}) => {
       };
     }
 
+    const response = await parseResponse(res);
+
     return {
       status: res.status,
-      data: await res.json(),
+      data: response.data,
+      responseText: response.text,
     };
   };
 

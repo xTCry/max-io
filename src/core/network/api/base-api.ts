@@ -28,31 +28,49 @@ export class BaseApi {
     this.call = client.call;
   }
 
-  private callApi = async (method: string, options: ReqOptions) => {
+  private callApi = async <Res>(
+    method: string,
+    options: ReqOptions,
+  ): Promise<Res> => {
     const result = await this.call({ method, options });
     if (result.status !== 200) {
-      throw new MaxError(result.status, result.data);
+      throw new MaxError(result.status, result.data, result.responseText);
     }
-    return result.data;
+    return result.data as Res;
   };
 
   protected _get: ApiCallFn<'GET'> = async (method, options) => {
-    return this.callApi(method, { ...options, method: 'GET' });
+    return this.callApi<ApiMethodsMap['GET'][typeof method]['res']>(method, {
+      ...options,
+      method: 'GET',
+    });
   };
 
   protected _post: ApiCallFn<'POST'> = async (method, options) => {
-    return this.callApi(method, { ...options, method: 'POST' });
+    return this.callApi<ApiMethodsMap['POST'][typeof method]['res']>(method, {
+      ...options,
+      method: 'POST',
+    });
   };
 
   protected _patch: ApiCallFn<'PATCH'> = async (method, options) => {
-    return this.callApi(method, { ...options, method: 'PATCH' });
+    return this.callApi<ApiMethodsMap['PATCH'][typeof method]['res']>(method, {
+      ...options,
+      method: 'PATCH',
+    });
   };
 
   protected _put: ApiCallFn<'PUT'> = async (method, options) => {
-    return this.callApi(method, { ...options, method: 'PUT' });
+    return this.callApi<ApiMethodsMap['PUT'][typeof method]['res']>(method, {
+      ...options,
+      method: 'PUT',
+    });
   };
 
   protected _delete: ApiCallFn<'DELETE'> = async (method, options) => {
-    return this.callApi(method, { ...options, method: 'DELETE' });
+    return this.callApi<ApiMethodsMap['DELETE'][typeof method]['res']>(method, {
+      ...options,
+      method: 'DELETE',
+    });
   };
 }
