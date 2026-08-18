@@ -28,6 +28,7 @@
   "type": "commonjs",
   "scripts": {
     "format": "prettier --write \"src/**/*.{ts,js}\" \"examples/**/*.{ts,js}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,js}\" \"examples/**/*.{ts,js}\"",
     "build": "rimraf lib/ && tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json && npm run build:types-entry",
     "build:types-entry": "tsx build/create-types-entry.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit",
