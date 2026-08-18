@@ -36,7 +36,7 @@ npm i max-io
 yarn add max-io
 ```
 
-Требуется Node.js `>=14.13.1`.
+Требуется Node.js `>=18.18.0`. Библиотека использует встроенные `fetch`, `FormData` и `Blob` для HTTP- и upload-запросов.
 
 ## Первый бот
 
