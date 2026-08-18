@@ -3,6 +3,7 @@ import {
   BaseApi,
   BotsApi,
   ChatsApi,
+  CommentsApi,
   MessagesApi,
   SubscriptionsApi,
   UploadsApi,
@@ -23,6 +24,12 @@ export class RawApi extends BaseApi {
 
   get chats() {
     return (this._chats ??= new ChatsApi(this.client));
+  }
+
+  private _comments?: CommentsApi;
+
+  get comments() {
+    return (this._comments ??= new CommentsApi(this.client));
   }
 
   private _bots?: BotsApi;

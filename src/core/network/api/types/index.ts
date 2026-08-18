@@ -3,6 +3,7 @@ export * from './attachment-request';
 export * from './bot';
 export * from './chat';
 export * from './common';
+export * from './comment';
 export * from './keyboard';
 export * from './markup';
 export * from './message';

@@ -31,6 +31,7 @@ export {
   BaseApi,
   BotsApi,
   ChatsApi,
+  CommentsApi,
   MessagesApi,
   SubscriptionsApi,
   UploadsApi,

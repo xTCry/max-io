@@ -20,6 +20,25 @@ bot.on('message_callback', async (ctx) => {
 
 Редактор подскажет доступные `update_type`, потому что типы экспортируются из `max-io` и `max-io/types`.
 
+### Каналы и комментарии
+
+`message_created` приходит не только для сообщений пользователей: Bot API также
+доставляет посты в канале и комментарии к постам, если бот — администратор канала.
+`message_callback` может относиться к inline-кнопке под постом в канале. Поэтому
+бот, который не должен отвечать в канал, должен отфильтровать такие updates до
+`command`, `hears` и `action` обработчиков:
+
+```ts
+bot.use(async (ctx, next) => {
+  if (ctx.chatType === 'channel') return;
+  return next();
+});
+```
+
+Не включайте этот фильтр, если бот должен обрабатывать комментарии или кнопки в
+канале. В таком случае ограничивайте обработку более точными условиями своего
+сценария, например проверкой отправителя, ID канала или текста команды.
+
 ## Команды
 
 ```ts
@@ -98,6 +117,27 @@ bot.hears('ping', async (ctx) => {
 await bot.api.sendMessageToUser(userId, 'Привет!');
 await bot.api.sendMessageToChat(chatId, 'Всем привет!');
 ```
+
+## Комментарии к постам
+
+Для работы с комментариями бот должен быть администратором канала. Для чтения
+нужно право `read_all_messages`, для отправки — также `write`, для удаления —
+`delete`. В канале должны быть включены комментарии.
+
+```ts
+const page = await bot.api.getComments(postId, { count: 50 });
+
+const comment = await bot.api.sendComment(postId, 'Спасибо за новость');
+
+await bot.api.editComment(postId, comment.body.mid, {
+  text: 'Спасибо за новость, уточнил детали',
+});
+
+await bot.api.deleteComment(postId, comment.body.mid);
+```
+
+В комментариях нет вложений и нельзя использовать `forward`; для ответа на другой
+комментарий передайте `link: { type: 'reply', mid: commentId }`.
 
 Ответ с reply-link:
 

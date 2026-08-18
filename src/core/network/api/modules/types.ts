@@ -59,6 +59,18 @@ import type {
   SendMessageResponse,
 } from './messages/types';
 import type {
+  DeleteCommentDTO,
+  DeleteCommentResponse,
+  EditCommentDTO,
+  EditCommentResponse,
+  GetCommentByIdDTO,
+  GetCommentByIdResponse,
+  GetCommentsDTO,
+  GetCommentsResponse,
+  SendCommentDTO,
+  SendCommentResponse,
+} from './comments/types';
+import type {
   GetSubscriptionsDTO,
   GetSubscriptionsResponse,
   GetUpdatesDTO,
@@ -72,6 +84,7 @@ import type { GetUploadUrlDTO, GetUploadUrlResponse } from './uploads/types';
 
 export * from './bots/types';
 export * from './messages/types';
+export * from './comments/types';
 export * from './subscriptions/types';
 
 export type FlattenReq<T extends Omit<ReqOptions, 'method'>> = T['body'] &
@@ -128,6 +141,14 @@ export type ApiMethods = {
       req: GetMessageDTO;
       res: GetMessageResponse;
     };
+    'messages/{message_id}/comments': {
+      req: GetCommentsDTO;
+      res: GetCommentsResponse;
+    };
+    'messages/{message_id}/comments/{comment_id}': {
+      req: GetCommentByIdDTO;
+      res: GetCommentByIdResponse;
+    };
     'videos/{video_token}': {
       req: GetVideoAttachmentDetailsDTO;
       res: GetVideoAttachmentDetailsResponse;
@@ -149,6 +170,10 @@ export type ApiMethods = {
     messages: {
       req: SendMessageDTO;
       res: SendMessageResponse;
+    };
+    'messages/{message_id}/comments': {
+      req: SendCommentDTO;
+      res: SendCommentResponse;
     };
     uploads: {
       req: GetUploadUrlDTO;
@@ -182,6 +207,10 @@ export type ApiMethods = {
       req: EditMessageDTO;
       res: EditMessageResponse;
     };
+    'messages/{message_id}/comments': {
+      req: EditCommentDTO;
+      res: EditCommentResponse;
+    };
     'chats/{chat_id}/pin': {
       req: PinMessageDTO;
       res: PinMessageResponse;
@@ -195,6 +224,10 @@ export type ApiMethods = {
     messages: {
       req: DeleteMessageDTO;
       res: DeleteMessageResponse;
+    };
+    'messages/{message_id}/comments': {
+      req: DeleteCommentDTO;
+      res: DeleteCommentResponse;
     };
     'chats/{chat_id}/pin': {
       req: UnpinMessageDTO;

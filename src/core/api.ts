@@ -13,7 +13,6 @@ import type {
   UploadVideoOptions,
 } from './helpers/upload';
 import {
-  GetMessagesExtra,
   RawApi,
   SenderAction,
 } from './network/api';
@@ -21,11 +20,16 @@ import type {
   AnswerOnCallbackExtra,
   BotCommand,
   Client,
+  DeleteCommentResponse,
   DeleteMessageExtra,
+  EditCommentExtra,
   EditMessageExtra,
   EditMyInfoDTO,
   FlattenReq,
+  GetCommentsExtra,
+  GetMessagesExtra,
   GetUpdatesDTO,
+  SendCommentExtra,
   SendMessageExtra,
   SubscribeExtra,
   UpdateType,
@@ -180,6 +184,89 @@ export class Api {
    */
   getMessage = async (id: string) => {
     return this.raw.messages.getById({ message_id: id });
+  };
+
+  /**
+   * Возвращает комментарии к посту в канале.
+   *
+   * @param messageId ID поста в канале (`mid`).
+   * @param extra Фильтры по времени, количеству или списку ID комментариев.
+   * @remarks Для чтения бот должен быть администратором канала с правом `read_all_messages`.
+   */
+  getComments = async (
+    messageId: string,
+    { comment_ids, ...extra }: GetCommentsExtra = {},
+  ) => {
+    return this.raw.comments.get({
+      message_id: messageId,
+      comment_ids: comment_ids?.join(','),
+      ...extra,
+    });
+  };
+
+  /**
+   * Возвращает комментарий к посту по его ID.
+   *
+   * @remarks Для чтения бот должен быть администратором канала с правом `read_all_messages`.
+   */
+  getComment = async (messageId: string, commentId: string) => {
+    return this.raw.comments.getById({
+      message_id: messageId,
+      comment_id: commentId,
+    });
+  };
+
+  /**
+   * Отправляет комментарий к посту в канале.
+   *
+   * @param messageId ID поста в канале (`mid`).
+   * @param text Текст комментария. Ограничение API: до `4000` символов.
+   * @param extra Ответ на другой комментарий, формат текста, настройка предпросмотра и `AbortSignal`.
+   * @remarks В настройках канала должны быть включены комментарии; боту нужны права `read_all_messages` и `write`.
+   */
+  sendComment = async (
+    messageId: string,
+    text: string,
+    extra?: SendCommentExtra,
+  ) => {
+    const { message } = await this.raw.comments.send({
+      message_id: messageId,
+      text,
+      ...extra,
+    });
+    return message;
+  };
+
+  /**
+   * Редактирует комментарий бота к посту в канале.
+   *
+   * @remarks Бот может изменить свой комментарий, а комментарии от имени канала — только с правом `edit`.
+   */
+  editComment = async (
+    messageId: string,
+    commentId: string,
+    extra?: EditCommentExtra,
+  ) => {
+    return this.raw.comments.edit({
+      message_id: messageId,
+      comment_id: commentId,
+      ...extra,
+    });
+  };
+
+  /**
+   * Удаляет комментарий к посту в канале.
+   *
+   * @remarks Боту нужны права администратора `read_all_messages` и `delete`.
+   */
+  deleteComment = async (
+    messageId: string,
+    commentId: string,
+  ): Promise<DeleteCommentResponse> => {
+    return this.raw.comments.delete({
+      message_id: messageId,
+      comment_id: commentId,
+    });
   };
 
   /**
