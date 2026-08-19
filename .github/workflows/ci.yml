@@ -40,6 +40,9 @@ jobs:
       - name: Check types
         run: yarn typecheck
 
+      - name: Run tests
+        run: yarn test
+
       - name: Build package
         run: yarn build
 
