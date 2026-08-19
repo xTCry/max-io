@@ -1,5 +1,39 @@
 # Changelog
 
+## [0.1.6](/github.com/xTCry/max-io/compare/v0.1.5...v0.1.6) (2026-08-19)
+
+### ⚙️ Chore
+
+* **deps:** update development dependencies ([d86bd96](/github.com/xTCry/max-io/commit/d86bd965cfc19a1766426902745d6397fb2533e7))
+* **runtime:** require nodejs `18.18` or newer ([d7ed457](/github.com/xTCry/max-io/commit/d7ed4577fe74e363cdbbf0d29cbe05ebe0901b0a))
+
+### 🚀 Features
+
+* **api:** export bot runtime configuration types ([7024ce4](/github.com/xTCry/max-io/commit/7024ce49ece8534ea4d992d8f0543002f34bf655))
+* **comments:** add channel post comments api ([3a43efd](/github.com/xTCry/max-io/commit/3a43efd18dca05dc7fc53657b796ba1d206d853e))
+
+### 🐛 Bug Fixes
+
+* **api:** encode url path parameters ([b843366](/github.com/xTCry/max-io/commit/b8433660e766b263eabb1cc3ab8617381d124d8c))
+* **build:** add `tsx` build dependency ([6b0b88c](/github.com/xTCry/max-io/commit/6b0b88c7e661d4217868a917a485991cd796b280))
+* **polling:** abort active long-poll requests on stop ([12e80cc](/github.com/xTCry/max-io/commit/12e80ccd3537dce9292c388f90c8a103987d721b))
+* **polling:** retry native fetch network failures ([35742b0](/github.com/xTCry/max-io/commit/35742b046094dae9187ca013ff04d95b65327d3e))
+* **security:** protect webhook payloads and redact debug logs ([92a3c62](/github.com/xTCry/max-io/commit/92a3c62f7048575f02beb3d72ab4422589ed7afa))
+* **transport:** handle non-json responses ([261e88a](/github.com/xTCry/max-io/commit/261e88a9b34d132f6226c1daf379652fd9286851))
+
+### 📖 Documentation
+
+* **api:** sync type descriptions with schema 0.0.33 ([c34f6a7](/github.com/xTCry/max-io/commit/c34f6a76b67a2a12b52663de4b96bf6d52967663))
+
+### ☯ Styling
+
+* **format:** apply prettier formatting ([99ec3c8](/github.com/xTCry/max-io/commit/99ec3c854b5784689e341830ec89da01ee16f4be))
+* **prettier:** format source files ([14f12b7](/github.com/xTCry/max-io/commit/14f12b7b858212a73186fafeb5dc4909a8d7f083))
+
+### 🛠️ CI
+
+* add package verification workflow ([f0cdcbb](/github.com/xTCry/max-io/commit/f0cdcbb265f3daf8eb9fd9b989a9e82e39672f8e))
+
 ## <small>0.1.5 (2026-07-23)</small>
 
 * fix(upload): handle multipart media uploads consistently ([a59713e](github.com/xTCry/max-io/commits/a59713e))
