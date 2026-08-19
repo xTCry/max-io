@@ -18,6 +18,7 @@ import { Polling, type PollingState } from './network/polling';
 
 const debug = createDebug('max-io:main');
 const webhookDebug = createDebug('max-io:webhook');
+const DEFAULT_WEBHOOK_MAX_BODY_SIZE = 5 * 1024 * 1024; // 5 MiB
 
 /** Начальная конфигурация long polling. */
 export type BotPollingConfig = {
@@ -29,6 +30,8 @@ export type BotPollingConfig = {
 export type WebhookCallbackOptions = {
   /** Секрет из заголовка `X-Max-Bot-Api-Secret`. */
   secret?: string;
+  /** Максимальный размер JSON body в байтах. По умолчанию — 5 MiB. */
+  maxBodySize?: number;
 };
 
 /** Публичный адрес WebHook. */
@@ -260,6 +263,8 @@ export class Bot<Ctx extends Context = Context> extends Composer<Ctx> {
     path = '/',
     options: WebhookCallbackOptions = {},
   ): http.RequestListener => {
+    const maxBodySize = resolveWebhookMaxBodySize(options.maxBodySize);
+
     webhookDebug('Created webhook callback for path %o', path);
 
     return async (request, response) => {
@@ -293,8 +298,16 @@ export class Bot<Ctx extends Context = Context> extends Composer<Ctx> {
         return;
       }
 
+      if (isWebhookContentLengthTooLarge(request, maxBodySize)) {
+        webhookDebug('Rejected webhook request with oversized body');
+        response.writeHead(413, { 'content-type': 'application/json' });
+        response.end(JSON.stringify({ ok: false, error: 'payload_too_large' }));
+        request.resume();
+        return;
+      }
+
       try {
-        const update = await readWebhookUpdate(request);
+        const update = await readWebhookUpdate(request, maxBodySize);
         webhookDebug(
           'Webhook update received %s:%s',
           update.update_type,
@@ -310,8 +323,15 @@ export class Bot<Ctx extends Context = Context> extends Composer<Ctx> {
         response.end(JSON.stringify({ ok: true }));
       } catch (error) {
         webhookDebug('Webhook update failed', error);
-        response.writeHead(500, { 'content-type': 'application/json' });
-        response.end(JSON.stringify({ ok: false, error: 'internal_error' }));
+        if (error instanceof WebhookPayloadTooLargeError) {
+          response.writeHead(413, { 'content-type': 'application/json' });
+          response.end(
+            JSON.stringify({ ok: false, error: 'payload_too_large' }),
+          );
+        } else {
+          response.writeHead(500, { 'content-type': 'application/json' });
+          response.end(JSON.stringify({ ok: false, error: 'internal_error' }));
+        }
       }
     };
   };
@@ -323,7 +343,10 @@ export class Bot<Ctx extends Context = Context> extends Composer<Ctx> {
       await this.deletePreviousWebhooks(domain.url);
     }
     await this.subscribeWebhook(domain, options);
-    return this.webhookCallback(domain.path, { secret: options.secret });
+    return this.webhookCallback(domain.path, {
+      secret: options.secret,
+      maxBodySize: options.maxBodySize,
+    });
   };
 
   deleteWebhook = async (options: WebhookDomainOptions) => {
@@ -341,6 +364,7 @@ export class Bot<Ctx extends Context = Context> extends Composer<Ctx> {
     const domain = this.getDomainOpts(options);
     const callback = this.webhookCallback(domain.path, {
       secret: options.secret,
+      maxBodySize: options.maxBodySize,
     });
 
     const server = http.createServer(callback);
@@ -457,11 +481,23 @@ export class Bot<Ctx extends Context = Context> extends Composer<Ctx> {
   };
 }
 
-const readWebhookUpdate = async (request: http.IncomingMessage) => {
+const readWebhookUpdate = async (
+  request: http.IncomingMessage,
+  maxBodySize: number,
+) => {
   const chunks: Buffer[] = [];
+  let bodySize = 0;
 
   for await (const chunk of request) {
-    chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+    const bodyChunk = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
+    bodySize += bodyChunk.length;
+
+    if (bodySize > maxBodySize) {
+      request.resume();
+      throw new WebhookPayloadTooLargeError(maxBodySize);
+    }
+
+    chunks.push(bodyChunk);
   }
 
   const body = Buffer.concat(chunks).toString('utf8');
@@ -469,6 +505,38 @@ const readWebhookUpdate = async (request: http.IncomingMessage) => {
 
   return JSON.parse(body) as Update;
 };
+
+const isWebhookContentLengthTooLarge = (
+  request: http.IncomingMessage,
+  maxBodySize: number,
+) => {
+  const contentLength = request.headers['content-length'];
+
+  if (!contentLength || Array.isArray(contentLength)) {
+    return false;
+  }
+
+  const bodySize = Number(contentLength);
+
+  return Number.isSafeInteger(bodySize) && bodySize > maxBodySize;
+};
+
+const resolveWebhookMaxBodySize = (
+  maxBodySize = DEFAULT_WEBHOOK_MAX_BODY_SIZE,
+) => {
+  if (!Number.isSafeInteger(maxBodySize) || maxBodySize <= 0) {
+    throw new RangeError('Webhook maxBodySize must be a positive safe integer');
+  }
+
+  return maxBodySize;
+};
+
+class WebhookPayloadTooLargeError extends Error {
+  constructor(maxBodySize: number) {
+    super(`Webhook request body exceeds ${maxBodySize} bytes`);
+    this.name = 'WebhookPayloadTooLargeError';
+  }
+}
 
 const normalizeWebhookPath = (pathname: string) =>
   !pathname || pathname === '/' ? undefined : pathname;

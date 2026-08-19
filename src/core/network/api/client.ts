@@ -36,8 +36,10 @@ export const createClient = (token: string, options: ClientOptions = {}) => {
   const call = async ({ method, options: callOptions }: CallOptions) => {
     const httpMethod = callOptions.method || 'GET';
     debug(
-      `Call method ${httpMethod} /${method}`,
-      JSON.stringify(callOptions, null, 2),
+      'Call method %s /%s %o',
+      httpMethod,
+      method,
+      getDebugRequestMeta(callOptions),
     );
 
     if (!token) {
@@ -90,6 +92,14 @@ export const createClient = (token: string, options: ClientOptions = {}) => {
 };
 
 export type Client = ReturnType<typeof createClient>;
+
+/** Возвращает только форму запроса, чтобы отладочные логи не содержали секреты. */
+const getDebugRequestMeta = (options: ReqOptions) => ({
+  bodyFields: options.body ? Object.keys(options.body) : [],
+  queryFields: options.query ? Object.keys(options.query) : [],
+  pathFields: options.path ? Object.keys(options.path) : [],
+  aborted: options.signal?.aborted ?? false,
+});
 
 const getResponseInit = (body?: ReqOptions['body']): RequestInit => {
   if (!body) return {};

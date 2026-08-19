@@ -78,8 +78,17 @@ server.listen(3000);
 - HTTP method `POST`;
 - path запроса;
 - заголовок `x-max-bot-api-secret`, если передан `secret`;
+- размер JSON body: не более `5 MiB` по умолчанию; превышение вернёт `413`;
 - JSON body update;
 - передачу update в middleware через `bot.handleUpdate(...)`.
+
+Лимит body можно изменить в байтах для встроенного сервера или callback:
+
+```ts
+const callback = bot.webhookCallback('/max-webhook', {
+  maxBodySize: 2 * 1024 * 1024,
+});
+```
 
 ## Подписки
 
