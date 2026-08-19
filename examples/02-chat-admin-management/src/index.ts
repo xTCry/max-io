@@ -17,11 +17,7 @@ import {
 } from './env';
 
 type Command =
-  | 'get-users'
-  | 'get-admins'
-  | 'set-admin'
-  | 'delete-admin'
-  | 'delete-chat';
+  'get-users' | 'get-admins' | 'set-admin' | 'delete-admin' | 'delete-chat';
 
 const commands: { name: Command; description: string }[] = [
   { name: 'get-users', description: 'Получить список юзеров чата' },

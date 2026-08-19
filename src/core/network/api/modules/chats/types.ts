@@ -251,9 +251,7 @@ export type AddChatMembersResponse = ActionResponse & {
          * - `add.participant.not.found` — пользователи не найдены.
          */
         error_code:
-          | 'add.participant.privacy'
-          | 'add.participant.not.found'
-          | string;
+          'add.participant.privacy' | 'add.participant.not.found' | string;
         /** ID пользователей, к которым относится ошибка. */
         user_ids: number[];
       }[]

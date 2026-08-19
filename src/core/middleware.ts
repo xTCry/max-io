@@ -14,5 +14,4 @@ export interface MiddlewareObj<Ctx extends Context> {
 }
 
 export type Middleware<Ctx extends Context> =
-  | MiddlewareFn<Ctx>
-  | MiddlewareObj<Ctx>;
+  MiddlewareFn<Ctx> | MiddlewareObj<Ctx>;

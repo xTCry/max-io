@@ -120,9 +120,7 @@ export type SendContactButton = ReplyButtonBase & {
 
 /** Кнопка reply keyboard, которая отправляет сообщение от лица пользователя. */
 export type ReplyButton =
-  | SendMessageButton
-  | SendGeoLocationButton
-  | SendContactButton;
+  SendMessageButton | SendGeoLocationButton | SendContactButton;
 
 /** Типы кнопок, поддерживаемые актуальной схемой для inline keyboard. */
 export type Button =

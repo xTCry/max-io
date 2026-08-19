@@ -56,8 +56,7 @@ type UploadFromUrlOptions = {
 };
 
 type UploadFromUrlOrSourceOptions =
-  | UploadFromSourceOptions
-  | UploadFromUrlOptions;
+  UploadFromSourceOptions | UploadFromUrlOptions;
 
 type BaseFile = {
   fileName: string;
@@ -360,8 +359,7 @@ type UploadMultipartIgnoreOptions = {
 };
 
 type UploadMultipartOptions =
-  | UploadMultipartJsonOptions
-  | UploadMultipartIgnoreOptions;
+  UploadMultipartJsonOptions | UploadMultipartIgnoreOptions;
 
 /**
  * Загрузить файл через Content-Range запрос
