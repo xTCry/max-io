@@ -8,7 +8,7 @@ import type {
 } from '../../types';
 import type { FlattenReq } from '../types';
 
-/** DTO запроса сообщения по ID. */
+/** DTO запроса сообщения или поста по ID. */
 export type GetMessageDTO = {
   path: {
     /** ID сообщения (`mid`), чтобы получить одно сообщение в чате. */
@@ -21,7 +21,7 @@ export type GetMessageResponse = Message;
 
 /**
  * DTO запроса информации о сообщении или массива сообщений из чата.
- * Для выполнения raw-запроса нужно указать один из параметров: `chat_id` или `message_ids`.
+ * Для raw-запроса нужно указать один из параметров: `chat_id` или `message_ids`.
  */
 export type GetMessagesDTO = {
   query: {
@@ -29,9 +29,9 @@ export type GetMessagesDTO = {
     chat_id?: number;
     /** Список ID сообщений через запятую. Обязательный параметр, если не указан `chat_id`. */
     message_ids?: string | null;
-    /** Время начала для запрашиваемых сообщений, Unix timestamp. */
+    /** Нижняя граница времени сообщений, Unix timestamp в миллисекундах. */
     from?: number;
-    /** Время окончания для запрашиваемых сообщений, Unix timestamp. */
+    /** Верхняя граница времени сообщений, Unix timestamp в миллисекундах. */
     to?: number;
     /** Максимальное количество сообщений в ответе. */
     count?: number;
@@ -53,14 +53,14 @@ export type GetMessagesResponse = {
   messages: Message[];
 };
 
-/** DTO отправки сообщения в чат или диалог. */
+/** DTO отправки сообщения в диалог, групповой чат или поста в канал. */
 export type SendMessageDTO = {
   query: {
     /** Если нужно отправить сообщение пользователю, укажите его ID. */
     user_id?: number;
     /** Если сообщение отправляется в чат, укажите его ID. */
     chat_id?: number;
-    /** Если `false`, сервер не будет генерировать превью для ссылок в тексте сообщения. */
+    /** Если `false`, сервер не будет генерировать предпросмотр ссылок в тексте сообщения. */
     disable_link_preview?: boolean;
   };
   body: {
@@ -73,7 +73,7 @@ export type SendMessageDTO = {
     attachments?: AttachmentRequest[] | null;
     /** Ссылка на сообщение: ответ или пересылка. */
     link?: { type: MessageLinkType; mid: string } | null;
-    /** Если `false`, участники чата не будут уведомлены. По умолчанию `true`. */
+    /** Если `false`, участники чата не получат push-уведомления. Для каналов передавайте `true` или не указывайте поле. */
     notify?: boolean;
     /** Формат текста сообщения: `markdown` или `html`. */
     format?: 'markdown' | 'html' | null;
@@ -112,7 +112,7 @@ export type DeleteMessageExtra = Omit<
 /**
  * Ответ удаления сообщения.
  *
- * @remarks По схеме API бот должен быть администратором с правом удаления:
+ * @remarks По схеме Bot API 0.0.33 бот должен быть администратором с правом удаления:
  * в канале и групповом чате можно удалить любое сообщение, в диалоге — только отправленное ботом.
  * Не отправляйте более двух запросов удаления в секунду для одного диалога, чата или канала.
  */
@@ -121,7 +121,7 @@ export type DeleteMessageResponse = ActionResponse;
 /**
  * DTO редактирования сообщения.
  *
- * @remarks По схеме API сообщения в диалогах можно редактировать до 7 суток,
+ * @remarks По схеме Bot API 0.0.33 сообщения в диалогах можно редактировать до 7 суток,
  * а сообщения с inline-кнопками, в групповых чатах и каналах — без ограничения срока.
  */
 export type EditMessageDTO = {
@@ -138,7 +138,7 @@ export type EditMessageExtra = Omit<FlattenReq<EditMessageDTO>, 'message_id'>;
 /**
  * Ответ редактирования сообщения.
  *
- * @remarks По схеме API сообщения в диалогах можно редактировать до 7 суток,
+ * @remarks По схеме Bot API 0.0.33 сообщения в диалогах можно редактировать до 7 суток,
  * а сообщения с inline-кнопками, в групповых чатах и каналах — без ограничения срока.
  */
 export type EditMessageResponse = ActionResponse;
@@ -146,7 +146,7 @@ export type EditMessageResponse = ActionResponse;
 /** DTO ответа после нажатия пользователем кнопки. */
 export type AnswerOnCallbackDTO = {
   query: {
-    /** Идентификатор кнопки из update `message_callback`: `updates[i].callback.callback_id`. */
+    /** ID callback-запроса из update `message_callback`: `updates[i].callback.callback_id`. */
     callback_id: string;
   };
   body: {

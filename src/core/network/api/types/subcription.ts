@@ -11,7 +11,7 @@ type MakeUpdate<Type extends string, Payload extends object> = {
   [key in keyof Payload]: Payload[key];
 };
 
-/** Update нажатия callback-кнопки. */
+/** Update нажатия inline callback-кнопки. */
 export type MessageCallbackUpdate = MakeUpdate<
   'message_callback',
   {
@@ -19,21 +19,21 @@ export type MessageCallbackUpdate = MakeUpdate<
     callback: {
       /** Время нажатия кнопки, Unix timestamp в миллисекундах. */
       timestamp: number;
-      /** ID callback для ответа через `answerOnCallback`. */
+      /** ID callback-запроса для ответа через `answerOnCallback`. */
       callback_id: string;
-      /** Max len `1024` */
+      /** Payload нажатой кнопки. Ограничение API: до `1024` символов. */
       payload?: string;
       /** Пользователь, нажавший кнопку. */
       user: User;
     };
-    /** Сообщение, на котором была нажата кнопка. */
+    /** Сообщение или пост, на котором была нажата кнопка; в некоторых сценариях равно `null`. */
     message: Message | null;
     /** Локаль пользователя, если клиент её передал. */
     user_locale?: UserLocale | null;
   }
 >;
 
-/** Update создания сообщения. */
+/** Update нового сообщения, поста в канале или комментария. */
 export type MessageCreatedUpdate = MakeUpdate<
   'message_created',
   {
@@ -44,7 +44,7 @@ export type MessageCreatedUpdate = MakeUpdate<
   }
 >;
 
-/** Update удаления сообщения. */
+/** Update удаления сообщения или поста. */
 export type MessageRemovedUpdate = MakeUpdate<
   'message_removed',
   {
@@ -57,7 +57,7 @@ export type MessageRemovedUpdate = MakeUpdate<
   }
 >;
 
-/** Update редактирования сообщения. */
+/** Update редактирования сообщения или поста. */
 export type MessageEditedUpdate = MakeUpdate<
   'message_edited',
   {
@@ -66,7 +66,7 @@ export type MessageEditedUpdate = MakeUpdate<
   }
 >;
 
-/** Update добавления бота в чат. */
+/** Update добавления бота в групповой чат или канал. */
 export type BotAddedUpdate = MakeUpdate<
   'bot_added',
   {
@@ -74,12 +74,12 @@ export type BotAddedUpdate = MakeUpdate<
     chat_id: number;
     /** Пользователь, добавивший бота. */
     user: User;
-    /** `true`, если событие произошло в канале. */
+    /** `true`, если бот добавлен в канал, иначе — в групповой чат. */
     is_channel: boolean;
   }
 >;
 
-/** Update удаления бота из чата. */
+/** Update удаления бота из группового чата или канала. */
 export type BotRemovedUpdate = MakeUpdate<
   'bot_removed',
   {
@@ -92,7 +92,7 @@ export type BotRemovedUpdate = MakeUpdate<
   }
 >;
 
-/** Update добавления пользователя в чат. */
+/** Update добавления пользователя в групповой чат или канал. */
 export type UserAddedUpdate = MakeUpdate<
   'user_added',
   {
@@ -107,7 +107,7 @@ export type UserAddedUpdate = MakeUpdate<
   }
 >;
 
-/** Update удаления пользователя из чата. */
+/** Update удаления пользователя из группового чата или канала. */
 export type UserRemovedUpdate = MakeUpdate<
   'user_removed',
   {
@@ -122,7 +122,7 @@ export type UserRemovedUpdate = MakeUpdate<
   }
 >;
 
-/** Update запуска бота пользователем. */
+/** Update первого запуска или повторной активации бота пользователем. */
 export type BotStartedUpdate = MakeUpdate<
   'bot_started',
   {
@@ -130,27 +130,27 @@ export type BotStartedUpdate = MakeUpdate<
     chat_id: number;
     /** Пользователь, запустивший бота. */
     user: User | UserWithPhoto;
-    /** Payload запуска, если пользователь пришёл по deep link. */
+    /** Payload deep link; строки длиннее 512 символов API не передаёт. */
     payload?: string | null;
     /** Локаль пользователя, если клиент её передал. */
     user_locale?: UserLocale;
   }
 >;
 
-/** Update остановки бота пользователем. */
+/** Update остановки бота пользователем в настройках Max. */
 export type BotStoppedUpdate = MakeUpdate<
   'bot_stopped',
   {
     /** ID диалога, где произошло событие. */
     chat_id: number;
-    /** Пользователь, который остановил чат. */
+    /** Пользователь, который остановил бота. */
     user: User;
     /** Текущий язык пользователя в формате IETF BCP 47. */
     user_locale?: UserLocale | null;
   }
 >;
 
-/** Update очистки истории диалога. */
+/** Update очистки истории диалога с ботом. */
 export type DialogClearedUpdate = MakeUpdate<
   'dialog_cleared',
   {
@@ -178,7 +178,7 @@ export type DialogMutedUpdate = MakeUpdate<
   }
 >;
 
-/** Update удаления диалога пользователем. */
+/** Update удаления диалога с ботом пользователем. */
 export type DialogRemovedUpdate = MakeUpdate<
   'dialog_removed',
   {
@@ -204,7 +204,7 @@ export type DialogUnmutedUpdate = MakeUpdate<
   }
 >;
 
-/** Update изменения названия чата. */
+/** Update изменения названия группового чата. */
 export type ChatTitleChangedUpdate = MakeUpdate<
   'chat_title_changed',
   {
@@ -218,7 +218,7 @@ export type ChatTitleChangedUpdate = MakeUpdate<
 >;
 
 /**
- * @deprecated Отсутствует в актуальной схеме Bot API 0.0.32; оставлено для совместимости.
+ * @deprecated Отсутствует в схеме Bot API 0.0.33; оставлено для совместимости.
  */
 export type MessageConstructionRequestUpdate = MakeUpdate<
   'message_construction_request',
@@ -237,7 +237,7 @@ export type MessageConstructionRequestUpdate = MakeUpdate<
 >;
 
 /**
- * @deprecated Отсутствует в актуальной схеме Bot API 0.0.32; оставлено для совместимости.
+ * @deprecated Отсутствует в схеме Bot API 0.0.33; оставлено для совместимости.
  */
 export type MessageConstructedUpdate = MakeUpdate<
   'message_constructed',
@@ -252,7 +252,7 @@ export type MessageConstructedUpdate = MakeUpdate<
 >;
 
 /**
- * @deprecated Не входит в актуальный discriminator `Update` Bot API 0.0.32; оставлено для совместимости.
+ * @deprecated Не входит в discriminator `Update` схемы Bot API 0.0.33; оставлено для совместимости.
  */
 export type MessageChatCreatedUpdate = MakeUpdate<
   'message_chat_created',
@@ -266,7 +266,7 @@ export type MessageChatCreatedUpdate = MakeUpdate<
   }
 >;
 
-/** Все поддерживаемые типы updates. */
+/** Все update-типы, сохранённые в публичном union библиотеки. */
 export type UpdateType = Update['update_type'];
 
 /** Update, суженный по строковому типу события. */
@@ -309,7 +309,7 @@ export type FilteredUpdate<Type extends UpdateType> =
                                       ? MessageChatCreatedUpdate
                                       : never;
 
-/** Поддерживаемые updates Bot API. */
+/** Update Bot API, включая legacy-события для обратной совместимости. */
 export type Update =
   | MessageCallbackUpdate
   | MessageCreatedUpdate
@@ -330,27 +330,27 @@ export type Update =
   | MessageConstructedUpdate
   | MessageChatCreatedUpdate;
 
-/** Схема для описания подписки на WebHook. */
+/** Подписка бота на доставку событий через WebHook. */
 export type Subscription = {
   /** URL вебхука. */
   url: string;
   /** Unix-время, когда была создана подписка. */
   time: number;
-  /** Типы обновлений, на которые подписан бот. */
+  /** Типы updates, на которые подписан бот. */
   update_types: UpdateType[] | null;
-  /** Версия подписки, если сервер вернул её в ответе. */
+  /** Версия модели данных подписки, если сервер вернул её в ответе. */
   version?: string | null;
 };
 
-/** Запрос на настройку подписки WebHook. */
+/** Запрос на настройку доставки событий через WebHook. */
 export type SubscriptionRequestBody = {
   /** URL HTTPS-endpoint вашего бота. Должен начинаться с `https://`. */
   url: string;
-  /** Список типов обновлений, которые хочет получать бот. */
+  /** Список уникальных типов updates, которые должен получать бот. */
   update_types?: UpdateType[] | null;
   /**
    * Секрет для заголовка `X-Max-Bot-Api-Secret` в каждом Webhook-запросе.
-   * Ограничение API: от `5` до `256` символов; разрешены `A-Z`, `a-z`, `0-9` и дефис.
+   * Ограничение API: от `5` до `256` символов; разрешены `A-Z`, `a-z`, `0-9`, `_` и `-`.
    */
   secret?: string | null;
 };

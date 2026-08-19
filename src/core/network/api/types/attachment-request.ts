@@ -12,7 +12,7 @@ export type ImageAttachmentRequest = {
   payload: MediaAttachmentRequestPayload & {
     /** URL изображения. Взаимоисключается с `token` и `photos`. */
     url?: string | null;
-    /** Набор токенов изображений. Взаимоисключается с `url` и `token`. */
+    /** Токены изображений, полученные после upload. Взаимоисключаются с `url` и `token`. */
     photos?: {
       [key: string]: { token: string };
     } | null;
@@ -73,9 +73,9 @@ export type InlineKeyboardAttachmentRequest = {
 /** Запрос на прикрепление reply keyboard к исходящему сообщению. */
 export type ReplyKeyboardAttachmentRequest = {
   type: 'reply_keyboard';
-  /** Показывать клавиатуру только пользователю, которого бот упомянул или которому ответил. Применимо только для чатов. */
+  /** Показывать клавиатуру только пользователю, которого бот упомянул или которому ответил. Применимо только для групповых чатов. */
   direct?: boolean;
-  /** Если указан, reply keyboard будет показана только этому участнику чата. */
+  /** Если указан, reply keyboard будет показана только этому участнику группового чата. */
   direct_user_id?: number | null;
   /** Двумерный массив кнопок: строки и кнопки внутри строки. */
   buttons: ReplyButton[][];
@@ -100,13 +100,13 @@ export type ShareAttachmentRequest = {
   >;
 };
 
-/** Payload изображения для изменения иконки чата или бота. */
+/** Данные для прикрепления изображения к сообщению или установки аватара бота, чата либо канала. Поля взаимоисключающие. */
 export type PhotoAttachmentRequestPayload = {
   /** URL изображения. Взаимоисключается с `token` и `photos`. */
   url?: string | null;
   /** Токен изображения. Взаимоисключается с `url` и `photos`. */
   token?: string | null;
-  /** Набор токенов изображений. Взаимоисключается с `url` и `token`. */
+  /** Токены изображений, полученные после upload. Взаимоисключаются с `url` и `token`. */
   photos?: Record<string, string> | null;
 };
 

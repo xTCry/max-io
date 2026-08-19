@@ -1,7 +1,7 @@
 import type { Message } from './message';
 import type { UserWithPhoto } from './user';
 
-/** Тип чата в Max. В текущей схеме Bot API описан групповой чат `chat`; `dialog` и `channel` встречаются в runtime-ответах. */
+/** Тип получателя: групповой чат, канал или диалог. */
 export type ChatType = 'dialog' | 'chat' | 'channel';
 
 /**
@@ -10,10 +10,12 @@ export type ChatType = 'dialog' | 'chat' | 'channel';
  * - `removed` — бот был удалён из чата.
  * - `left` — бот покинул чат.
  * - `closed` — чат был закрыт.
+ *
+ * Значение `suspended` сохранено для совместимости с runtime-ответами.
  */
 export type ChatStatus = 'active' | 'removed' | 'left' | 'closed' | 'suspended';
 
-/** Информация о чате, диалоге или канале. */
+/** Общая информация о групповом чате, канале или диалоге. */
 export type Chat = {
   /** ID чата. У групповых чатов обычно отрицательный. */
   chat_id: number;
@@ -31,19 +33,19 @@ export type Chat = {
   participants_count: number;
   /** ID владельца чата, если сервер вернул это поле. */
   owner_id?: number | null;
-  /** Карта участников с временем последней активности; может не возвращаться в списке чатов. */
+  /** Карта `user_id` и времени последней активности в чате; в списке чатов может быть `null`. */
   participants?: { [key: string]: number | undefined } | null;
-  /** `true`, если чат доступен публично. */
+  /** `true`, если групповой чат или канал доступен публично; для диалогов всегда `false`. */
   is_public: boolean;
   /** Публичная ссылка на чат, если она настроена. */
   link?: string | null;
-  /** Описание чата. */
+  /** Описание чата или канала. */
   description: string | null;
   /** Данные собеседника для чатов типа `dialog`. */
   dialog_with_user?: UserWithPhoto | null;
   /** Количество сообщений, если сервер вернул статистику чата. */
   messages_count?: number | null;
-  /** @deprecated Отсутствует в актуальной схеме Bot API 0.0.32; оставлено для совместимости с runtime-ответами. */
+  /** @deprecated Отсутствует в схеме Bot API 0.0.33; оставлено для совместимости с runtime-ответами. */
   chat_message_id?: string | null;
   /** Закреплённое сообщение, если запрошен конкретный чат. */
   pinned_message?: Message | null;
@@ -53,7 +55,7 @@ export type Chat = {
  * Действие, отправляемое участникам чата:
  * `typing_on`, `sending_photo`, `sending_video`, `sending_audio`, `sending_file`.
  */
-/** @deprecated Отсутствует в актуальной схеме Bot API 0.0.32; оставлено для совместимости. */
+/** @deprecated Отсутствует в схеме Bot API 0.0.33; оставлено для совместимости. */
 export type DeprecatedSenderAction = 'mark_seen';
 
 export type SenderAction =
@@ -66,7 +68,7 @@ export type SenderAction =
 
 /**
  * Права администратора, описанные в Bot API для назначения через `setChatAdmins`.
- * Для ботов важно право `read_all_messages`: без него бот не будет получать updates в групповом чате.
+ * Для ботов важно `read_all_messages`: без него они не получают updates из групповых чатов и каналов.
  */
 export const CHAT_ADMIN_API_PERMISSIONS = [
   'read_all_messages',
@@ -95,7 +97,7 @@ export const CHAT_ADMIN_REGULAR_BOT_ASSIGNABLE_PERMISSIONS = [
   'write',
 ] as const;
 
-/** Права, которые сервер может вернуть у владельца чата, но обычный admin-бот их не назначает. */
+/** Права, которые сервер может вернуть у владельца канала, но не позволяет назначить обычному боту. */
 export const CHAT_ADMIN_OWNER_PERMISSIONS = ['view_stats'] as const;
 
 /** Полный известный набор прав, которые могут приходить от сервера. */
@@ -106,7 +108,7 @@ export const CHAT_ADMIN_PERMISSIONS = [
 
 /**
  * Право администратора, которое можно передавать в `setChatAdmins` согласно Bot API.
- * При повторном назначении администратора сервер обновляет его текущие права доступа.
+ * Повторное назначение полностью заменяет текущий набор прав.
  */
 export type ChatAdminApiPermission =
   (typeof CHAT_ADMIN_API_PERMISSIONS)[number];
@@ -134,15 +136,15 @@ export type ChatMember = {
   username: string | null;
   /** `true`, если участник является ботом. */
   is_bot: boolean;
-  /** Время последней активности в Max, Unix timestamp в миллисекундах. */
-  last_activity_time: number;
+  /** Время последней активности в Max, Unix timestamp в миллисекундах; может отсутствовать при скрытом статусе онлайн. */
+  last_activity_time?: number;
   /** Описание профиля участника. */
   description?: string | null;
   /** URL уменьшенного аватара. */
   avatar_url?: string;
   /** URL полного аватара. */
   full_avatar_url?: string;
-  /** Время последней активности пользователя в чате. Может быть устаревшим для суперчатов. */
+  /** Время последней активности в чате или канале, Unix timestamp в миллисекундах. */
   last_access_time: number;
   /** `true`, если участник является владельцем чата. */
   is_owner: boolean;

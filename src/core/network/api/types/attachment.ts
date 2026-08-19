@@ -3,9 +3,9 @@ import type { Button, ReplyButton } from './keyboard';
 import type { User } from './user';
 
 type MediaPayload = {
-  /** URL загруженного медиафайла. */
+  /** URL вложения; у видео прямую ссылку можно также получить через `getVideoAttachmentDetails`. */
   url: string;
-  /** Токен загруженного медиафайла для повторного использования в API. */
+  /** Токен для повторного использования вложения в другом сообщении. */
   token: string;
 };
 
@@ -22,13 +22,13 @@ export type PhotoAttachment = {
 export type VideoAttachment = {
   type: 'video';
   payload: MediaPayload;
-  /** URL превью видео. */
+  /** URL превью видео, если сервер его вернул. */
   thumbnail?: string | null;
   /** Ширина видео в пикселях. */
   width?: number | null;
   /** Высота видео в пикселях. */
   height?: number | null;
-  /** Длительность видео. */
+  /** Длительность видео в секундах. */
   duration?: number | null;
 };
 
@@ -68,7 +68,7 @@ export type VideoAttachmentDetails = {
   width?: number | null;
   /** Высота видео в пикселях. */
   height?: number | null;
-  /** Длительность видео. */
+  /** Длительность видео в секундах. */
   duration?: number | null;
 };
 
@@ -126,7 +126,7 @@ export type ShareAttachment = {
   title?: string | null;
   /** Описание предпросмотра. */
   description?: string | null;
-  /** URL изображения предпросмотра. */
+  /** URL изображения предпросмотра. Время его жизни может быть ограничено сервером. */
   image_url?: string | null;
 };
 

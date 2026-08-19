@@ -1,4 +1,4 @@
-/** Базовая структура элемента разметки текста сообщения. */
+/** Базовая структура элемента разметки: позиция указывается в символах исходного текста. */
 type MakeMarkup<Type extends string, Data extends object = {}> = {
   /** Тип элемента разметки. */
   type: Type;
@@ -31,7 +31,7 @@ export type UnderlineMarkup = MakeMarkup<'underline'>;
 /** Заголовок. */
 export type HeadingMarkup = MakeMarkup<'heading'>;
 
-/** Выделенный текст. */
+/** Выделенный цветом текст. */
 export type HighlightedMarkup = MakeMarkup<'highlighted'>;
 
 /** Цитата. */

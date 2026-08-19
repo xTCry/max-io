@@ -1,7 +1,7 @@
 /** Намерение кнопки, влияющее на отображение в клиентах Max. */
 export type ButtonIntent = 'default' | 'positive' | 'negative';
 
-/** После нажатия на такую кнопку клиент отправляет на сервер полезную нагрузку. */
+/** После нажатия клиент отправляет боту update `message_callback` с payload кнопки. */
 export type CallbackButton = {
   type: 'callback';
   /**
@@ -11,13 +11,13 @@ export type CallbackButton = {
    * Ограничение API: от `1` до `128` символов.
    */
   text: string;
-  /** Токен кнопки. Ограничение API: до `1024` символов. */
+  /** Payload кнопки. Ограничение API: до `1024` символов. */
   payload: string;
   /** @deprecated Отключено на клиенте */
   intent?: ButtonIntent;
 };
 
-/** После нажатия на такую кнопку пользователь переходит по ссылке, которую она содержит. */
+/** После нажатия пользователь переходит по ссылке из кнопки. */
 export type LinkButton = {
   type: 'link';
   /**
@@ -47,14 +47,14 @@ export type RequestGeoLocationButton = {
   quick?: boolean;
 };
 
-/** Кнопка запуска мини-приложения. */
+/** Кнопка запуска mini app указанного бота. */
 export type OpenAppButton = {
   type: 'open_app';
   /** Видимый текст кнопки. Ограничение API: от `1` до `128` символов. */
   text: string;
   /** Публичное имя (`username`) бота или ссылка на него, чьё мини-приложение надо запустить. */
   web_app?: string | null;
-  /** Параметр запуска, который будет передан в `initData` мини-приложения. */
+  /** Параметр запуска, который клиент передаст mini app в `initData`. */
   payload?: string | null;
   /** Идентификатор бота, чьё мини-приложение надо запустить. */
   contact_id?: number | null;
@@ -67,7 +67,7 @@ export type MessageButton = {
   text: string;
 };
 
-/** После нажатия на кнопку указанный текст копируется в буфер обмена. */
+/** После нажатия указанный текст копируется в буфер обмена. */
 export type ClipboardButton = {
   type: 'clipboard';
   /** Видимый текст кнопки. Ограничение API: от `1` до `128` символов. */
@@ -124,7 +124,7 @@ export type ReplyButton =
   | SendGeoLocationButton
   | SendContactButton;
 
-/** Поддерживаемые актуальным API типы кнопок для inline keyboard. */
+/** Типы кнопок, поддерживаемые актуальной схемой для inline keyboard. */
 export type Button =
   | CallbackButton
   | LinkButton

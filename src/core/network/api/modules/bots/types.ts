@@ -4,15 +4,15 @@ import type {
   PhotoAttachmentRequestPayload,
 } from '../../types';
 
-/** Ответ с информацией о текущем боте. */
+/** Ответ `GET /me` с профилем бота, определённого access token. */
 export type GetMyInfoResponse = BotInfo;
 
-/** DTO изменения профиля текущего бота. */
+/** DTO частичного изменения профиля текущего бота. */
 export type EditMyInfoDTO = {
   body: {
-    /** Новое имя бота. */
+    /** Новое отображаемое имя или название бота. */
     first_name?: string | null;
-    /** Новая фамилия или второе имя бота. */
+    /** Новое второе имя бота. */
     last_name?: string | null;
     /** @deprecated Используйте `first_name`. */
     name?: string | null;
@@ -20,7 +20,7 @@ export type EditMyInfoDTO = {
     description?: string | null;
     /** Список команд бота. Передайте пустой массив, чтобы удалить команды. */
     commands?: BotCommand[] | null;
-    /** Новая фотография профиля бота. */
+    /** Данные нового аватара бота. */
     photo?: PhotoAttachmentRequestPayload | null;
   };
 };
@@ -28,7 +28,7 @@ export type EditMyInfoDTO = {
 /** Ответ с обновлённой информацией о текущем боте. */
 export type EditMyInfoResponse = BotInfo;
 
-/** DTO изменения списка команд текущего бота. */
+/** DTO полной замены списка команд текущего бота. */
 export type EditMyCommandsDTO = {
   body: {
     /** Новый список команд бота. Передайте пустой массив, чтобы удалить команды. */

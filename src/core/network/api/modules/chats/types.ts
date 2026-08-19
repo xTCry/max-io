@@ -9,7 +9,11 @@ import type {
 } from '../../types';
 import type { FlattenReq } from '../types';
 
-/** DTO запроса списка чатов, где бот участвовал или участвует. */
+/**
+ * DTO запроса списка групповых чатов и каналов.
+ *
+ * @deprecated С июня 2026 API не поддерживает `GET /chats`; сохраняйте `chat_id` из updates.
+ */
 export type GetAllChatsDTO = {
   query: {
     /** Максимальное количество чатов в ответе. */
@@ -19,7 +23,7 @@ export type GetAllChatsDTO = {
   };
 };
 
-/** Параметры метода `api.getAllChats`. */
+/** @deprecated Параметры устаревшего метода `api.getAllChats`. */
 export type GetAllChatsExtra = FlattenReq<GetAllChatsDTO>;
 
 type DefaultPath = {
@@ -27,7 +31,7 @@ type DefaultPath = {
   chat_id: number;
 };
 
-/** Ответ со списком чатов. */
+/** @deprecated Ответ устаревшего `GET /chats`. */
 export type GetAllChatsResponse = {
   /** Страница чатов. */
   chats: Chat[];
@@ -45,7 +49,7 @@ export type GetChatByIdResponse = Chat;
 /**
  * DTO запроса канала по публичной ссылке.
  *
- * @deprecated Endpoint отсутствует в архивных схемах Bot API 0.0.32 от 10 и 22 июля 2026 года.
+ * @deprecated Endpoint отсутствует в схеме Bot API 0.0.33.
  * Ручная проверка `GET /chats/max_news` на основном endpoint 23 июля 2026 года вернула `404 chat.not.found`.
  * Оставлен для обратной совместимости.
  */
@@ -61,22 +65,22 @@ export type GetChatByLinkDTO = {
  */
 export type GetChatByLinkResponse = Chat;
 
-/** DTO удаления группового чата для всех участников. */
+/** DTO удаления группового чата или канала для всех участников. */
 export type DeleteChatDTO = {
   path: DefaultPath;
 };
 
 export type DeleteChatResponse = ActionResponse;
 
-/** DTO изменения информации группового чата. */
+/** DTO изменения информации группового чата или канала. */
 export type EditChatInfoDTO = {
   path: DefaultPath;
   body: {
-    /** Новая иконка чата. */
+    /** Новый аватар чата или канала. */
     icon?: PhotoAttachmentRequestPayload | null;
     /** Новое название чата. */
     title?: string | null;
-    /** ID сообщения, которое нужно закрепить. */
+    /** ID сообщения или поста для закрепления. Для снятия закрепа используйте отдельный DELETE-метод. */
     pin?: string | null;
     /** Нужно ли отправлять уведомление участникам. */
     notify?: boolean | null;
@@ -88,7 +92,7 @@ export type EditChatExtra = Omit<FlattenReq<EditChatInfoDTO>, 'chat_id'>;
 
 export type EditChatInfoResponse = Chat;
 
-/** DTO отправки действия бота в чат. */
+/** DTO отправки действия бота в групповой чат. */
 export type SendActionDTO = {
   path: DefaultPath;
   body: {
@@ -99,18 +103,18 @@ export type SendActionDTO = {
 
 export type SendActionResponse = ActionResponse;
 
-/** DTO запроса закреплённого сообщения. */
+/** DTO запроса закреплённого сообщения или поста. */
 export type GetPinnedMessageDTO = {
   path: DefaultPath;
 };
 
 /** Ответ с закреплённым сообщением. */
 export type GetPinnedMessageResponse = {
-  /** Закреплённое сообщение или `null`, если закрепа нет. */
+  /** Закреплённое сообщение или пост, либо `null`, если закрепа нет. */
   message: Message | null;
 };
 
-/** DTO закрепления сообщения. */
+/** DTO закрепления сообщения или поста. */
 export type PinMessageDTO = {
   path: DefaultPath;
   body: {
@@ -129,33 +133,33 @@ export type PinMessageExtra = Omit<
 
 export type PinMessageResponse = ActionResponse;
 
-/** DTO снятия закреплённого сообщения. */
+/** DTO снятия закреплённого сообщения или поста. */
 export type UnpinMessageDTO = {
   path: DefaultPath;
 };
 
 export type UnpinMessageResponse = ActionResponse;
 
-/** DTO получения информации о текущем боте как участнике чата. */
+/** DTO получения информации о текущем боте как участнике группового чата или канала. */
 export type GetChatMembershipDTO = {
   path: DefaultPath;
 };
 
 export type GetChatMembershipResponse = ChatMember;
 
-/** DTO выхода бота из чата. */
+/** DTO выхода бота из группового чата или канала. */
 export type LeaveChatDTO = {
   path: DefaultPath;
 };
 
 export type LeaveChatResponse = ActionResponse;
 
-/** DTO получения списка администраторов чата. */
+/** DTO получения списка администраторов группового чата или канала. */
 export type GetChatAdminsDTO = {
   path: DefaultPath;
 };
 
-/** Ответ со списком администраторов чата. */
+/** Ответ со списком администраторов группового чата или канала. */
 export type GetChatAdminsResponse = {
   /** Администраторы чата. */
   members: ChatMember[];
@@ -165,26 +169,28 @@ export type GetChatAdminsResponse = {
 
 /** Администратор, которого нужно назначить или обновить через `setChatAdmins`. */
 export type ChatAdmin = {
-  /** ID пользователя-участника чата, которому назначаются права администратора. Максимум — 50 администраторов в чате. */
+  /** ID участника чата или подписчика канала. Максимум — 50 администраторов. */
   user_id: number;
-  /** Перечень прав доступа пользователя. При повторном назначении обновляет текущие права администратора. */
+  /** Полный перечень прав. Повторное назначение полностью заменяет текущие права администратора. */
   permissions: ChatAdminApiPermission[];
   /** Заголовок, который будет показан в клиенте; если не задан, клиент подставляет “владелец” или “админ”. */
   alias?: string | null;
 };
 
+/** DTO назначения или полной замены прав администраторов. */
 export type SetChatAdminsDTO = {
   path: DefaultPath;
   body: {
     /** Список назначаемых или обновляемых администраторов. */
     admins: ChatAdmin[];
-    /** Маркер для пагинации, если сервер использует его в этом методе. */
+    /** Маркер следующей страницы, если сервер вернул или поддерживает пагинацию. */
     marker?: number | null;
   };
 };
 
 export type SetChatAdminsResponse = ActionResponse;
 
+/** DTO снятия прав администратора без исключения из чата или канала. */
 export type DeleteChatAdminDTO = {
   path: DefaultPath & {
     /** ID пользователя, у которого нужно снять права администратора. */
@@ -194,7 +200,7 @@ export type DeleteChatAdminDTO = {
 
 export type DeleteChatAdminResponse = ActionResponse;
 
-/** DTO получения участников чата. */
+/** DTO получения участников группового чата или канала. */
 export type GetChatMembersDTO = {
   path: DefaultPath;
   query: {
@@ -223,7 +229,7 @@ export type GetChatMembersResponse = {
   marker?: number | null;
 };
 
-/** DTO добавления пользователей в групповой чат. */
+/** DTO добавления пользователей в групповой чат. Подписчиков канала этим методом добавить нельзя. */
 export type AddChatMembersDTO = {
   path: DefaultPath;
   body: {
@@ -254,7 +260,7 @@ export type AddChatMembersResponse = ActionResponse & {
     | null;
 };
 
-/** DTO удаления пользователя из чата. */
+/** DTO удаления пользователя из группового чата или канала. */
 export type RemoveChatMemberDTO = {
   path: DefaultPath;
   query: {

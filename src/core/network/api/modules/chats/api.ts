@@ -38,6 +38,7 @@ import type {
 } from './types';
 
 export class ChatsApi extends BaseApi {
+  /** @deprecated С июня 2026 API не поддерживает `GET /chats`; сохраняйте `chat_id` из updates. */
   async getAll({
     ...query
   }: FlattenReq<GetAllChatsDTO>): Promise<GetAllChatsResponse> {
@@ -46,6 +47,7 @@ export class ChatsApi extends BaseApi {
     });
   }
 
+  /** Возвращает информацию о групповом чате или канале по ID. */
   async getById({
     chat_id,
   }: FlattenReq<GetChatByIdDTO>): Promise<GetChatByIdResponse> {
@@ -55,7 +57,7 @@ export class ChatsApi extends BaseApi {
   }
 
   /**
-   * @deprecated Endpoint отсутствует в архивных схемах Bot API 0.0.32 от 10 и 22 июля 2026 года.
+   * @deprecated Endpoint отсутствует в схеме Bot API 0.0.33 от 18 августа 2026 года.
    * Ручная проверка `GET /chats/max_news` на основном endpoint 23 июля 2026 года вернула `404 chat.not.found`.
    * Оставлен для обратной совместимости.
    */
@@ -67,6 +69,7 @@ export class ChatsApi extends BaseApi {
     });
   }
 
+  /** Частично изменяет название, аватар или закреплённое сообщение чата либо канала. */
   async edit({
     chat_id,
     ...body
@@ -77,6 +80,7 @@ export class ChatsApi extends BaseApi {
     });
   }
 
+  /** Удаляет групповой чат или канал при наличии у бота соответствующего права. */
   async delete({
     chat_id,
   }: FlattenReq<DeleteChatDTO>): Promise<DeleteChatResponse> {
@@ -85,6 +89,7 @@ export class ChatsApi extends BaseApi {
     });
   }
 
+  /** Возвращает информацию о текущем боте как участнике группового чата или канала. */
   async getChatMembership({
     chat_id,
   }: FlattenReq<GetChatMembershipDTO>): Promise<GetChatMembershipResponse> {
@@ -93,6 +98,7 @@ export class ChatsApi extends BaseApi {
     });
   }
 
+  /** Возвращает список администраторов группового чата или канала. */
   async getChatAdmins({
     chat_id,
   }: FlattenReq<GetChatAdminsDTO>): Promise<GetChatAdminsResponse> {
@@ -101,6 +107,7 @@ export class ChatsApi extends BaseApi {
     });
   }
 
+  /** Назначает администраторов или полностью заменяет их права. */
   async setChatAdmins({
     chat_id,
     ...body
@@ -111,6 +118,7 @@ export class ChatsApi extends BaseApi {
     });
   }
 
+  /** Снимает права администратора, не исключая пользователя или бота из чата либо канала. */
   async deleteChatAdmin({
     chat_id,
     user_id,
@@ -120,6 +128,7 @@ export class ChatsApi extends BaseApi {
     });
   }
 
+  /** Добавляет пользователей в групповой чат; подписчиков канала добавить нельзя. */
   async addChatMembers({
     chat_id,
     ...body
@@ -130,6 +139,7 @@ export class ChatsApi extends BaseApi {
     });
   }
 
+  /** Возвращает участников группового чата или канала. */
   async getChatMembers({
     chat_id,
     ...query
@@ -140,6 +150,7 @@ export class ChatsApi extends BaseApi {
     });
   }
 
+  /** Удаляет участника из группового чата или канала. */
   async removeChatMember({
     chat_id,
     ...query
@@ -150,6 +161,7 @@ export class ChatsApi extends BaseApi {
     });
   }
 
+  /** Возвращает закреплённое сообщение или пост. */
   async getPinnedMessage({
     chat_id,
   }: FlattenReq<GetPinnedMessageDTO>): Promise<GetPinnedMessageResponse> {
@@ -158,6 +170,7 @@ export class ChatsApi extends BaseApi {
     });
   }
 
+  /** Закрепляет сообщение в групповом чате или пост в канале. */
   async pinMessage({
     chat_id,
     ...body
@@ -168,6 +181,7 @@ export class ChatsApi extends BaseApi {
     });
   }
 
+  /** Снимает закреплённое сообщение или пост. */
   async unpinMessage({
     chat_id,
   }: FlattenReq<UnpinMessageDTO>): Promise<UnpinMessageResponse> {
@@ -176,6 +190,7 @@ export class ChatsApi extends BaseApi {
     });
   }
 
+  /** Отправляет видимое пользователям действие бота в групповой чат. */
   async sendAction({
     chat_id,
     ...body
@@ -186,6 +201,7 @@ export class ChatsApi extends BaseApi {
     });
   }
 
+  /** Удаляет текущего бота из группового чата или канала. */
   async leaveChat({
     chat_id,
   }: FlattenReq<LeaveChatDTO>): Promise<LeaveChatResponse> {

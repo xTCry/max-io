@@ -1,7 +1,7 @@
 import type { MarkupElement } from './markup';
 import type { MessageRecipient, MessageSender } from './message';
 
-/** Тело комментария к посту в канале. */
+/** Содержимое комментария к посту в канале. */
 export type CommentMessageBody = {
   /** Уникальный ID комментария (`mid`). */
   mid: string;
@@ -9,7 +9,7 @@ export type CommentMessageBody = {
   seq: number;
   /** Текст комментария. Может быть `null`. */
   text: string | null;
-  /** Разметка текста комментария. Ссылки и упоминания пользователей не поддерживаются. */
+  /** Разметка текста; гиперссылки и упоминания пользователей в комментариях не поддерживаются. */
   markup?: MarkupElement[] | null;
 };
 
@@ -25,7 +25,7 @@ export type CommentLinkedMessage = {
   message: CommentMessageBody;
 };
 
-/** Комментарий к посту в канале. */
+/** Комментарий к посту в канале без вложений и без поддержки пересылки. */
 export type CommentMessage = {
   /** Отправитель комментария. Может быть `null`, если комментарий опубликован от имени канала. */
   sender?: MessageSender | null;

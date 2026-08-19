@@ -17,8 +17,9 @@ import type {
 type SendCommentRequest = FlattenReq<SendCommentDTO> &
   Pick<ReqOptions, 'signal'>;
 
-/** Raw API для комментариев к постам в каналах. */
+/** Raw API для чтения и изменения комментариев к постам в каналах. */
 export class CommentsApi extends BaseApi {
+  /** Возвращает страницу комментариев к посту. */
   async get({
     message_id,
     ...query
@@ -38,6 +39,7 @@ export class CommentsApi extends BaseApi {
     });
   }
 
+  /** Создаёт комментарий к посту в канале. */
   async send({
     message_id,
     disable_link_preview,
@@ -52,6 +54,7 @@ export class CommentsApi extends BaseApi {
     });
   }
 
+  /** Редактирует комментарий к посту. */
   async edit({
     message_id,
     comment_id,
@@ -64,6 +67,7 @@ export class CommentsApi extends BaseApi {
     });
   }
 
+  /** Удаляет комментарий к посту. */
   async delete({
     message_id,
     ...query

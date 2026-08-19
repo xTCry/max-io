@@ -7,7 +7,7 @@ type CommentPath = {
   message_id: string;
 };
 
-/** DTO получения комментариев к посту в канале. */
+/** DTO получения постраничного списка комментариев к посту в канале. */
 export type GetCommentsDTO = {
   path: CommentPath;
   query: {
@@ -31,7 +31,7 @@ export type GetCommentsExtra = Omit<
   comment_ids?: string[];
 };
 
-/** Ответ со страницей комментариев. */
+/** Ответ со страницей комментариев к посту. */
 export type GetCommentsResponse = {
   /** Список комментариев к посту. */
   messages: CommentMessage[];
@@ -48,17 +48,20 @@ export type GetCommentByIdDTO = {
 /** Ответ с комментарием. */
 export type GetCommentByIdResponse = CommentMessage;
 
-/** Содержимое нового или редактируемого комментария. */
+/**
+ * Содержимое нового или редактируемого комментария.
+ * Вложения и пересылка (`forward`) для комментариев не поддерживаются.
+ */
 export type NewCommentBody = {
   /** Текст комментария. Ограничение API: до `4000` символов. */
   text?: string | null;
   /** Ответ на комментарий. Пересылка комментариев не поддерживается. */
   link?: { type: 'reply'; mid: string } | null;
-  /** Формат текста комментария: `markdown` или `html`. */
+  /** Формат текста: `markdown` или `html`; ссылки и упоминания пользователей не поддерживаются. */
   format?: 'markdown' | 'html' | null;
 };
 
-/** DTO отправки комментария к посту. */
+/** DTO отправки комментария к посту в канале. */
 export type SendCommentDTO = {
   path: CommentPath;
   query: {
@@ -83,7 +86,7 @@ export type SendCommentResponse = {
   message: CommentMessage;
 };
 
-/** DTO редактирования комментария. */
+/** DTO редактирования комментария к посту. */
 export type EditCommentDTO = {
   path: CommentPath;
   query: {
@@ -102,7 +105,7 @@ export type EditCommentExtra = Omit<
 /** Ответ редактирования комментария. */
 export type EditCommentResponse = ActionResponse;
 
-/** DTO удаления комментария. */
+/** DTO удаления комментария к посту. */
 export type DeleteCommentDTO = {
   path: CommentPath;
   query: {

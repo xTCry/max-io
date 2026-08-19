@@ -50,6 +50,7 @@ const createAttachmentNotReadyRetryError = (
 };
 
 export class MessagesApi extends BaseApi {
+  /** Возвращает сообщения чата, посты канала или выборку по message ID. */
   get = async ({
     ...query
   }: FlattenReq<GetMessagesDTO>): Promise<GetMessagesResponse> => {
@@ -58,6 +59,7 @@ export class MessagesApi extends BaseApi {
     });
   };
 
+  /** Возвращает сообщение или пост по ID. */
   getById = async ({
     message_id,
   }: FlattenReq<GetMessageDTO>): Promise<GetMessageResponse> => {
@@ -66,6 +68,7 @@ export class MessagesApi extends BaseApi {
     });
   };
 
+  /** Возвращает прямые URL и метаданные видео-вложения по его токену. */
   getVideoAttachmentDetails = async ({
     video_token,
   }: FlattenReq<GetVideoAttachmentDetailsDTO>): Promise<GetVideoAttachmentDetailsResponse> => {
@@ -74,6 +77,7 @@ export class MessagesApi extends BaseApi {
     });
   };
 
+  /** Отправляет сообщение в диалог, групповой чат или пост в канал. */
   send = async ({
     chat_id,
     user_id,
@@ -128,6 +132,7 @@ export class MessagesApi extends BaseApi {
     });
   };
 
+  /** Редактирует сообщение или пост. */
   edit = async ({
     message_id,
     ...body
@@ -138,12 +143,14 @@ export class MessagesApi extends BaseApi {
     });
   };
 
+  /** Удаляет сообщение или пост. */
   delete = async ({ ...query }: FlattenReq<DeleteMessageDTO>) => {
     return this._delete('messages', {
       query,
     });
   };
 
+  /** Отвечает на нажатие callback-кнопки уведомлением или заменой текущего сообщения. */
   answerOnCallback = async ({
     callback_id,
     ...body
