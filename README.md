@@ -6,25 +6,25 @@
   <a href="https://www.npmjs.com/package/max-io"><img src="https://img.shields.io/npm/v/max-io.svg?style=flat-square" alt="npm"></a>
   <a href="https://www.npmjs.com/package/max-io"><img src="https://img.shields.io/npm/dt/max-io.svg?style=flat-square" alt="npm downloads"></a>
   <a href="./LICENSE"><img src="https://img.shields.io/npm/l/max-io.svg?style=flat-square" alt="license"></a>
-  <a href="https://github.com/max-messenger-bot/max-bot-api-schemas"><img src="https://img.shields.io/badge/API%20schema-0.0.32-168de2?style=flat-square" alt="Max Bot API schema 0.0.32"></a>
+  <a href="https://github.com/xTCry/max-dev-openapi-schema"><img src="https://img.shields.io/badge/API%20schema-0.0.33-168de2?style=flat-square" alt="Max Bot API schema 0.0.33"></a>
   <a href="https://github.com/xtcry/max-io"><img src="https://img.shields.io/github/last-commit/xtcry/max-io?style=flat-square" alt="GitHub last commit"></a>
 </p>
 
 > **Max IO** — TypeScript-фреймворк для разработки чат-ботов в мессенджере **Max**. Библиотека даёт middleware-runtime, typed context, long polling, webhook, upload helpers, клавиатуры и дополнительные модули для session/scene/i18n.
 
-Типы API сверяются с архивом OpenAPI-схем [`max-messenger-bot/max-bot-api-schemas`](https://github.com/max-messenger-bot/max-bot-api-schemas). Текущий ориентир: `schema_2026_07_22`, версия Max Bot API `0.0.32`.
+Типы API сверяются с актуальным архивом OpenAPI-схем [`xTCry/max-dev-openapi-schema`](https://github.com/xTCry/max-dev-openapi-schema). Текущий ориентир: схема от `2026-08-18`, версия Max Bot API `0.0.33`.
 
 ## Возможности
 
-| Возможность        | Что даёт                                                                               |
-| ------------------ | -------------------------------------------------------------------------------------- |
-| Middleware-runtime | `bot.use`, `bot.on`, `bot.command`, `bot.hears`, `bot.action`                          |
-| Typed Context      | `ctx.reply`, `ctx.message`, `ctx.args`, `ctx.payload`, `ctx.state`, `ctx.api`          |
-| Long polling       | `bot.start()`, marker API, режим для разработки и тестирования                         |
-| Webhook            | `bot.start({ webhook })`, `webhookCallback`, `createWebhook`, `deleteWebhook`          |
-| Upload             | image/video/audio/file, progress, timeout, `AbortSignal`, retry `attachment.not.ready` |
-| Клавиатуры         | inline keyboard, `open_app`, `message`, `clipboard`, reply keyboard types              |
-| Модули             | `max-io/lib/session`, `max-io/lib/scene`, `max-io/lib/i18n`                            |
+| Возможность        | Что даёт                                                                                                |
+| ------------------ | ------------------------------------------------------------------------------------------------------- |
+| Middleware-runtime | `bot.use`, `bot.on`, `bot.command`, `bot.hears`, `bot.action`                                           |
+| Typed Context      | `ctx.reply`, `ctx.message`, `ctx.args`, `ctx.payload`, `ctx.state`, `ctx.api`                           |
+| Long polling       | `bot.start()`, marker API, режим для разработки и тестирования                                          |
+| Webhook            | `bot.start({ webhook })`, `webhookCallback`, `createWebhook`, `deleteWebhook`                           |
+| Upload             | image/video/audio/file, progress, timeout, `AbortSignal`, повторная отправка при `attachment.not.ready` |
+| Клавиатуры         | inline keyboard, `open_app`, `message`, `clipboard`, reply keyboard types                               |
+| Модули             | `max-io/lib/session`, `max-io/lib/scene`, `max-io/lib/i18n`                                             |
 
 ## Установка
 
@@ -106,7 +106,7 @@ await bot.start({
 });
 ```
 
-Если `path` не указан, `max-io` создаёт безопасный стабильный path по токену. Входящий JSON body ограничен `5 MiB`; лимит можно изменить через `webhook.maxBodySize` в байтах. При запуске webhook по умолчанию удаляются старые подписки с другими URL; при запуске polling удаляются все webhook-подписки.
+Если `path` не указан, `max-io` создаёт безопасный стабильный path по токену. Callback принимает только `POST` с `content-type: application/json`; входящий JSON body ограничен `5 MiB`, а лимит можно изменить через `webhook.maxBodySize` в байтах. При запуске webhook по умолчанию удаляются старые подписки с другими URL; при запуске polling удаляются все webhook-подписки.
 
 Подробнее: [`docs/webhook.md`](./docs/webhook.md).
 
@@ -187,7 +187,7 @@ import { SessionManager } from 'max-io/lib/session';
 
 - `max-io/lib/session` — session middleware с memory/Redis storage.
 - `max-io/lib/scene` — сцены и step-сценарии поверх session.
-- `max-io/lib/i18n` — YAML-локализация с поддержкой session.
+- `max-io/lib/i18n` — YAML/JSON-локализация с поддержкой session.
 
 Подробнее: [`docs/05-sessions-scenes-i18n.md`](./docs/05-sessions-scenes-i18n.md).
 
@@ -210,6 +210,16 @@ import { SessionManager } from 'max-io/lib/session';
 | `max-io/lib/session` | Session middleware                                                    |
 | `max-io/lib/scene`   | Scene manager                                                         |
 | `max-io/lib/i18n`    | I18n middleware                                                       |
+
+## Проверка проекта
+
+```bash
+yarn test
+yarn typecheck
+yarn lint
+yarn build
+yarn test:coverage
+```
 
 ## Примеры
 

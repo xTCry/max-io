@@ -37,7 +37,7 @@ Long polling подходит для разработки и ручной про
 
 OpenAPI-схема, Go SDK и фактическое поведение API иногда расходятся. Для новых публичных типов и методов лучше фиксировать источник: схема, runtime-проверка или payload из живого API.
 
-Текущий ориентир для типизации — архив OpenAPI-схем [`max-messenger-bot/max-bot-api-schemas`](https://github.com/max-messenger-bot/max-bot-api-schemas), файл `schema_2026_07_22`, версия Bot API `0.0.32`.
+Текущий ориентир для типизации — актуальный архив OpenAPI-схем [`xTCry/max-dev-openapi-schema`](https://github.com/xTCry/max-dev-openapi-schema), схема от `2026-08-18`, версия Bot API `0.0.33`.
 
 Если поле или событие исчезло из актуальной схемы, но уже было частью публичных типов `max-io` или встречалось в runtime-ответах, библиотека временно оставляет его и помечает `@deprecated`. Это снижает риск breaking changes при обновлении схемы.
 
