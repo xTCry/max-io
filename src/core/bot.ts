@@ -523,7 +523,9 @@ const readWebhookUpdate = async (
   try {
     return JSON.parse(body) as Update;
   } catch {
-    throw new WebhookPayloadInvalidError('Webhook request body is invalid JSON');
+    throw new WebhookPayloadInvalidError(
+      'Webhook request body is invalid JSON',
+    );
   }
 };
 
@@ -533,7 +535,9 @@ const isJsonWebhookRequest = (request: http.IncomingMessage) => {
     return false;
   }
 
-  return contentType.split(';', 1)[0].trim().toLowerCase() === 'application/json';
+  return (
+    contentType.split(';', 1)[0].trim().toLowerCase() === 'application/json'
+  );
 };
 
 const isWebhookContentLengthTooLarge = (

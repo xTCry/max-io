@@ -31,11 +31,19 @@ describe('attachment helpers', () => {
       type: 'image',
       payload: { token: 'image-token' },
     });
-    expect(new ImageAttachment({ url: 'https://cdn.example.test/image.png' }).toJson()).toEqual({
+    expect(
+      new ImageAttachment({
+        url: 'https://cdn.example.test/image.png',
+      }).toJson(),
+    ).toEqual({
       type: 'image',
       payload: { url: 'https://cdn.example.test/image.png' },
     });
-    expect(new ImageAttachment({ photos: { large: { token: 'large-token' } } }).toJson()).toEqual({
+    expect(
+      new ImageAttachment({
+        photos: { large: { token: 'large-token' } },
+      }).toJson(),
+    ).toEqual({
       type: 'image',
       payload: { photos: { large: { token: 'large-token' } } },
     });
@@ -46,12 +54,19 @@ describe('attachment helpers', () => {
       type: 'sticker',
       payload: { code: 'sticker-code' },
     });
-    expect(new LocationAttachment({ lon: 37.6173, lat: 55.7558 }).toJson()).toEqual({
+    expect(
+      new LocationAttachment({ lon: 37.6173, lat: 55.7558 }).toJson(),
+    ).toEqual({
       type: 'location',
       longitude: 37.6173,
       latitude: 55.7558,
     });
-    expect(new ShareAttachment({ url: 'https://max.ru', token: 'image-token' }).toJson()).toEqual({
+    expect(
+      new ShareAttachment({
+        url: 'https://max.ru',
+        token: 'image-token',
+      }).toJson(),
+    ).toEqual({
       type: 'share',
       payload: { url: 'https://max.ru', token: 'image-token' },
     });

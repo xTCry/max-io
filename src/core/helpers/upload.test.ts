@@ -1,7 +1,6 @@
 import * as fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { Api } from '../api';
@@ -32,13 +31,11 @@ describe('Upload', () => {
 
   it('отправляет Buffer как multipart file и сообщает progress', async () => {
     const api = createApi();
-    const fetchMock = vi
-      .fn<typeof fetch>()
-      .mockResolvedValue(
-        new Response(JSON.stringify({ id: 1, token: 'file-token' }), {
-          status: 200,
-        }),
-      );
+    const fetchMock = vi.fn<typeof fetch>().mockResolvedValue(
+      new Response(JSON.stringify({ id: 1, token: 'file-token' }), {
+        status: 200,
+      }),
+    );
     vi.stubGlobal('fetch', fetchMock);
     vi.spyOn(api.raw.uploads, 'getUploadUrl').mockResolvedValue({
       url: 'https://upload.example.test/file',
@@ -67,10 +64,13 @@ describe('Upload', () => {
       loaded: 0,
       total: 9,
     });
-    expect(onProgress).toHaveBeenNthCalledWith(2, expect.objectContaining({
-      phase: 'upload',
-      loaded: 0,
-    }));
+    expect(onProgress).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({
+        phase: 'upload',
+        loaded: 0,
+      }),
+    );
     expect(onProgress).toHaveBeenLastCalledWith({
       phase: 'complete',
       mode: 'multipart',
@@ -90,12 +90,17 @@ describe('Upload', () => {
       url: 'https://upload.example.test/video',
       token: 'video-token',
     });
-    const directory = await fs.mkdtemp(path.join(os.tmpdir(), 'max-io-upload-'));
+    const directory = await fs.mkdtemp(
+      path.join(os.tmpdir(), 'max-io-upload-'),
+    );
     const sourcePath = path.join(directory, 'clip.mp4');
     await fs.writeFile(sourcePath, Buffer.alloc(128 * 1024, 'a'));
     const onProgress = vi.fn();
 
-    const attachment = await api.uploadVideo({ source: sourcePath, onProgress });
+    const attachment = await api.uploadVideo({
+      source: sourcePath,
+      onProgress,
+    });
 
     expect(attachment.toJson()).toEqual({
       type: 'video',
@@ -156,9 +161,10 @@ describe('Upload', () => {
       vi
         .fn<typeof fetch>()
         .mockResolvedValue(
-          new Response(JSON.stringify({ code: 'upload.failed', message: 'Failed' }), {
-            status: 500,
-          }),
+          new Response(
+            JSON.stringify({ code: 'upload.failed', message: 'Failed' }),
+            { status: 500 },
+          ),
         ),
     );
     vi.spyOn(api.raw.uploads, 'getUploadUrl').mockResolvedValue({
