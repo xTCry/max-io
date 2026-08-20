@@ -48,31 +48,39 @@ export class SessionManager<
       }
 
       let changed = false;
-      const wrapSession = (targetRaw: object): ISessionContext =>
-        new Proxy<ISessionContext>(
-          { ...targetRaw, $forceUpdate },
-          {
-            set: (target, prop: string, value): boolean => {
-              changed = true;
+      const wrapSession = (targetRaw: object): ISessionContext => {
+        const target = { ...targetRaw } as ISessionContext;
 
-              target[prop] = value;
+        // Служебный метод не должен попасть в сериализуемое содержимое сессии.
+        Object.defineProperty(target, '$forceUpdate', {
+          value: $forceUpdate,
+          enumerable: false,
+        });
 
-              return true;
-            },
-            deleteProperty: (target, prop: string): boolean => {
-              changed = true;
+        return new Proxy<ISessionContext>(target, {
+          set: (target, prop: string, value): boolean => {
+            changed = true;
 
-              delete target[prop];
+            target[prop] = value;
 
-              return true;
-            },
+            return true;
           },
-        );
+          deleteProperty: (target, prop: string): boolean => {
+            changed = true;
+
+            delete target[prop];
+
+            return true;
+          },
+        });
+      };
 
       const $forceUpdate = (): Promise<boolean> => {
-        if (Object.keys(session).length > 1) {
+        if (Object.keys(session).length > 0) {
           changed = false;
-          return storage.set(storageKey, session);
+          // Storage может удерживать переданный объект в памяти, поэтому сохраняем
+          // снимок текущего состояния, а не изменяемый Proxy.
+          return storage.set(storageKey, { ...session });
         }
 
         return storage.delete(storageKey);
