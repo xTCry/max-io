@@ -31,7 +31,7 @@
     "format:check": "prettier --check \"src/**/*.{ts,js}\" \"examples/**/*.{ts,js}\"",
     "build": "rimraf lib/ && tsc -p tsconfig.build.json && tsc-alias -p tsconfig.build.json && npm run build:types-entry",
     "build:types-entry": "tsx build/create-types-entry.ts",
-    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.contract.json --noEmit",
     "lint": "eslint ./src",
     "lint:fix": "npm run lint -- --fix",
     "test": "vitest run",

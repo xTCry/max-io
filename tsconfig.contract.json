@@ -1,0 +1,18 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "noEmit": true,
+    "paths": {
+      "@lib": ["./src/"],
+      "@lib/*": ["./src/*"],
+      "@core": ["./src/core"],
+      "@core/*": ["./src/core/*"],
+      "max-io": ["./src/index.ts"],
+      "max-io/types": ["./src/types.ts"],
+      "max-io/lib/session": ["./src/session/index.ts"],
+      "max-io/lib/scene": ["./src/scene/index.ts"],
+      "max-io/lib/i18n": ["./src/i18n/index.ts"]
+    }
+  },
+  "files": ["./contract-tests/public-entrypoints.ts"]
+}
