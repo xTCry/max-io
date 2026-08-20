@@ -54,7 +54,6 @@
     "./LICENSE",
     "./docs/",
     "./lib/",
-    "./src/",
     "./tsconfig.json",
     "./THIRD_PARTY_NOTICES.md",
     "types.*"
