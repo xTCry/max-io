@@ -60,7 +60,7 @@ export class CacheRepository<Key extends string, Value> {
   public strictGet(key: Key): Value {
     const value = this.get(key);
 
-    if (!value) {
+    if (value === undefined) {
       throw new Error(`Value by ${key} not found`);
     }
 
