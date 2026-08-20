@@ -2,7 +2,11 @@ import * as http from 'node:http';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { Bot } from './bot';
-import type { BotStoppedUpdate } from './network/api';
+import type {
+  BotInfo,
+  BotStoppedUpdate,
+  MessageCreatedUpdate,
+} from './network/api';
 
 const createUpdate = (): BotStoppedUpdate => ({
   update_type: 'bot_stopped',
@@ -15,6 +19,42 @@ const createUpdate = (): BotStoppedUpdate => ({
     username: null,
     is_bot: false,
   },
+});
+
+const createMessageCreatedUpdate = (): MessageCreatedUpdate => ({
+  update_type: 'message_created',
+  timestamp: 1_700_000_000_000,
+  user_locale: 'ru',
+  message: {
+    recipient: {
+      chat_id: 42,
+      chat_type: 'dialog',
+      user_id: 100,
+    },
+    timestamp: 1_700_000_000_000,
+    body: {
+      mid: 'mid.test.1',
+      seq: 1,
+      text: '/start hello',
+      attachments: null,
+    },
+    sender: {
+      user_id: 7,
+      first_name: 'Test',
+      name: 'Test',
+      username: null,
+      is_bot: false,
+    },
+    constructor: null,
+  },
+});
+
+const createBotInfo = (): BotInfo => ({
+  user_id: 100,
+  first_name: 'Test bot',
+  name: 'Test bot',
+  username: 'test_bot',
+  is_bot: true,
 });
 
 const sendRequest = async ({
@@ -174,5 +214,51 @@ describe('Bot.webhookCallback', () => {
       body: '{"ok":false,"error":"internal_error"}',
     });
     expect(handler).not.toHaveBeenCalled();
+  });
+});
+
+describe('Bot.start polling', () => {
+  it('доставляет ответ polling в command middleware и корректно останавливается', async () => {
+    const update = createMessageCreatedUpdate();
+    const bot = new Bot('test-token', {
+      apiBaseUrl: 'https://api.example.test/',
+    });
+    const command = vi.fn(async () => {
+      bot.stop();
+    });
+    bot.command('start', command);
+
+    const fetchMock = vi
+      .fn<typeof fetch>()
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify(createBotInfo()), { status: 200 }),
+      )
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ subscriptions: [] }), { status: 200 }),
+      )
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ updates: [update], marker: 36586680 }), {
+          status: 200,
+        }),
+      );
+    vi.stubGlobal('fetch', fetchMock);
+
+    await bot.start();
+
+    expect(command).toHaveBeenCalledWith(
+      expect.objectContaining({
+        update,
+        command: 'start',
+        payload: 'hello',
+        args: ['hello'],
+      }),
+      expect.any(Function),
+    );
+    expect(fetchMock.mock.calls.map(([url]) => url)).toEqual([
+      'https://api.example.test/me',
+      'https://api.example.test/subscriptions',
+      'https://api.example.test/updates?types=',
+    ]);
+    expect(bot.polling.marker).toBe(36586680);
   });
 });
