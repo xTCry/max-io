@@ -1,5 +1,45 @@
 # Changelog
 
+## [0.1.7](/github.com/xTCry/max-io/compare/v0.1.6...v0.1.7) (2026-08-20)
+
+### ⚙️ Chore
+
+* **release:** update release tooling ([508d4d1](/github.com/xTCry/max-io/commit/508d4d18a31e3fbc64db6197e3418c831f581204))
+
+### 🐛 Bug Fixes
+
+* **deps:** synchronize yarn lockfile ([e618f5b](/github.com/xTCry/max-io/commit/e618f5b23ba1e837b511554736f7269becef7f0c))
+* **session:** persist session snapshots safely ([2ce7fb2](/github.com/xTCry/max-io/commit/2ce7fb239686f506e138750515de79e8d10e65ea))
+
+### 📖 Documentation
+
+* **readme:** refresh api and verif notes ([6cbc3a8](/github.com/xTCry/max-io/commit/6cbc3a80a94e3e32921301a99f174e5e95b45105))
+
+### ☯ Styling
+
+* **format:** prettier runtime coverage changes ([0708ef4](/github.com/xTCry/max-io/commit/0708ef40f4c481e60be6cc3dd250bf77d2315dd2))
+
+### 🐱‍💻 Tests
+
+* **api:** add raw endpoint mapping coverage ([e49dec8](/github.com/xTCry/max-io/commit/e49dec88112219acf462ad5784e59e31639073af))
+* **api:** cover client transport behavior ([4f41ede](/github.com/xTCry/max-io/commit/4f41ede76dd8a68e70ecb83449d979ec20422bb1))
+* **api:** cover high-level api adapters ([0783fd8](/github.com/xTCry/max-io/commit/0783fd857382b041e9a42c42fd17183dc1721720))
+* **composer:** cover middleware dispatch behavior ([af26f45](/github.com/xTCry/max-io/commit/af26f4542cbe2149d3f18f1a7cd9b55f7f3bc1d0))
+* **context:** cover update helpers and aip delegation ([44e4d5d](/github.com/xTCry/max-io/commit/44e4d5dd741ec90a98920ce2625baba9226ede1a))
+* **helpers:** cover builders, uploads and cache repository ([8f0e14d](/github.com/xTCry/max-io/commit/8f0e14d3f246f6c44ed024bff2e67b933e250a90))
+* **i18n:** cover locale loading and middleware behavior ([d84a59b](/github.com/xTCry/max-io/commit/d84a59b1d480ee8e234f24877e06c6752da49bf2))
+* **integration:** cover session scene i18n flow ([17fdfaa](/github.com/xTCry/max-io/commit/17fdfaacdc11744351bf84e0b934ab73c3dcd1ba))
+* **runtime:** add webhook and polling coverage ([58264ea](/github.com/xTCry/max-io/commit/58264ea454d7256b90a7b086c63cddaba7f2bf6e))
+* **runtime:** add webhook and polling coverage ([c34a5ef](/github.com/xTCry/max-io/commit/c34a5ef4f2cfad446195c886fa77d62446bc3b9f))
+* **runtime:** cover webhook validation and polling edge cases ([f160483](/github.com/xTCry/max-io/commit/f1604836a9afb15961f7f95418188fcb3fae9e42))
+* **scene:** cover lifecycle and step transitions ([2e884d4](/github.com/xTCry/max-io/commit/2e884d4e25cf827ca645ddca54710f0b2512597a))
+* **session:** cover memory and redis storages ([7160128](/github.com/xTCry/max-io/commit/716012880e8056556bd95fae8e455e5d38a6322d))
+* **types:** add public entrypoint contract checks ([8b75999](/github.com/xTCry/max-io/commit/8b75999e8d14256d40fcd72ca2c83bb8084a462a))
+
+### 🔨 Build System
+
+* **package:** exclude test files from npm artifact ([eb6efb9](/github.com/xTCry/max-io/commit/eb6efb96bbb4b1c3cd2fd78c695cc5f164065e85))
+
 ## [0.1.6](/github.com/xTCry/max-io/compare/v0.1.5...v0.1.6) (2026-08-19)
 
 ### ⚙️ Chore
