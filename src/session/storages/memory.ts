@@ -31,7 +31,7 @@ export class MemoryStorage implements ISessionStorage {
     return Promise.resolve(this.store.delete(key));
   }
 
-  public async touch(): Promise<void> {
+  public async touch(_key: string): Promise<void> {
     // ...
   }
 }

@@ -77,6 +77,7 @@ server.listen(3000);
 
 - HTTP method `POST`;
 - path запроса;
+- заголовок `content-type: application/json` (допустимы параметры вроде `charset=utf-8`);
 - заголовок `x-max-bot-api-secret`, если передан `secret`;
 - размер JSON body: не более `5 MiB` по умолчанию; превышение вернёт `413`;
 - JSON body update;

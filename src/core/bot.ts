@@ -298,6 +298,16 @@ export class Bot<Ctx extends Context = Context> extends Composer<Ctx> {
         return;
       }
 
+      if (!isJsonWebhookRequest(request)) {
+        webhookDebug('Rejected webhook request with unsupported content type');
+        response.writeHead(415, { 'content-type': 'application/json' });
+        response.end(
+          JSON.stringify({ ok: false, error: 'unsupported_media_type' }),
+        );
+        request.resume();
+        return;
+      }
+
       if (isWebhookContentLengthTooLarge(request, maxBodySize)) {
         webhookDebug('Rejected webhook request with oversized body');
         response.writeHead(413, { 'content-type': 'application/json' });
@@ -328,6 +338,9 @@ export class Bot<Ctx extends Context = Context> extends Composer<Ctx> {
           response.end(
             JSON.stringify({ ok: false, error: 'payload_too_large' }),
           );
+        } else if (error instanceof WebhookPayloadInvalidError) {
+          response.writeHead(400, { 'content-type': 'application/json' });
+          response.end(JSON.stringify({ ok: false, error: 'invalid_payload' }));
         } else {
           response.writeHead(500, { 'content-type': 'application/json' });
           response.end(JSON.stringify({ ok: false, error: 'internal_error' }));
@@ -503,7 +516,28 @@ const readWebhookUpdate = async (
   const body = Buffer.concat(chunks).toString('utf8');
   webhookDebug('Webhook request body received, length=%d', body.length);
 
-  return JSON.parse(body) as Update;
+  if (!body) {
+    throw new WebhookPayloadInvalidError('Webhook request body is empty');
+  }
+
+  try {
+    return JSON.parse(body) as Update;
+  } catch {
+    throw new WebhookPayloadInvalidError(
+      'Webhook request body is invalid JSON',
+    );
+  }
+};
+
+const isJsonWebhookRequest = (request: http.IncomingMessage) => {
+  const contentType = request.headers['content-type'];
+  if (!contentType || Array.isArray(contentType)) {
+    return false;
+  }
+
+  return (
+    contentType.split(';', 1)[0].trim().toLowerCase() === 'application/json'
+  );
 };
 
 const isWebhookContentLengthTooLarge = (
@@ -535,6 +569,13 @@ class WebhookPayloadTooLargeError extends Error {
   constructor(maxBodySize: number) {
     super(`Webhook request body exceeds ${maxBodySize} bytes`);
     this.name = 'WebhookPayloadTooLargeError';
+  }
+}
+
+class WebhookPayloadInvalidError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'WebhookPayloadInvalidError';
   }
 }
 
