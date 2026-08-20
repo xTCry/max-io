@@ -112,4 +112,48 @@ describe('Polling', () => {
 
     expect(getUpdates).toHaveBeenCalledTimes(1);
   });
+
+  it('сохраняет marker пустой пачки и не вызывает обработчик', async () => {
+    const getUpdates = vi
+      .fn<Api['getUpdates']>()
+      .mockResolvedValueOnce({ updates: [], marker: 10 })
+      .mockImplementationOnce(async (...args) => {
+        const signal = args[1]?.signal;
+        await new Promise<void>((resolve) => {
+          signal?.addEventListener('abort', () => resolve(), { once: true });
+        });
+
+        throw new DOMException('Aborted', 'AbortError');
+      });
+    const polling = new Polling(createApi(getUpdates) as Api);
+    const handleUpdate = vi.fn(async () => undefined);
+
+    const loop = polling.loop(handleUpdate);
+    await vi.waitFor(() => expect(getUpdates).toHaveBeenCalledTimes(2));
+
+    polling.stop();
+    await loop;
+
+    expect(handleUpdate).not.toHaveBeenCalled();
+    expect(polling.marker).toBe(10);
+    expect(getUpdates).toHaveBeenNthCalledWith(
+      2,
+      [],
+      expect.objectContaining({ marker: 10 }),
+    );
+  });
+
+  it('не запускает следующий polling-запрос после остановки в обработчике', async () => {
+    const getUpdates = vi
+      .fn<Api['getUpdates']>()
+      .mockResolvedValue({ updates: [createUpdate()], marker: 10 });
+    const polling = new Polling(createApi(getUpdates) as Api);
+
+    await polling.loop(async () => {
+      polling.stop();
+    });
+
+    expect(getUpdates).toHaveBeenCalledTimes(1);
+    expect(polling.marker).toBe(10);
+  });
 });

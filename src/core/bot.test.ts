@@ -163,6 +163,61 @@ describe('Bot.webhookCallback', () => {
     expect(handler).not.toHaveBeenCalled();
   });
 
+  it('отклоняет неверный method, path и content-type до middleware', async () => {
+    const bot = new Bot('test-token');
+    const handler = vi.fn(async () => undefined);
+    bot.use(handler);
+    const listener = bot.webhookCallback('/updates');
+
+    const methodResponse = await sendRequest({
+      listener,
+      method: 'GET',
+      path: '/updates',
+    });
+    const pathResponse = await sendRequest({
+      listener,
+      path: '/other-path',
+    });
+    const contentTypeResponse = await sendRequest({
+      listener,
+      path: '/updates',
+      headers: { 'content-type': 'text/plain' },
+      bodyChunks: [JSON.stringify(createUpdate())],
+    });
+
+    expect(methodResponse).toEqual({
+      status: 404,
+      body: '{"ok":false,"error":"not_found"}',
+    });
+    expect(pathResponse).toEqual({
+      status: 404,
+      body: '{"ok":false,"error":"not_found"}',
+    });
+    expect(contentTypeResponse).toEqual({
+      status: 415,
+      body: '{"ok":false,"error":"unsupported_media_type"}',
+    });
+    expect(handler).not.toHaveBeenCalled();
+  });
+
+  it('отклоняет пустой webhook body без запуска middleware', async () => {
+    const bot = new Bot('test-token');
+    const handler = vi.fn(async () => undefined);
+    bot.use(handler);
+
+    const response = await sendRequest({
+      listener: bot.webhookCallback('/updates'),
+      path: '/updates',
+      headers: { 'content-type': 'application/json' },
+    });
+
+    expect(response).toEqual({
+      status: 400,
+      body: '{"ok":false,"error":"invalid_payload"}',
+    });
+    expect(handler).not.toHaveBeenCalled();
+  });
+
   it('отклоняет body больше лимита по Content-Length', async () => {
     const bot = new Bot('test-token');
     const handler = vi.fn(async () => undefined);
@@ -171,7 +226,7 @@ describe('Bot.webhookCallback', () => {
     const response = await sendRequest({
       listener: bot.webhookCallback('/updates', { maxBodySize: 10 }),
       path: '/updates',
-      headers: { 'content-length': '11' },
+      headers: { 'content-length': '11', 'content-type': 'application/json' },
       bodyChunks: ['01234567890'],
     });
 
@@ -190,6 +245,7 @@ describe('Bot.webhookCallback', () => {
     const response = await sendRequest({
       listener: bot.webhookCallback('/updates', { maxBodySize: 10 }),
       path: '/updates',
+      headers: { 'content-type': 'application/json' },
       bodyChunks: ['012345', '678901'],
     });
 
@@ -208,12 +264,13 @@ describe('Bot.webhookCallback', () => {
     const response = await sendRequest({
       listener: bot.webhookCallback('/updates'),
       path: '/updates',
+      headers: { 'content-type': 'application/json' },
       bodyChunks: ['{invalid'],
     });
 
     expect(response).toEqual({
-      status: 500,
-      body: '{"ok":false,"error":"internal_error"}',
+      status: 400,
+      body: '{"ok":false,"error":"invalid_payload"}',
     });
     expect(handler).not.toHaveBeenCalled();
   });
@@ -262,5 +319,20 @@ describe('Bot.start polling', () => {
       'https://api.example.test/updates?types=',
     ]);
     expect(bot.polling.marker).toBe(36586680);
+  });
+
+  it('передает ошибку middleware в пользовательский обработчик', async () => {
+    const bot = new Bot('test-token');
+    const middlewareError = new Error('middleware failed');
+    const errorHandler = vi.fn(async () => undefined);
+    bot.use(async () => Promise.reject(middlewareError));
+    bot.catch(errorHandler);
+
+    await expect(bot.handleUpdate(createUpdate())).resolves.toBeUndefined();
+
+    expect(errorHandler).toHaveBeenCalledWith(
+      middlewareError,
+      expect.objectContaining({ update: createUpdate() }),
+    );
   });
 });
