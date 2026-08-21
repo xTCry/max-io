@@ -521,12 +521,36 @@ const readWebhookUpdate = async (
   }
 
   try {
-    return JSON.parse(body) as Update;
+    const update = JSON.parse(body) as unknown;
+
+    if (!isWebhookUpdate(update)) {
+      throw new WebhookPayloadInvalidError(
+        'Webhook request body does not contain a valid update envelope',
+      );
+    }
+
+    return update;
   } catch {
     throw new WebhookPayloadInvalidError(
       'Webhook request body is invalid JSON',
     );
   }
+};
+
+/** Проверяет обязательные поля update до передачи пользовательской middleware. */
+const isWebhookUpdate = (value: unknown): value is Update => {
+  if (!value || typeof value !== 'object') {
+    return false;
+  }
+
+  const { update_type, timestamp } = value as Record<string, unknown>;
+
+  return (
+    typeof update_type === 'string' &&
+    update_type.length > 0 &&
+    typeof timestamp === 'number' &&
+    Number.isFinite(timestamp)
+  );
 };
 
 const isJsonWebhookRequest = (request: http.IncomingMessage) => {

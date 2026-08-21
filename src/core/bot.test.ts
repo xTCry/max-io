@@ -274,6 +274,25 @@ describe('Bot.webhookCallback', () => {
     });
     expect(handler).not.toHaveBeenCalled();
   });
+
+  it('отклоняет JSON без обязательных полей update', async () => {
+    const bot = new Bot('test-token');
+    const handler = vi.fn(async () => undefined);
+    bot.use(handler);
+
+    const response = await sendRequest({
+      listener: bot.webhookCallback('/updates'),
+      path: '/updates',
+      headers: { 'content-type': 'application/json' },
+      bodyChunks: [JSON.stringify({ update_type: 'bot_stopped' })],
+    });
+
+    expect(response).toEqual({
+      status: 400,
+      body: '{"ok":false,"error":"invalid_payload"}',
+    });
+    expect(handler).not.toHaveBeenCalled();
+  });
 });
 
 describe('Bot.start polling', () => {
