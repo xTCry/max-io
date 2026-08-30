@@ -80,6 +80,8 @@ export type EditChatInfoDTO = {
     icon?: PhotoAttachmentRequestPayload | null;
     /** Новое название чата. */
     title?: string | null;
+    /** Новое описание чата или канала. Пустая строка удаляет описание. Ограничение API: до `16000` символов. */
+    description?: string | null;
     /** ID сообщения или поста для закрепления. Для снятия закрепа используйте отдельный DELETE-метод. */
     pin?: string | null;
     /** Нужно ли отправлять уведомление участникам. */

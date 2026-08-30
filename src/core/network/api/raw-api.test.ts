@@ -257,12 +257,17 @@ describe('RawApi endpoint mapping', () => {
       },
       {
         title: 'answer callback',
-        invoke: () => raw.messages.answerOnCallback({ callback_id: 'cb.1' }),
+        invoke: () =>
+          raw.messages.answerOnCallback({
+            callback_id: 'cb.1',
+            disable_link_preview: true,
+            notification: 'Done',
+          }),
         method: 'answers',
         options: {
           method: 'POST',
-          query: { callback_id: 'cb.1' },
-          body: {},
+          query: { callback_id: 'cb.1', disable_link_preview: true },
+          body: { notification: 'Done' },
         },
       },
       {

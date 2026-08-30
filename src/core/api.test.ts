@@ -116,9 +116,16 @@ describe('Api', () => {
       .spyOn(api.raw.subscriptions, 'unsubscribe')
       .mockResolvedValue({ success: true });
 
-    await api.editChatInfo(42, { title: 'New title', notify: false });
-    await api.answerOnCallback('callback.1', { notification: 'Done' });
-    await api.getUpdates(['message_created', 'bot_started'], { limit: 10 });
+    await api.editChatInfo(42, {
+      title: 'New title',
+      description: 'New description',
+      notify: false,
+    });
+    await api.answerOnCallback('callback.1', {
+      disable_link_preview: true,
+      notification: 'Done',
+    });
+    await api.getUpdates(['message_created', 'comment_created'], { limit: 10 });
     await api.subscribe({
       url: 'https://bot.example.test/updates',
       update_types: ['message_created'],
@@ -128,14 +135,16 @@ describe('Api', () => {
     expect(editChat).toHaveBeenCalledWith({
       chat_id: 42,
       title: 'New title',
+      description: 'New description',
       notify: false,
     });
     expect(answer).toHaveBeenCalledWith({
       callback_id: 'callback.1',
+      disable_link_preview: true,
       notification: 'Done',
     });
     expect(getUpdates).toHaveBeenCalledWith({
-      types: 'message_created,bot_started',
+      types: 'message_created,comment_created',
       limit: 10,
     });
     expect(subscribe).toHaveBeenCalledWith({

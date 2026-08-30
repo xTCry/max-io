@@ -66,6 +66,39 @@ export type MessageEditedUpdate = MakeUpdate<
   }
 >;
 
+/** Update нового комментария к посту в канале. */
+export type CommentCreatedUpdate = MakeUpdate<
+  'comment_created',
+  {
+    /** Новый комментарий. Схема Bot API описывает его общим объектом сообщения. */
+    message: Message;
+  }
+>;
+
+/** Update редактирования комментария к посту в канале. */
+export type CommentEditedUpdate = MakeUpdate<
+  'comment_edited',
+  {
+    /** Отредактированный комментарий. Схема Bot API описывает его общим объектом сообщения. */
+    message: Message;
+  }
+>;
+
+/** Update удаления комментария к посту в канале. */
+export type CommentRemovedUpdate = MakeUpdate<
+  'comment_removed',
+  {
+    /** ID удалённого комментария. */
+    message_id: string;
+    /** ID канала, где был удалён комментарий. */
+    chat_id: number;
+    /** ID пользователя или бота, удалившего комментарий. */
+    user_id: number;
+    /** ID поста в канале. Поле обязательно, но может быть `null`. */
+    post_id: string | null;
+  }
+>;
+
 /** Update добавления бота в групповой чат или канал. */
 export type BotAddedUpdate = MakeUpdate<
   'bot_added',
@@ -279,35 +312,41 @@ export type FilteredUpdate<Type extends UpdateType> =
         ? MessageRemovedUpdate
         : Type extends 'message_edited'
           ? MessageEditedUpdate
-          : Type extends 'bot_added'
-            ? BotAddedUpdate
-            : Type extends 'bot_removed'
-              ? BotRemovedUpdate
-              : Type extends 'user_added'
-                ? UserAddedUpdate
-                : Type extends 'user_removed'
-                  ? UserRemovedUpdate
-                  : Type extends 'bot_started'
-                    ? BotStartedUpdate
-                    : Type extends 'bot_stopped'
-                      ? BotStoppedUpdate
-                      : Type extends 'dialog_cleared'
-                        ? DialogClearedUpdate
-                        : Type extends 'dialog_muted'
-                          ? DialogMutedUpdate
-                          : Type extends 'dialog_removed'
-                            ? DialogRemovedUpdate
-                            : Type extends 'dialog_unmuted'
-                              ? DialogUnmutedUpdate
-                              : Type extends 'chat_title_changed'
-                                ? ChatTitleChangedUpdate
-                                : Type extends 'message_construction_request'
-                                  ? MessageConstructionRequestUpdate
-                                  : Type extends 'message_constructed'
-                                    ? MessageConstructedUpdate
-                                    : Type extends 'message_chat_created'
-                                      ? MessageChatCreatedUpdate
-                                      : never;
+          : Type extends 'comment_created'
+            ? CommentCreatedUpdate
+            : Type extends 'comment_edited'
+              ? CommentEditedUpdate
+              : Type extends 'comment_removed'
+                ? CommentRemovedUpdate
+                : Type extends 'bot_added'
+                  ? BotAddedUpdate
+                  : Type extends 'bot_removed'
+                    ? BotRemovedUpdate
+                    : Type extends 'user_added'
+                      ? UserAddedUpdate
+                      : Type extends 'user_removed'
+                        ? UserRemovedUpdate
+                        : Type extends 'bot_started'
+                          ? BotStartedUpdate
+                          : Type extends 'bot_stopped'
+                            ? BotStoppedUpdate
+                            : Type extends 'dialog_cleared'
+                              ? DialogClearedUpdate
+                              : Type extends 'dialog_muted'
+                                ? DialogMutedUpdate
+                                : Type extends 'dialog_removed'
+                                  ? DialogRemovedUpdate
+                                  : Type extends 'dialog_unmuted'
+                                    ? DialogUnmutedUpdate
+                                    : Type extends 'chat_title_changed'
+                                      ? ChatTitleChangedUpdate
+                                      : Type extends 'message_construction_request'
+                                        ? MessageConstructionRequestUpdate
+                                        : Type extends 'message_constructed'
+                                          ? MessageConstructedUpdate
+                                          : Type extends 'message_chat_created'
+                                            ? MessageChatCreatedUpdate
+                                            : never;
 
 /** Update Bot API, включая legacy-события для обратной совместимости. */
 export type Update =
@@ -315,6 +354,9 @@ export type Update =
   | MessageCreatedUpdate
   | MessageRemovedUpdate
   | MessageEditedUpdate
+  | CommentCreatedUpdate
+  | CommentEditedUpdate
+  | CommentRemovedUpdate
   | BotAddedUpdate
   | BotRemovedUpdate
   | UserAddedUpdate

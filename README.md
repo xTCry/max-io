@@ -12,7 +12,7 @@
 
 > **Max IO** — TypeScript-фреймворк для разработки чат-ботов в мессенджере **Max**. Библиотека даёт middleware-runtime, typed context, long polling, webhook, upload helpers, клавиатуры и дополнительные модули для session/scene/i18n.
 
-Типы API сверяются с актуальным архивом OpenAPI-схем [`xTCry/max-dev-openapi-schema`](https://github.com/xTCry/max-dev-openapi-schema). Текущий ориентир: схема от `2026-08-18`, версия Max Bot API `0.0.33`.
+Типы API сверяются с актуальным архивом OpenAPI-схем [`xTCry/max-dev-openapi-schema`](https://github.com/xTCry/max-dev-openapi-schema). Текущий ориентир: схема от `2026-08-26`, версия Max Bot API `0.0.33`.
 
 ## Возможности
 

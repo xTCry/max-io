@@ -148,6 +148,8 @@ export type AnswerOnCallbackDTO = {
   query: {
     /** ID callback-запроса из update `message_callback`: `updates[i].callback.callback_id`. */
     callback_id: string;
+    /** Если `true`, сервер не будет генерировать предпросмотр ссылок в новом сообщении. */
+    disable_link_preview?: boolean;
   };
   body: {
     /** Заполните это поле, если хотите изменить текущее сообщение. */

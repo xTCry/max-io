@@ -5,6 +5,9 @@ import { Context } from './context';
 import type {
   BotStartedUpdate,
   BotStoppedUpdate,
+  CommentCreatedUpdate,
+  CommentEditedUpdate,
+  CommentRemovedUpdate,
   MessageCallbackUpdate,
   MessageCreatedUpdate,
   Update,
@@ -107,6 +110,27 @@ const createBotStoppedUpdate = (): BotStoppedUpdate => ({
   },
 });
 
+const createCommentCreatedUpdate = (): CommentCreatedUpdate => ({
+  update_type: 'comment_created',
+  timestamp: 1_700_000_000_000,
+  message: createMessageCreatedUpdate().message,
+});
+
+const createCommentEditedUpdate = (): CommentEditedUpdate => ({
+  update_type: 'comment_edited',
+  timestamp: 1_700_000_000_000,
+  message: createMessageCreatedUpdate().message,
+});
+
+const createCommentRemovedUpdate = (): CommentRemovedUpdate => ({
+  update_type: 'comment_removed',
+  timestamp: 1_700_000_000_000,
+  message_id: 'comment.test.1',
+  chat_id: 42,
+  user_id: 7,
+  post_id: 'post.test.1',
+});
+
 describe('Context', () => {
   it('предоставляет данные сообщения, отправителя и бота', () => {
     const update = createMessageCreatedUpdate();
@@ -143,12 +167,23 @@ describe('Context', () => {
   it('сужает update через строковый фильтр и guard', () => {
     const messageContext = new Context(createMessageCreatedUpdate(), api);
     const stoppedContext = new Context(createBotStoppedUpdate(), api);
+    const commentContext = new Context(createCommentCreatedUpdate(), api);
+    const editedCommentContext = new Context(createCommentEditedUpdate(), api);
     const isBotStopped = (update: Update): update is BotStoppedUpdate =>
       update.update_type === 'bot_stopped';
 
     expect(messageContext.has('message_created')).toBe(true);
     expect(messageContext.has('bot_stopped')).toBe(false);
     expect(stoppedContext.has(isBotStopped)).toBe(true);
+    expect(commentContext.has('comment_created')).toBe(true);
+    expect(commentContext.messageId).toBe('mid.test.1');
+    expect(editedCommentContext.has('comment_edited')).toBe(true);
+    expect(editedCommentContext.messageId).toBe('mid.test.1');
+
+    const removedContext = new Context(createCommentRemovedUpdate(), api);
+    expect(removedContext.has('comment_removed')).toBe(true);
+    expect(removedContext.chatId).toBe(42);
+    expect(removedContext.messageId).toBe('comment.test.1');
   });
 
   it('извлекает location и sticker из вложений', () => {

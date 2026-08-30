@@ -153,10 +153,11 @@ export class MessagesApi extends BaseApi {
   /** Отвечает на нажатие callback-кнопки уведомлением или заменой текущего сообщения. */
   answerOnCallback = async ({
     callback_id,
+    disable_link_preview,
     ...body
   }: FlattenReq<AnswerOnCallbackDTO>): Promise<AnswerOnCallbackResponse> => {
     return this._post('answers', {
-      query: { callback_id },
+      query: { callback_id, disable_link_preview },
       body,
     });
   };
