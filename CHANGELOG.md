@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.1.8](/github.com/xTCry/max-io/compare/v0.1.7...v0.1.8) (2026-09-04)
+
+### 🚀 Features
+
+* **api:** support comment updates and chat descriptions ([6c8f915](/github.com/xTCry/max-io/commit/6c8f9158fd9d37bb42d33e5f00319cbe36935de7))
+* **transport:** add custom fetch support ([3f35b52](/github.com/xTCry/max-io/commit/3f35b52b02624c9c02d8f8e49b063b7bce53fb5f))
+
+### 🐛 Bug Fixes
+
+* **webhook:** validate update envelope ([98333c8](/github.com/xTCry/max-io/commit/98333c8d469b1b4454157a7d5ed6dc94cc5268b4))
+
 ## [0.1.7](/github.com/xTCry/max-io/compare/v0.1.6...v0.1.7) (2026-08-20)
 
 ### ⚙️ Chore
