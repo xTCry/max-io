@@ -48,6 +48,19 @@ await ctx.reply('Готово', {
 
 URL для передачи файла библиотека получает только у Bot API Max. Не заменяйте его сторонним URL и не передавайте upload token или URL в логи.
 
+Если нужен proxy, dispatcher или свой транспорт, `clientOptions.fetch`
+используется и для запроса upload URL, и для передачи файла. Для отдельной
+политики CDN можно передать `clientOptions.uploadFetch`:
+
+```ts
+const bot = new Bot(process.env.MAX_BOT_TOKEN!, {
+  clientOptions: {
+    fetch: botApiFetch,
+    uploadFetch: cdnUploadFetch,
+  },
+});
+```
+
 `source` может быть путём к файлу, `Buffer` или `ReadStream`.
 
 Для `Buffer` нельзя автоматически определить исходное имя файла. Передайте

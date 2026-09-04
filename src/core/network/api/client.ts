@@ -6,13 +6,22 @@ const debug = createDebug('max-io:client');
 
 export const DEFAULT_API_BASE_URL = 'https://platform-api.max.ru';
 
-const defaultOptions = {
-  baseUrl: DEFAULT_API_BASE_URL,
-};
+/** Сигнатура функции, выполняющей HTTP-запросы через Fetch API. */
+export type FetchFn = typeof globalThis.fetch;
 
 export type ClientOptions = {
   /** Базовый URL Bot API. По умолчанию используется стабильный endpoint `platform-api.max.ru`. */
   baseUrl?: string;
+  /**
+   * Пользовательская реализация Fetch API для запросов Bot API.
+   * По умолчанию также используется при передаче файлов на upload URL.
+   */
+  fetch?: FetchFn;
+  /**
+   * Пользовательская реализация Fetch API только для передачи файлов на upload URL.
+   * Если не задана, используется `fetch` либо глобальный `fetch`.
+   */
+  uploadFetch?: FetchFn;
 };
 
 export type HTTPMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
@@ -31,7 +40,9 @@ type CallOptions = {
 };
 
 export const createClient = (token: string, options: ClientOptions = {}) => {
-  const { baseUrl } = { ...defaultOptions, ...options };
+  const baseUrl = options.baseUrl ?? DEFAULT_API_BASE_URL;
+  const fetchFn = options.fetch;
+  const uploadFetch = options.uploadFetch ?? fetchFn;
 
   const call = async ({ method, options: callOptions }: CallOptions) => {
     const httpMethod = callOptions.method || 'GET';
@@ -67,7 +78,7 @@ export const createClient = (token: string, options: ClientOptions = {}) => {
     };
     init.headers = { ...init.headers, Authorization: token };
 
-    const res = await fetch(url.href, init);
+    const res = await (fetchFn ?? globalThis.fetch)(url.href, init);
 
     if (res.status === 401) {
       return {
@@ -88,7 +99,7 @@ export const createClient = (token: string, options: ClientOptions = {}) => {
     };
   };
 
-  return { call };
+  return { call, uploadFetch };
 };
 
 export type Client = ReturnType<typeof createClient>;

@@ -146,6 +146,32 @@ const bot = new Bot(process.env.MAX_BOT_TOKEN!, {
 
 Низкоуровневый клиент принимает тот же URL через `createClient(token, { baseUrl })` или `new Bot(token, { clientOptions: { baseUrl } })`.
 
+## Пользовательский fetch
+
+Для proxy, custom dispatcher, тестового транспорта или observability передайте
+свою реализацию Fetch API. `fetch` обслуживает запросы Bot API и, если не
+задан `uploadFetch`, передачу файлов на полученный upload URL.
+
+```ts
+const bot = new Bot(process.env.MAX_BOT_TOKEN!, {
+  clientOptions: {
+    fetch: customFetch,
+  },
+});
+```
+
+Если политика для CDN upload должна отличаться от Bot API, укажите отдельный
+`uploadFetch`:
+
+```ts
+const bot = new Bot(process.env.MAX_BOT_TOKEN!, {
+  clientOptions: {
+    fetch: botApiFetch,
+    uploadFetch: cdnUploadFetch,
+  },
+});
+```
+
 ## Upload и вложения
 
 ```ts

@@ -38,6 +38,7 @@ export {
 export type {
   Client,
   ClientOptions,
+  FetchFn,
   ReqOptions,
 } from './core/network/api/client';
 export {

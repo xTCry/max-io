@@ -3,7 +3,7 @@ import { randomUUID } from 'node:crypto';
 import path from 'node:path';
 
 import { type Api } from '../api';
-import { MaxError, type UploadType } from '../network/api';
+import { type FetchFn, MaxError, type UploadType } from '../network/api';
 import { parseResponse } from '../network/api/response';
 
 type FileSource = string | fs.ReadStream | Buffer;
@@ -278,6 +278,11 @@ type UploadRangeChunkParams = {
   fileName: string;
 };
 
+type UploadTransportOptions = {
+  signal?: AbortSignal;
+  fetch?: FetchFn;
+};
+
 /**
  * Загрузить чанк данных через Content-Range запрос
  */
@@ -290,9 +295,9 @@ async function uploadRangeChunk(
     fileSize,
     fileName,
   }: UploadRangeChunkParams,
-  { signal }: { signal?: AbortSignal } = {},
+  { signal, fetch: fetchFn = globalThis.fetch }: UploadTransportOptions = {},
 ) {
-  const uploadRes = await fetch(uploadUrl, {
+  const uploadRes = await fetchFn(uploadUrl, {
     method: 'POST',
     body: toRequestBody(chunk),
     headers: {
@@ -349,11 +354,13 @@ type UploadMultipartParams = {
 
 type UploadMultipartJsonOptions = {
   signal?: AbortSignal;
+  fetch?: FetchFn;
   responseMode?: 'json';
 };
 
 type UploadMultipartIgnoreOptions = {
   signal?: AbortSignal;
+  fetch?: FetchFn;
   /** Не разбирать служебный ответ, если token уже получен через `POST /uploads`. */
   responseMode: 'ignore';
 };
@@ -366,7 +373,7 @@ type UploadMultipartOptions =
  */
 async function uploadRange(
   { uploadUrl, file, progress }: UploadStreamParams,
-  { signal }: { signal?: AbortSignal } = {},
+  { signal, fetch: fetchFn = globalThis.fetch }: UploadTransportOptions = {},
 ) {
   const size = file.contentLength;
   let startByte = 0;
@@ -387,7 +394,7 @@ async function uploadRange(
         fileName: file.fileName,
         fileSize: size,
       },
-      { signal },
+      { signal, fetch: fetchFn },
     );
 
     startByte = endByte + 1;
@@ -410,7 +417,11 @@ function uploadMultipart(
 ): Promise<void>;
 async function uploadMultipart<Res>(
   { uploadUrl, file, progress }: UploadMultipartParams,
-  { signal, responseMode = 'json' }: UploadMultipartOptions = {},
+  {
+    signal,
+    fetch: fetchFn = globalThis.fetch,
+    responseMode = 'json',
+  }: UploadMultipartOptions = {},
 ): Promise<Res | void> {
   const body = new FormData();
 
@@ -418,7 +429,7 @@ async function uploadMultipart<Res>(
 
   emitProgress(progress, 'upload', 0);
 
-  const result = await fetch(uploadUrl, {
+  const result = await fetchFn(uploadUrl, {
     method: 'POST',
     body,
     signal,
@@ -470,7 +481,10 @@ const openAsBlob =
     : undefined;
 
 export class Upload {
-  constructor(private readonly api: Api) {}
+  constructor(
+    private readonly api: Api,
+    private readonly fetchFn?: FetchFn,
+  ) {}
 
   private getStreamFromSource = async (
     source: FileSource,
@@ -646,7 +660,7 @@ export class Upload {
           uploadUrl,
           progress,
         },
-        { signal },
+        { signal, fetch: this.fetchFn ?? globalThis.fetch },
       );
     } finally {
       clearTimeout(uploadInterval);
@@ -685,7 +699,10 @@ export class Upload {
 
     try {
       if ('stream' in file) {
-        await uploadRange({ file, uploadUrl, progress }, { signal });
+        await uploadRange(
+          { file, uploadUrl, progress },
+          { signal, fetch: this.fetchFn ?? globalThis.fetch },
+        );
       } else {
         await uploadMultipart(
           {
@@ -693,7 +710,11 @@ export class Upload {
             uploadUrl,
             progress,
           },
-          { signal, responseMode: 'ignore' },
+          {
+            signal,
+            fetch: this.fetchFn ?? globalThis.fetch,
+            responseMode: 'ignore',
+          },
         );
       }
 

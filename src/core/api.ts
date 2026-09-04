@@ -47,7 +47,7 @@ export class Api {
 
   constructor(client: Client) {
     this.raw = new RawApi(client);
-    this.upload = new Upload(this);
+    this.upload = new Upload(this, client.uploadFetch);
   }
 
   getMyInfo = async () => {

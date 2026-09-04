@@ -63,6 +63,39 @@ describe('createClient', () => {
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
+  it('использует custom fetch для запросов Bot API', async () => {
+    const customFetch = vi
+      .fn<typeof fetch>()
+      .mockResolvedValue(
+        new Response(JSON.stringify({ ok: true }), { status: 200 }),
+      );
+    const client = createClient('test-token', {
+      baseUrl: 'https://api.example.test/v1/',
+      fetch: customFetch,
+    });
+
+    await client.call({ method: 'me', options: {} });
+
+    expect(customFetch).toHaveBeenCalledWith(
+      'https://api.example.test/v1/me',
+      expect.objectContaining({
+        headers: { Authorization: 'test-token' },
+        method: 'GET',
+      }),
+    );
+  });
+
+  it('использует uploadFetch для передачи файлов вместо fetch Bot API', () => {
+    const apiFetch = vi.fn<typeof fetch>();
+    const uploadFetch = vi.fn<typeof fetch>();
+    const client = createClient('test-token', {
+      fetch: apiFetch,
+      uploadFetch,
+    });
+
+    expect(client.uploadFetch).toBe(uploadFetch);
+  });
+
   it('не читает body ответа при HTTP 401', async () => {
     const text = vi.fn(async () => 'secret response body');
     const fetchMock = vi.fn<typeof fetch>().mockResolvedValue({

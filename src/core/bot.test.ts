@@ -296,6 +296,30 @@ describe('Bot.webhookCallback', () => {
 });
 
 describe('Bot.start polling', () => {
+  it('передаёт custom fetch из clientOptions в Bot API', async () => {
+    const customFetch = vi
+      .fn<typeof fetch>()
+      .mockResolvedValue(
+        new Response(JSON.stringify(createBotInfo()), { status: 200 }),
+      );
+    const bot = new Bot('test-token', {
+      clientOptions: {
+        baseUrl: 'https://api.example.test/',
+        fetch: customFetch,
+      },
+    });
+
+    await expect(bot.api.getMyInfo()).resolves.toEqual(createBotInfo());
+
+    expect(customFetch).toHaveBeenCalledWith(
+      'https://api.example.test/me',
+      expect.objectContaining({
+        headers: { Authorization: 'test-token' },
+        method: 'GET',
+      }),
+    );
+  });
+
   it('доставляет ответ polling в command middleware и корректно останавливается', async () => {
     const update = createMessageCreatedUpdate();
     const bot = new Bot('test-token', {
