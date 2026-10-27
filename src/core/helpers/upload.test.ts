@@ -10,9 +10,113 @@ const createApi = () => new Api({ call: vi.fn() } as unknown as Client);
 
 afterEach(() => {
   vi.unstubAllGlobals();
+  vi.useRealTimers();
 });
 
 describe('Upload', () => {
+  it.each(['image', 'file'] as const)(
+    'прерывает multipart-загрузку %s по timeout',
+    async (type) => {
+      vi.useFakeTimers();
+      const api = createApi();
+      const controller = new AbortController();
+      vi.spyOn(api.raw.uploads, 'getUploadUrl').mockResolvedValue({
+        url: 'https://upload.example.test/file',
+      });
+      const fetchMock = vi.fn<typeof fetch>().mockImplementation(
+        (_url, init) =>
+          new Promise((_resolve, reject) => {
+            const signal = init?.signal;
+            signal?.addEventListener('abort', () => reject(signal.reason), {
+              once: true,
+            });
+          }),
+      );
+      vi.stubGlobal('fetch', fetchMock);
+
+      const options = {
+        source: Buffer.from('file'),
+        filename: 'file.png',
+        timeout: 100,
+        signal: controller.signal,
+      };
+      const upload =
+        type === 'image' ? api.uploadImage(options) : api.uploadFile(options);
+      const result = upload.catch((error: unknown) => error);
+      await vi.advanceTimersByTimeAsync(0);
+      expect(fetchMock).toHaveBeenCalledOnce();
+      await vi.advanceTimersByTimeAsync(100);
+
+      const signal = fetchMock.mock.calls[0][1]?.signal;
+      const abortedByTimeout = signal?.aborted;
+      if (!abortedByTimeout) controller.abort();
+      const error = await result;
+      expect(abortedByTimeout).toBe(true);
+      expect(error).toEqual(new Error('Upload timeout exceeded'));
+    },
+  );
+
+  it('отменяет multipart-загрузку пользовательским signal и очищает таймер', async () => {
+    vi.useFakeTimers();
+    const api = createApi();
+    const controller = new AbortController();
+    const reason = new Error('Upload cancelled');
+    vi.spyOn(api.raw.uploads, 'getUploadUrl').mockResolvedValue({
+      url: 'https://upload.example.test/file',
+    });
+    const fetchMock = vi.fn<typeof fetch>().mockImplementation(
+      (_url, init) =>
+        new Promise((_resolve, reject) => {
+          const signal = init?.signal;
+          signal?.addEventListener('abort', () => reject(signal.reason), {
+            once: true,
+          });
+        }),
+    );
+    vi.stubGlobal('fetch', fetchMock);
+
+    const result = api.uploadFile({
+      source: Buffer.from('file'),
+      filename: 'file.txt',
+      timeout: 1000,
+      signal: controller.signal,
+    });
+    const rejection = expect(result).rejects.toBe(reason);
+    await vi.advanceTimersByTimeAsync(0);
+    expect(fetchMock).toHaveBeenCalledOnce();
+    controller.abort(reason);
+    await rejection;
+    expect(vi.getTimerCount()).toBe(0);
+  });
+
+  it.each([200, 500])(
+    'очищает таймер после ответа upload endpoint со статусом %s',
+    async (status) => {
+      vi.useFakeTimers();
+      const api = createApi();
+      vi.spyOn(api.raw.uploads, 'getUploadUrl').mockResolvedValue({
+        url: 'https://upload.example.test/file',
+      });
+      vi.stubGlobal(
+        'fetch',
+        vi
+          .fn<typeof fetch>()
+          .mockResolvedValue(
+            new Response(JSON.stringify({ token: 'token' }), { status }),
+          ),
+      );
+
+      const result = api.uploadFile({
+        source: Buffer.from('file'),
+        filename: 'file.txt',
+        timeout: 1000,
+      });
+      if (status === 200) await expect(result).resolves.toBeDefined();
+      else await expect(result).rejects.toBeDefined();
+      expect(vi.getTimerCount()).toBe(0);
+    },
+  );
+
   it('возвращает URL image без вызова upload endpoint', async () => {
     const api = createApi();
     const getUploadUrl = vi.spyOn(api.raw.uploads, 'getUploadUrl');

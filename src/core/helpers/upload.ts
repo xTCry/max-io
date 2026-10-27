@@ -654,7 +654,7 @@ export class Upload {
         throw new Error('Multipart upload requires a Blob or Buffer source');
       }
 
-      return uploadMultipart<Res>(
+      return await uploadMultipart<Res>(
         {
           file: toMultipartFile(file),
           uploadUrl,
