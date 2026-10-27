@@ -124,6 +124,35 @@ afterEach(() => {
 });
 
 describe('Bot.webhookCallback', () => {
+  it('передаёт неполное message_created дальше без падения текстовых фильтров', async () => {
+    const bot = new Bot('test-token');
+    const command = vi.fn();
+    const hears = vi.fn();
+    const handler = vi.fn();
+    bot.command('start', command);
+    bot.hears('hello', hears);
+    bot.on('message_created', (ctx) => {
+      handler({ user: ctx.user, messageId: ctx.messageId });
+    });
+
+    const response = await sendRequest({
+      listener: bot.webhookCallback('/updates'),
+      path: '/updates',
+      headers: { 'content-type': 'application/json' },
+      bodyChunks: [
+        JSON.stringify({ update_type: 'message_created', timestamp: 1 }),
+      ],
+    });
+
+    expect(response).toEqual({ status: 200, body: '{"ok":true}' });
+    expect(command).not.toHaveBeenCalled();
+    expect(hears).not.toHaveBeenCalled();
+    expect(handler).toHaveBeenCalledWith({
+      user: undefined,
+      messageId: undefined,
+    });
+  });
+
   it('передаёт изменение прав бота в типизированный webhook-обработчик', async () => {
     const bot = new Bot('test-token');
     const handler = vi.fn();

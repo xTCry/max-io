@@ -361,7 +361,7 @@ const getChatId = (update: Update) => {
     return update.chat_id;
   }
   if ('message' in update && update.message && 'recipient' in update.message) {
-    return update.message.recipient.chat_id;
+    return update.message.recipient?.chat_id;
   }
   if ('chat' in update) {
     return update.chat.chat_id;
@@ -378,7 +378,7 @@ const getChatType = (update: Update) => {
     return update.chat.type;
   }
   if ('message' in update && update.message && 'recipient' in update.message) {
-    return update.message.recipient.chat_type;
+    return update.message.recipient?.chat_type;
   }
   return undefined;
 };
@@ -404,7 +404,7 @@ const getMessageId = (update: Update) => {
   }
 
   if ('message' in update) {
-    return update.message?.body.mid;
+    return update.message?.body?.mid;
   }
 
   return undefined;
@@ -420,7 +420,7 @@ const getCallback = (update: Update) => {
 const getContactInfo = (update: Update): ContactInfo | undefined => {
   const message = getMessage(update);
   if (!message) return undefined;
-  const contact = message.body.attachments?.find(
+  const contact = message.body?.attachments?.find(
     (attachment) => attachment.type === 'contact',
   );
   if (!contact?.payload.vcf_info) return undefined;
@@ -434,7 +434,7 @@ const getContactInfo = (update: Update): ContactInfo | undefined => {
 const getLocation = (update: Update): Location | undefined => {
   const message = getMessage(update);
   if (!message) return undefined;
-  const location = message.body.attachments?.find(
+  const location = message.body?.attachments?.find(
     (attachment) => attachment.type === 'location',
   );
   if (!location) return undefined;
@@ -447,7 +447,7 @@ const getLocation = (update: Update): Location | undefined => {
 const getSticker = (update: Update): Sticker | undefined => {
   const message = getMessage(update);
   if (!message) return undefined;
-  const sticker = message.body.attachments?.find(
+  const sticker = message.body?.attachments?.find(
     (attachment) => attachment.type === 'sticker',
   );
   if (!sticker) return undefined;
@@ -469,7 +469,7 @@ const getUser = (update: Update): User | undefined => {
   }
 
   if (update.update_type === 'message_created') {
-    return update.message.sender || undefined;
+    return update.message?.sender || undefined;
   }
 
   return undefined;

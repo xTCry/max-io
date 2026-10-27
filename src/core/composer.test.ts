@@ -83,6 +83,41 @@ const createContext = <U extends Update>(update: U) =>
   new Context(update, {} as Api, botInfo);
 
 describe('Composer', () => {
+  it('пропускает неполные сообщения и текст null в command и hears', async () => {
+    const command = vi.fn();
+    const hears = vi.fn();
+    const terminal = vi.fn(async () => undefined);
+    const composer = new Composer<Context>();
+    composer.command('start', command);
+    composer.hears(/hello/, hears);
+
+    const base = createMessageCreatedUpdate('hello');
+    const updates = [
+      { update_type: 'message_created', timestamp: base.timestamp },
+      { ...base, message: null },
+      { ...base, message: { ...base.message, body: undefined } },
+      { ...base, message: { ...base.message, body: null } },
+      {
+        ...base,
+        message: {
+          ...base.message,
+          body: { ...base.message.body, text: null },
+        },
+      },
+    ];
+
+    for (const update of updates) {
+      await composer.middleware()(
+        createContext(update as unknown as Update),
+        terminal,
+      );
+    }
+
+    expect(command).not.toHaveBeenCalled();
+    expect(hears).not.toHaveBeenCalled();
+    expect(terminal).toHaveBeenCalledTimes(updates.length);
+  });
+
   it('сохраняет порядок middleware до и после next()', async () => {
     const events: string[] = [];
     const composer = new Composer<Context>();

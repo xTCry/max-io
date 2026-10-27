@@ -132,6 +132,28 @@ const createCommentRemovedUpdate = (): CommentRemovedUpdate => ({
 });
 
 describe('Context', () => {
+  it('безопасно извлекает данные из неполных событий сообщения', () => {
+    const base = createMessageCreatedUpdate();
+    const updates = [
+      { update_type: 'message_created', timestamp: base.timestamp },
+      { ...base, message: null },
+      { ...base, message: { ...base.message, body: undefined } },
+      { ...base, message: { ...base.message, body: null, recipient: null } },
+    ];
+
+    for (const update of updates) {
+      const context = new Context(update as unknown as Update, api);
+      expect(context.messageId).toBeUndefined();
+      expect(context.contactInfo).toBeUndefined();
+      expect(context.location).toBeUndefined();
+      expect(context.sticker).toBeUndefined();
+      expect(() => context.chatId).not.toThrow();
+      expect(() => context.chatType).not.toThrow();
+      expect(() => context.user).not.toThrow();
+      expect(() => context.sender).not.toThrow();
+    }
+  });
+
   it('предоставляет данные сообщения, отправителя и бота', () => {
     const update = createMessageCreatedUpdate();
     const context = new Context(update, api, botInfo);

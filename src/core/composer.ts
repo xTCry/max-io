@@ -56,7 +56,8 @@ export class Composer<Ctx extends Context> implements MiddlewareObj<Ctx> {
 
     return this.use(
       this.filter(filter, (ctx, next) => {
-        const text = extractTextFromMessage(ctx.message, ctx.myId)!;
+        const text = extractTextFromMessage(ctx.message, ctx.myId);
+        if (typeof text !== 'string') return next();
         const parsedCommand = parseCommandText({
           text,
           botUsername: ctx.botInfo?.username,
@@ -93,7 +94,8 @@ export class Composer<Ctx extends Context> implements MiddlewareObj<Ctx> {
 
     return this.use(
       this.filter(filter, (ctx, next) => {
-        const text = extractTextFromMessage(ctx.message, ctx.myId)!;
+        const text = extractTextFromMessage(ctx.message, ctx.myId);
+        if (typeof text !== 'string') return next();
 
         for (const trigger of normalizedTriggers) {
           const match = trigger(text, ctx);
@@ -376,13 +378,14 @@ const parseCommandArgs = (payload: string) => {
 
 const extractTextFromMessage = (message: Message, myId?: number) => {
   const { text } = message.body;
+  if (typeof text !== 'string') return undefined;
 
   const mention = message.body.markup?.find((m) => {
     return m.type === 'user_mention';
   });
 
   if (mention && mention.from === 0 && mention.user_id === myId) {
-    return text?.slice(mention.length).trim();
+    return text.slice(mention.length).trim();
   }
 
   return text;
