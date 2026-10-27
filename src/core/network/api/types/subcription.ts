@@ -1,4 +1,4 @@
-import type { Chat } from './chat';
+import type { Chat, ChatAdminPermission } from './chat';
 import type { ConstructedMessage, Message } from './message';
 import type { User, UserLocale, UserWithPhoto } from './user';
 
@@ -96,6 +96,25 @@ export type CommentRemovedUpdate = MakeUpdate<
     user_id: number;
     /** ID поста в канале. Поле обязательно, но может быть `null`. */
     post_id: string | null;
+  }
+>;
+
+/** Изменение прав бота-администратора; по схеме доступно только через webhook. */
+export type BotAdminPermissionsChangedUpdate = MakeUpdate<
+  'bot_admin_permissions_changed',
+  {
+    /** ID группового чата или канала. */
+    chat_id: number;
+    /** ID пользователя или бота, изменившего права. */
+    user_id: number;
+    /** ID бота, чьи права изменились. */
+    bot_id: number;
+    /** `true`, если событие произошло в канале. */
+    is_channel: boolean;
+    /** Является ли бот администратором. */
+    is_admin: boolean;
+    /** Обновлённые права бота-администратора. */
+    permissions?: ChatAdminPermission[] | null;
   }
 >;
 
@@ -346,10 +365,13 @@ export type FilteredUpdate<Type extends UpdateType> =
                                           ? MessageConstructedUpdate
                                           : Type extends 'message_chat_created'
                                             ? MessageChatCreatedUpdate
-                                            : never;
+                                            : Type extends 'bot_admin_permissions_changed'
+                                              ? BotAdminPermissionsChangedUpdate
+                                              : never;
 
 /** Update Bot API, включая legacy-события для обратной совместимости. */
 export type Update =
+  | BotAdminPermissionsChangedUpdate
   | MessageCallbackUpdate
   | MessageCreatedUpdate
   | MessageRemovedUpdate

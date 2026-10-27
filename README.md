@@ -108,7 +108,7 @@ await bot.start({
 
 Если `path` не указан, `max-io` создаёт безопасный стабильный path по токену. Callback принимает только `POST` с `content-type: application/json`; входящий JSON body ограничен `5 MiB`, а лимит можно изменить через `webhook.maxBodySize` в байтах. При запуске webhook по умолчанию удаляются старые подписки с другими URL; при запуске polling удаляются все webhook-подписки.
 
-Подробнее: [`docs/webhook.md`](./docs/webhook.md).
+Событие `bot_admin_permissions_changed` доступно через webhook и сообщает об изменении прав бота-администратора. Подробнее: [`docs/webhook.md`](./docs/webhook.md).
 
 ## Polling marker
 
