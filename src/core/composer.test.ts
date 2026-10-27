@@ -83,6 +83,92 @@ const createContext = <U extends Update>(update: U) =>
   new Context(update, {} as Api, botInfo);
 
 describe('Composer', () => {
+  it('ожидает terminal next при вызове без await в последнем middleware', async () => {
+    let release: () => void = () => undefined;
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const completed = vi.fn();
+    const composer = new Composer<Context>((_ctx, next) => {
+      expect(next()).toBeInstanceOf(Promise);
+    });
+    const running = Promise.resolve(
+      composer.middleware()(
+        createContext(createBotStoppedUpdate()),
+        () => gate,
+      ),
+    ).then(completed);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    const completedBeforeRelease = completed.mock.calls.length > 0;
+    release();
+    await running;
+    expect(completedBeforeRelease).toBe(false);
+  });
+
+  it('передаёт ошибку downstream при вызове next без await', async () => {
+    const error = new Error('downstream error');
+    const composer = new Composer<Context>(
+      (_ctx, next) => {
+        void next();
+      },
+      async () => {
+        await Promise.resolve();
+        throw error;
+      },
+    );
+
+    await expect(
+      composer.middleware()(
+        createContext(createBotStoppedUpdate()),
+        async () => undefined,
+      ),
+    ).rejects.toBe(error);
+  });
+
+  it('позволяет middleware обработать ошибку из await next', async () => {
+    const error = new Error('handled downstream error');
+    const handler = vi.fn();
+    const composer = new Composer<Context>(
+      async (_ctx, next) => {
+        try {
+          await next();
+        } catch (caught) {
+          handler(caught);
+        }
+      },
+      async () => {
+        throw error;
+      },
+    );
+
+    await expect(
+      composer.middleware()(
+        createContext(createBotStoppedUpdate()),
+        async () => undefined,
+      ),
+    ).resolves.toBeUndefined();
+    expect(handler).toHaveBeenCalledWith(error);
+  });
+
+  it('сохраняет обработку ошибок через return next().catch()', async () => {
+    const error = new Error('handled downstream error');
+    const handler = vi.fn();
+    const composer = new Composer<Context>(
+      (_ctx, next) => next().catch(handler),
+      async () => {
+        throw error;
+      },
+    );
+
+    await expect(
+      composer.middleware()(
+        createContext(createBotStoppedUpdate()),
+        async () => undefined,
+      ),
+    ).resolves.toBeUndefined();
+    expect(handler).toHaveBeenCalledWith(error);
+  });
+
   it('пропускает неполные сообщения и текст null в command и hears', async () => {
     const command = vi.fn();
     const hears = vi.fn();

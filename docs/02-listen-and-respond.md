@@ -195,6 +195,8 @@ await bot.start({ marker: bot.polling.marker });
 
 `ctx.state` — объект на время одного update. Он удобен для передачи данных между middleware без session.
 
+Вызывайте следующий middleware через `await next()` или `return next()`: так явно сохраняются порядок выполнения и возможность обработать ошибку. Если вызвать `next()` без ожидания внутри middleware, цепочка всё равно дождётся запущенной обработки до завершения update и сохранения сессии. Это не относится к вызову `next()` позже из фонового таймера после завершения middleware.
+
 ```ts
 bot.use(async (ctx, next) => {
   ctx.state.startedAt = Date.now();

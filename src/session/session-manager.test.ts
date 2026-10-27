@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 
+import { Composer } from '../core/composer';
 import { Context } from '../core/context';
 import type { MiddlewareFn, NextFn } from '../core/middleware';
 import type { BotStoppedUpdate } from '../core/network/api';
@@ -45,6 +46,41 @@ const runMiddleware = <C extends Context>(
 ) => (manager.middleware as MiddlewareFn<C>)(context, next);
 
 describe('SessionManager', () => {
+  it('сохраняет изменения после отложенного middleware с вызовом next без await', async () => {
+    const storage = createStorage();
+    const manager = new SessionManager<Session, SessionContext>({ storage });
+    const context = createContext();
+    let release: () => void = () => undefined;
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const started = vi.fn();
+    const composer = new Composer<SessionContext>();
+    composer.use(manager.middleware);
+    composer.use((_ctx, next) => {
+      void next();
+    });
+    composer.use(async (ctx) => {
+      started();
+      await gate;
+      ctx.session.visits = 2;
+    });
+
+    const completed = vi.fn();
+    const running = Promise.resolve(
+      composer.middleware()(context, async () => undefined),
+    ).then(completed);
+    await vi.waitFor(() => expect(started).toHaveBeenCalledOnce());
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    const completedBeforeRelease = completed.mock.calls.length > 0;
+    release();
+    await running;
+
+    expect(completedBeforeRelease).toBe(false);
+    expect(storage.set).toHaveBeenCalledWith('max-io:42:7', { visits: 2 });
+    expect(storage.touch).not.toHaveBeenCalled();
+  });
+
   it('загружает сессию, сохраняет изменённые поля и не сохраняет служебный метод', async () => {
     const storage = createStorage();
     vi.mocked(storage.get).mockResolvedValue({ visits: 1 });
