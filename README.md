@@ -211,7 +211,7 @@ import { SceneManager, StepScene } from 'max-io/lib/scene';
 import { SessionManager } from 'max-io/lib/session';
 ```
 
-- `max-io/lib/session` — session middleware с memory/Redis storage.
+- `max-io/lib/session` — session middleware с memory/Redis storage и выбором режима параллельной обработки.
 - `max-io/lib/scene` — сцены и step-сценарии поверх session.
 - `max-io/lib/i18n` — YAML/JSON-локализация с поддержкой session.
 

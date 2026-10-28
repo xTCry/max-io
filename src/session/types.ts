@@ -5,6 +5,9 @@ import type { ISessionStorage } from './storages';
 
 export type SessionForceUpdate = () => Promise<boolean>;
 
+/** Режим обработки одновременных событий одной сессии. */
+export type SessionConcurrency = 'serial' | 'shared';
+
 export interface IContext extends Context {}
 
 export interface ISessionContext {
@@ -32,4 +35,7 @@ export interface ISessionManagerOptions<
   getStorageKey(ctx: C): MaybePromise<string | undefined>;
 
   defaultSession(ctx: C): S;
+
+  /** `serial` ожидает завершения предыдущего события; `shared` использует общий объект сессии. */
+  concurrency?: SessionConcurrency;
 }
