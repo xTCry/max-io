@@ -1,20 +1,24 @@
-import {
-  Bot,
-  Context,
-  type Middleware,
-} from 'max-io';
+import { Bot, Context, Keyboard, type Middleware } from 'max-io';
+import { I18n, type I18nContext } from 'max-io/lib/i18n';
+import { type IScene, SceneManager, type WithScene } from 'max-io/lib/scene';
+import { MemoryStorage, SessionManager } from 'max-io/lib/session';
 import type {
+  Attachment,
+  AttachmentRequest,
   BotAdminPermissionsChangedUpdate,
   BotInfo,
+  Chat,
   ChatAdminPermission,
   MessageCreatedUpdate,
+  SenderAction,
   SendMessageExtra,
   Update,
   UpdateType,
 } from 'max-io/types';
-import { I18n, type I18nContext } from 'max-io/lib/i18n';
-import { SceneManager, type IScene, type WithScene } from 'max-io/lib/scene';
-import { MemoryStorage, SessionManager } from 'max-io/lib/session';
+// @ts-expect-error Устаревший алиас прав больше не экспортируется.
+import type { ChatPermissions } from 'max-io/types';
+// @ts-expect-error Устаревшие действия больше не экспортируются.
+import type { DeprecatedSenderAction } from 'max-io/types';
 
 type Session = {
   visits: number;
@@ -64,6 +68,35 @@ const sceneMiddleware: Middleware<WithScene<CustomContext>> = scenes.middleware;
 
 bot.use(sessionMiddleware, i18nMiddleware);
 
+// @ts-expect-error Reply keyboard больше не поддерживается библиотекой.
+Keyboard.replyKeyboard([]);
+// @ts-expect-error Удалённые reply-кнопки не входят в публичный API.
+Keyboard.button.sendMessage('test');
+// @ts-expect-error Удалённые reply-кнопки не входят в публичный API.
+Keyboard.button.sendContact('test');
+// @ts-expect-error Удалённые reply-кнопки не входят в публичный API.
+Keyboard.button.sendGeoLocation('test');
+// @ts-expect-error Legacy-кнопка chat больше не входит в публичный API.
+Keyboard.button.chat('test', 'chat');
+const removedReplyAttachment: AttachmentRequest = {
+  // @ts-expect-error Reply keyboard не входит в тип исходящих вложений.
+  type: 'reply_keyboard',
+  buttons: [],
+};
+// @ts-expect-error Data attachment не входит в тип входящих вложений.
+const removedDataAttachment: Attachment = { type: 'data', data: 'test' };
+void removedReplyAttachment;
+void removedDataAttachment;
+
+// @ts-expect-error Удалённый метод списка чатов не входит в публичный API.
+bot.api.getAllChats();
+// @ts-expect-error Удалённый поиск по ссылке не входит в публичный API.
+bot.api.getChatByLink('channel');
+// @ts-expect-error Удалённый raw-метод не входит в публичный API.
+bot.api.raw.chats.getAll({});
+// @ts-expect-error Удалённый raw-метод не входит в публичный API.
+bot.api.raw.chats.getByLink({ chat_link: 'channel' });
+
 const verifyUpdateNarrowing: Middleware<Context> = async (ctx, next) => {
   if (ctx.has('message_created')) {
     const update: MessageCreatedUpdate = ctx.update;
@@ -86,6 +119,20 @@ const verifyUpdateNarrowing: Middleware<Context> = async (ctx, next) => {
 const update: Update | undefined = undefined;
 const botInfo: BotInfo | undefined = undefined;
 const allowedUpdates: UpdateType[] = ['bot_admin_permissions_changed'];
+// @ts-expect-error Удалённое событие не должно входить в типы updates.
+const legacyUpdate: UpdateType = 'message_constructed';
+// @ts-expect-error Удалённое событие не должно входить в типы updates.
+const legacyConstruction: UpdateType = 'message_construction_request';
+// @ts-expect-error Удалённое событие не должно входить в типы updates.
+const legacyChat: UpdateType = 'message_chat_created';
+// @ts-expect-error Удалённое действие отсутствует в схеме.
+const legacyAction: SenderAction = 'mark_seen';
+// @ts-expect-error Удалённое поле чата не входит в публичный тип.
+type LegacyChatMessage = Chat['chat_message_id'];
+void legacyUpdate;
+void legacyConstruction;
+void legacyChat;
+void legacyAction;
 const permissionsUpdate: BotAdminPermissionsChangedUpdate = {
   update_type: 'bot_admin_permissions_changed',
   timestamp: 1,

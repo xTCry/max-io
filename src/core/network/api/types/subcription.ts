@@ -1,5 +1,5 @@
-import type { Chat, ChatAdminPermission } from './chat';
-import type { ConstructedMessage, Message } from './message';
+import type { ChatAdminPermission } from './chat';
+import type { Message } from './message';
 import type { User, UserLocale, UserWithPhoto } from './user';
 
 type MakeUpdate<Type extends string, Payload extends object> = {
@@ -269,55 +269,6 @@ export type ChatTitleChangedUpdate = MakeUpdate<
   }
 >;
 
-/**
- * @deprecated Отсутствует в схеме Bot API 0.0.33; оставлено для совместимости.
- */
-export type MessageConstructionRequestUpdate = MakeUpdate<
-  'message_construction_request',
-  {
-    /** Пользователь, открывший сценарий конструирования сообщения. */
-    user: User;
-    /** Локаль пользователя, если клиент её передал. */
-    user_locale?: UserLocale;
-    /** ID сессии конструирования сообщения. */
-    session_id: string;
-    /** Payload сценария. */
-    data?: string | null;
-    /** Входные данные сценария от клиента. */
-    input: unknown;
-  }
->;
-
-/**
- * @deprecated Отсутствует в схеме Bot API 0.0.33; оставлено для совместимости.
- */
-export type MessageConstructedUpdate = MakeUpdate<
-  'message_constructed',
-  {
-    /** Пользователь, сконструировавший сообщение. */
-    user: User;
-    /** ID сессии конструирования сообщения. */
-    session_id: string;
-    /** Сконструированное сообщение. */
-    message: ConstructedMessage;
-  }
->;
-
-/**
- * @deprecated Не входит в discriminator `Update` схемы Bot API 0.0.33; оставлено для совместимости.
- */
-export type MessageChatCreatedUpdate = MakeUpdate<
-  'message_chat_created',
-  {
-    /** Созданный чат. */
-    chat: Chat;
-    /** ID сообщения с кнопкой, через которую создан чат. */
-    message_id: string;
-    /** Payload запуска, если он был задан в кнопке. */
-    start_payload?: string | null;
-  }
->;
-
 /** Все update-типы, сохранённые в публичном union библиотеки. */
 export type UpdateType = Update['update_type'];
 
@@ -359,17 +310,11 @@ export type FilteredUpdate<Type extends UpdateType> =
                                     ? DialogUnmutedUpdate
                                     : Type extends 'chat_title_changed'
                                       ? ChatTitleChangedUpdate
-                                      : Type extends 'message_construction_request'
-                                        ? MessageConstructionRequestUpdate
-                                        : Type extends 'message_constructed'
-                                          ? MessageConstructedUpdate
-                                          : Type extends 'message_chat_created'
-                                            ? MessageChatCreatedUpdate
-                                            : Type extends 'bot_admin_permissions_changed'
-                                              ? BotAdminPermissionsChangedUpdate
-                                              : never;
+                                      : Type extends 'bot_admin_permissions_changed'
+                                        ? BotAdminPermissionsChangedUpdate
+                                        : never;
 
-/** Update Bot API, включая legacy-события для обратной совместимости. */
+/** Update Bot API. */
 export type Update =
   | BotAdminPermissionsChangedUpdate
   | MessageCallbackUpdate
@@ -389,10 +334,7 @@ export type Update =
   | DialogMutedUpdate
   | DialogRemovedUpdate
   | DialogUnmutedUpdate
-  | ChatTitleChangedUpdate
-  | MessageConstructionRequestUpdate
-  | MessageConstructedUpdate
-  | MessageChatCreatedUpdate;
+  | ChatTitleChangedUpdate;
 
 /** Подписка бота на доставку событий через WebHook. */
 export type Subscription = {

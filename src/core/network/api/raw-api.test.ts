@@ -59,22 +59,10 @@ describe('RawApi endpoint mapping', () => {
       options: ReqOptions;
     }> = [
       {
-        title: 'getAll',
-        invoke: () => raw.chats.getAll({ count: 10 }),
-        method: 'chats',
-        options: { method: 'GET', query: { count: 10 } },
-      },
-      {
         title: 'getById',
         invoke: () => raw.chats.getById({ chat_id: 1 }),
         method: 'chats/{chat_id}',
         options: { method: 'GET', path: { chat_id: 1 } },
-      },
-      {
-        title: 'getByLink',
-        invoke: () => raw.chats.getByLink({ chat_link: 'news' }),
-        method: 'chats/{chat_link}',
-        options: { method: 'GET', path: { chat_link: 'news' } },
       },
       {
         title: 'edit',

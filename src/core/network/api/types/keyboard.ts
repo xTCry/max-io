@@ -76,52 +76,6 @@ export type ClipboardButton = {
   payload: string;
 };
 
-/**
- * @deprecated Серверный API больше не поддерживает кнопку `chat`.
- * Оставлено только для совместимости со старым кодом.
- */
-export type ChatButton = {
-  type: 'chat';
-  /** Видимый текст кнопки. */
-  text: string;
-  /** Название создаваемого чата. */
-  chat_title: string;
-  /** Описание создаваемого чата. */
-  chat_description?: string | null;
-  /** Payload запуска создаваемого чата. */
-  start_payload?: string | null;
-  /** Legacy UUID кнопки. */
-  uuid?: string | null;
-};
-
-type ReplyButtonBase = {
-  /** Видимый текст кнопки. Ограничение API: от `1` до `128` символов. */
-  text: string;
-  /** Токен кнопки. Ограничение API: до `1024` символов. */
-  payload?: string | null;
-};
-
-/** После нажатия клиент отправляет сообщение от лица пользователя с заданным payload. */
-export type SendMessageButton = ReplyButtonBase & {
-  type: 'message';
-};
-
-/** После нажатия клиент отправляет новое сообщение с текущим географическим положением пользователя. */
-export type SendGeoLocationButton = ReplyButtonBase & {
-  type: 'user_geo_location';
-  /** Если `true`, отправляет местоположение без запроса подтверждения пользователя. */
-  quick?: boolean;
-};
-
-/** После нажатия клиент отправляет новое сообщение с вложением текущего контакта пользователя. */
-export type SendContactButton = ReplyButtonBase & {
-  type: 'user_contact';
-};
-
-/** Кнопка reply keyboard, которая отправляет сообщение от лица пользователя. */
-export type ReplyButton =
-  SendMessageButton | SendGeoLocationButton | SendContactButton;
-
 /** Типы кнопок, поддерживаемые актуальной схемой для inline keyboard. */
 export type Button =
   | CallbackButton

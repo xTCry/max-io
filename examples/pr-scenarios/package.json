@@ -9,8 +9,6 @@
     "start:10-pr-227-upload-progress": "tsx src/10-pr-227-upload-progress.ts",
     "start:20-chat-moderation-bot": "tsx src/20-chat-moderation-bot.ts",
     "start:30-video-attachment-details": "tsx src/30-video-attachment-details.ts",
-    "start:40-reply-keyboard-data": "tsx src/40-reply-keyboard-data.ts",
-    "start:50-schema-compatibility-smoke": "tsx src/50-schema-compatibility-smoke.ts",
     "start:60-comments-api-smoke": "tsx src/60-comments-api-smoke.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },

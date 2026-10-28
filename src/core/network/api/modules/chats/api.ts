@@ -9,14 +9,10 @@ import type {
   DeleteChatResponse,
   EditChatInfoDTO,
   EditChatInfoResponse,
-  GetAllChatsDTO,
-  GetAllChatsResponse,
   GetChatAdminsDTO,
   GetChatAdminsResponse,
   GetChatByIdDTO,
   GetChatByIdResponse,
-  GetChatByLinkDTO,
-  GetChatByLinkResponse,
   GetChatMembersDTO,
   GetChatMembershipDTO,
   GetChatMembershipResponse,
@@ -38,34 +34,12 @@ import type {
 } from './types';
 
 export class ChatsApi extends BaseApi {
-  /** @deprecated С июня 2026 API не поддерживает `GET /chats`; сохраняйте `chat_id` из updates. */
-  async getAll({
-    ...query
-  }: FlattenReq<GetAllChatsDTO>): Promise<GetAllChatsResponse> {
-    return this._get('chats', {
-      query,
-    });
-  }
-
   /** Возвращает информацию о групповом чате или канале по ID. */
   async getById({
     chat_id,
   }: FlattenReq<GetChatByIdDTO>): Promise<GetChatByIdResponse> {
     return this._get('chats/{chat_id}', {
       path: { chat_id },
-    });
-  }
-
-  /**
-   * @deprecated Endpoint отсутствует в схеме Bot API 0.0.33 от 18 августа 2026 года.
-   * Ручная проверка `GET /chats/max_news` на основном endpoint 23 июля 2026 года вернула `404 chat.not.found`.
-   * Оставлен для обратной совместимости.
-   */
-  async getByLink({
-    chat_link,
-  }: FlattenReq<GetChatByLinkDTO>): Promise<GetChatByLinkResponse> {
-    return this._get('chats/{chat_link}', {
-      path: { chat_link },
     });
   }
 

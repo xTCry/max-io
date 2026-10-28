@@ -1,9 +1,17 @@
 import { describe, expect, it } from 'vitest';
 
 import * as button from './buttons';
-import { inlineKeyboard, replyKeyboard } from './keyboard';
+import * as keyboard from './keyboard';
+import { inlineKeyboard } from './keyboard';
 
 describe('keyboard helpers', () => {
+  it('не экспортирует удалённые reply и legacy chat helpers', () => {
+    expect(keyboard).not.toHaveProperty('replyKeyboard');
+    expect(button).not.toHaveProperty('sendMessage');
+    expect(button).not.toHaveProperty('sendContact');
+    expect(button).not.toHaveProperty('sendGeoLocation');
+    expect(button).not.toHaveProperty('chat');
+  });
   it('создаёт inline keyboard с callback и link кнопками', () => {
     const buttons = [
       [
@@ -15,20 +23,6 @@ describe('keyboard helpers', () => {
     expect(inlineKeyboard(buttons)).toEqual({
       type: 'inline_keyboard',
       payload: { buttons },
-    });
-  });
-
-  it('создаёт reply keyboard и сохраняет дополнительные настройки', () => {
-    expect(
-      replyKeyboard([[button.sendMessage('Продолжить', 'next')]], {
-        direct: true,
-        direct_user_id: 7,
-      }),
-    ).toEqual({
-      type: 'reply_keyboard',
-      buttons: [[{ type: 'message', text: 'Продолжить', payload: 'next' }]],
-      direct: true,
-      direct_user_id: 7,
     });
   });
 });
@@ -59,28 +53,6 @@ describe('button helpers', () => {
       type: 'clipboard',
       text: 'Копировать',
       payload: 'payload',
-    });
-  });
-
-  it('создаёт reply и legacy chat кнопки', () => {
-    expect(button.sendContact('Контакт')).toEqual({
-      type: 'user_contact',
-      text: 'Контакт',
-      payload: undefined,
-    });
-    expect(button.sendGeoLocation('Гео', 'location', { quick: true })).toEqual({
-      type: 'user_geo_location',
-      text: 'Гео',
-      payload: 'location',
-      quick: true,
-    });
-    expect(
-      button.chat('Создать чат', 'Новый чат', { uuid: 'legacy-id' }),
-    ).toEqual({
-      type: 'chat',
-      text: 'Создать чат',
-      chat_title: 'Новый чат',
-      uuid: 'legacy-id',
     });
   });
 });

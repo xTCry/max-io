@@ -9,34 +9,9 @@ import type {
 } from '../../types';
 import type { FlattenReq } from '../types';
 
-/**
- * DTO запроса списка групповых чатов и каналов.
- *
- * @deprecated С июня 2026 API не поддерживает `GET /chats`; сохраняйте `chat_id` из updates.
- */
-export type GetAllChatsDTO = {
-  query: {
-    /** Максимальное количество чатов в ответе. */
-    count?: number;
-    /** Маркер следующей страницы. */
-    marker?: number | null;
-  };
-};
-
-/** @deprecated Параметры устаревшего метода `api.getAllChats`. */
-export type GetAllChatsExtra = FlattenReq<GetAllChatsDTO>;
-
 type DefaultPath = {
   /** ID чата. У групповых чатов может быть отрицательным. */
   chat_id: number;
-};
-
-/** @deprecated Ответ устаревшего `GET /chats`. */
-export type GetAllChatsResponse = {
-  /** Страница чатов. */
-  chats: Chat[];
-  /** Маркер следующей страницы или `null`|`undefined`, если данных больше нет. */
-  marker?: number | null;
 };
 
 /** DTO запроса чата по ID. */
@@ -45,25 +20,6 @@ export type GetChatByIdDTO = {
 };
 
 export type GetChatByIdResponse = Chat;
-
-/**
- * DTO запроса канала по публичной ссылке.
- *
- * @deprecated Endpoint отсутствует в схеме Bot API 0.0.33.
- * Ручная проверка `GET /chats/max_news` на основном endpoint 23 июля 2026 года вернула `404 chat.not.found`.
- * Оставлен для обратной совместимости.
- */
-export type GetChatByLinkDTO = {
-  path: {
-    /** Публичная ссылка на канал. */
-    chat_link: string;
-  };
-};
-
-/**
- * @deprecated Используется только устаревшим методом `getChatByLink`.
- */
-export type GetChatByLinkResponse = Chat;
 
 /** DTO удаления группового чата или канала для всех участников. */
 export type DeleteChatDTO = {

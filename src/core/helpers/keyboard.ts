@@ -1,7 +1,4 @@
-import type {
-  InlineKeyboardAttachmentRequest,
-  ReplyKeyboardAttachmentRequest,
-} from '../network/api';
+import type { InlineKeyboardAttachmentRequest } from '../network/api';
 
 /**
  * Создаёт вложение inline keyboard.
@@ -15,25 +12,6 @@ export const inlineKeyboard = (
   return {
     type: 'inline_keyboard',
     payload: { buttons },
-  };
-};
-
-/**
- * Создаёт вложение reply keyboard.
- * Такая клавиатура отображается как панель быстрых ответов и отправляет сообщения от лица пользователя.
- *
- * @param buttons Двумерный массив reply-кнопок.
- * @param extra Настройки показа клавиатуры в групповом чате.
- * @remarks Сервер принимает `reply_keyboard`, но визуальная поддержка зависит от клиента Max.
- */
-export const replyKeyboard = (
-  buttons: ReplyKeyboardAttachmentRequest['buttons'],
-  extra?: Omit<ReplyKeyboardAttachmentRequest, 'type' | 'buttons'>,
-): ReplyKeyboardAttachmentRequest => {
-  return {
-    type: 'reply_keyboard',
-    buttons,
-    ...extra,
   };
 };
 

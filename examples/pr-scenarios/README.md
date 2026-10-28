@@ -7,8 +7,6 @@
 - `10-pr-227-upload-progress` — площадка для ручной проверки upload pipeline, поведения chunked/multipart загрузки, консольного прогресса и ручной отмены upload.
 - `20-chat-moderation-bot` — ручной сценарий простого бота модерации группового чата.
 - `30-video-attachment-details` — ручной сценарий проверки `getVideoAttachmentDetails` по готовому video token или через загрузку demo-видео.
-- `40-reply-keyboard-data` — ручной сценарий проверки reply keyboard и входящего `data` attachment от message-кнопки.
-- `50-schema-compatibility-smoke` — read-only проверка спорных методов API на обоих известных endpoint.
 
 ## Переменные окружения
 
@@ -25,7 +23,6 @@
 - `MAX_UPLOAD_PROGRESS_IMAGE_PATH` — путь к файлу для `uploadImage` через multipart. По умолчанию: `public/image.png`.
 - `MAX_UPLOAD_PROGRESS_TIMEOUT` — timeout загрузки в миллисекундах. По умолчанию: `60000`.
 - `MAX_MODERATION_USERNAME_LOOKUP_LIMIT` — максимальное количество участников, среди которых сценарий ищет `@username`. По умолчанию: `300`.
-- `MAX_SCHEMA_SMOKE_CHAT_LINK` — публичная ссылка, username или `@username` канала для проверки `getChatByLink`. По умолчанию: `https://max.ru/max_news`.
 
 Быстрый старт по env:
 
@@ -48,8 +45,6 @@ yarn start
 yarn start:10-pr-227-upload-progress
 yarn start:20-chat-moderation-bot
 yarn start:30-video-attachment-details
-yarn start:40-reply-keyboard-data
-yarn start:50-schema-compatibility-smoke
 ```
 
 Во время upload сценарий показывает в консоли:
@@ -132,33 +127,6 @@ Fallback-подсказка в этом сценарии не отвечает �
 В чат отправляется краткое summary: token, размер, длительность, наличие thumbnail и список доступных URL-форматов. Полный ответ API печатается в терминале через `console.dir`.
 
 При загрузке demo-видео используется тот же progressbar и отмена по `Esc`, что и в upload-сценарии.
-
-## Что проверяет сценарий `40-reply-keyboard-data`
-
-Сценарий проверяет отправку `reply_keyboard` и входящие attachments после нажатия reply-кнопок.
-
-Команда:
-
-- `/replyKeyboard` — отправить reply keyboard с кнопками `message`, `user_contact`, `user_geo_location`.
-
-После нажатия кнопок сценарий печатает в терминал текст входящего сообщения, типы attachments и полный список attachments. Если приходит attachment типа `data`, бот отвечает payload-значением в чат.
-
-## Что проверяет сценарий `50-schema-compatibility-smoke`
-
-Сценарий не запускает бота и не изменяет данные. Он вызывает public API
-`bot.api.getChatByLink()` для канала из `MAX_SCHEMA_SMOKE_CHAT_LINK` на двух
-endpoint:
-
-- `https://platform-api.max.ru`;
-- `https://platform-api2.max.ru`.
-
-В терминал выводятся `SUCCESS` с данными чата либо `API_ERROR` с HTTP-статусом и
-кодом ошибки. Если оба endpoint вернули ошибку, сценарий завершится с кодом `1`.
-
-`platform-api2.max.ru` может не подключиться в среде, где его сертификат не
-добавлен в доверенное хранилище ОС или Node.js runtime. В этом случае сценарий
-выведет `REQUEST_ERROR`; это ошибка TLS до выполнения запроса API, а не результат
-проверки метода.
 
 ## Тяжёлые demo-файлы
 

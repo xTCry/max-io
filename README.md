@@ -23,7 +23,7 @@
 | Long polling       | `bot.start()`, marker API, режим для разработки и тестирования                                          |
 | Webhook            | `bot.start({ webhook })`, `webhookCallback`, `createWebhook`, `deleteWebhook`                           |
 | Upload             | image/video/audio/file, progress, timeout, `AbortSignal`, повторная отправка при `attachment.not.ready` |
-| Клавиатуры         | inline keyboard, `open_app`, `message`, `clipboard`, reply keyboard types                               |
+| Клавиатуры         | inline keyboard, `open_app`, `message`, `clipboard`                                                     |
 | Модули             | `max-io/lib/session`, `max-io/lib/scene`, `max-io/lib/i18n`                                             |
 
 ## Установка
@@ -263,7 +263,7 @@ yarn test:coverage
 
 ## Статус API
 
-Max Bot API развивается, а часть поведения зависит от серверной реализации и клиента Max. В проекте есть ручные сценарии проверки для upload, webhook, reply keyboard, chat admin API и video details. Если поведение API не подтверждено схемой или живой проверкой, лучше фиксировать это отдельно перед изменением публичных типов.
+Max Bot API развивается, а часть поведения зависит от серверной реализации и клиента Max. В проекте есть ручные сценарии проверки для upload, webhook, chat admin API и video details. Если поведение API не подтверждено схемой или живой проверкой, лучше фиксировать это отдельно перед изменением публичных типов.
 
 ## Лицензия
 

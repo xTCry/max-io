@@ -75,9 +75,3 @@ export type Message = {
   /** Пользователь, сконструировавший сообщение через inline-сценарий. */
   constructor?: MessageConstructor | null;
 };
-
-/** Сообщение, подготовленное клиентом в сценарии message construction. */
-export type ConstructedMessage = Pick<
-  Message,
-  'sender' | 'timestamp' | 'link' | 'body'
->;

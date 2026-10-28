@@ -21,7 +21,6 @@ import type {
 import {
   ChatAdmin,
   EditChatExtra,
-  GetAllChatsExtra,
   GetChatMembersExtra,
   PinMessageExtra,
   RemoveChatMemberExtra,
@@ -227,32 +226,12 @@ export class Context<U extends Update = Update> {
     });
   }
 
-  /**
-   * @deprecated `GET /chats` отсутствует в актуальной схеме и не поддерживается API.
-   * Метод сохранён для совместимости; сохраняйте `chat_id` из updates.
-   */
-  async getAllChats(extra?: GetAllChatsExtra) {
-    return this.api.getAllChats(extra);
-  }
-
   async getChat(chatId?: number) {
     if (chatId !== undefined) {
       return this.api.getChat(chatId);
     }
     this.assert(this.chatId, 'getChat');
     return this.api.getChat(this.chatId);
-  }
-
-  /**
-   * Возвращает информацию о канале по публичной ссылке.
-   *
-   * @deprecated Endpoint отсутствует в архивных схемах Bot API 0.0.32 от 10 и 22 июля 2026 года.
-   * Ручная проверка `GET /chats/max_news` на основном endpoint 23 июля 2026 года вернула `404 chat.not.found`.
-   * Оставлен для обратной совместимости.
-   * @remarks Ранее метод был доступен только для каналов; обычные чаты по публичной ссылке не поддерживались.
-   */
-  async getChatByLink(link: string) {
-    return this.api.getChatByLink(link);
   }
 
   async editChatInfo(extra: EditChatExtra) {
@@ -372,19 +351,12 @@ const getChatId = (update: Update) => {
   if ('message' in update && update.message && 'recipient' in update.message) {
     return update.message.recipient?.chat_id;
   }
-  if ('chat' in update) {
-    return update.chat.chat_id;
-  }
-
   return undefined;
 };
 
 const getChatType = (update: Update) => {
   if ('chat_type' in update) {
     return update.chat_type;
-  }
-  if ('chat' in update && update.chat.type) {
-    return update.chat.type;
   }
   if ('message' in update && update.message && 'recipient' in update.message) {
     return update.message.recipient?.chat_type;

@@ -15,14 +15,10 @@ import type {
   DeleteChatResponse,
   EditChatInfoDTO,
   EditChatInfoResponse,
-  GetAllChatsDTO,
-  GetAllChatsResponse,
   GetChatAdminsDTO,
   GetChatAdminsResponse,
   GetChatByIdDTO,
   GetChatByIdResponse,
-  GetChatByLinkDTO,
-  GetChatByLinkResponse,
   GetChatMembersDTO,
   GetChatMembershipDTO,
   GetChatMembershipResponse,
@@ -93,17 +89,9 @@ export type FlattenReq<T extends Omit<ReqOptions, 'method'>> = T['body'] &
 
 export type ApiMethods = {
   GET: {
-    chats: {
-      req: GetAllChatsDTO;
-      res: GetAllChatsResponse;
-    };
     'chats/{chat_id}': {
       req: GetChatByIdDTO;
       res: GetChatByIdResponse;
-    };
-    'chats/{chat_link}': {
-      req: GetChatByLinkDTO;
-      res: GetChatByLinkResponse;
     };
     'chats/{chat_id}/members/admins': {
       req: GetChatAdminsDTO;

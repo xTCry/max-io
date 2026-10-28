@@ -45,8 +45,6 @@ export type Chat = {
   dialog_with_user?: UserWithPhoto | null;
   /** Количество сообщений, если сервер вернул статистику чата. */
   messages_count?: number | null;
-  /** @deprecated Отсутствует в схеме Bot API 0.0.33; оставлено для совместимости с runtime-ответами. */
-  chat_message_id?: string | null;
   /** Закреплённое сообщение, если запрошен конкретный чат. */
   pinned_message?: Message | null;
 };
@@ -55,16 +53,12 @@ export type Chat = {
  * Действие, отправляемое участникам чата:
  * `typing_on`, `sending_photo`, `sending_video`, `sending_audio`, `sending_file`.
  */
-/** @deprecated Отсутствует в схеме Bot API 0.0.33; оставлено для совместимости. */
-export type DeprecatedSenderAction = 'mark_seen';
-
 export type SenderAction =
   | 'typing_on'
   | 'sending_photo'
   | 'sending_video'
   | 'sending_audio'
-  | 'sending_file'
-  | DeprecatedSenderAction;
+  | 'sending_file';
 
 /**
  * Права администратора, описанные в Bot API для назначения через `setChatAdmins`.
@@ -119,9 +113,6 @@ export type ChatAdminOwnerPermission =
 
 /** Полный известный набор прав администратора группового чата. */
 export type ChatAdminPermission = (typeof CHAT_ADMIN_PERMISSIONS)[number];
-
-/** @deprecated Используйте ChatAdminPermission. */
-export type ChatPermissions = ChatAdminPermission;
 
 /**
  * Участник чата с данными о правах и времени активности в чате.

@@ -34,7 +34,6 @@ import type {
 import type {
   ChatAdmin,
   EditChatExtra,
-  GetAllChatsExtra,
   GetChatMembersExtra,
   PinMessageExtra,
   RemoveChatMemberExtra,
@@ -76,28 +75,8 @@ export class Api {
     return this.editMyCommands([]);
   };
 
-  /**
-   * @deprecated `GET /chats` отсутствует в актуальной схеме и не поддерживается API.
-   * Метод сохранён для совместимости; сохраняйте `chat_id` из updates.
-   */
-  getAllChats = async (extra: GetAllChatsExtra = {}) => {
-    return this.raw.chats.getAll(extra);
-  };
-
   getChat = async (id: number) => {
     return this.raw.chats.getById({ chat_id: id });
-  };
-
-  /**
-   * Возвращает информацию о канале по публичной ссылке.
-   *
-   * @deprecated Endpoint отсутствует в схеме Bot API 0.0.33 от 18 августа 2026 года.
-   * Ручная проверка `GET /chats/max_news` на основном endpoint 23 июля 2026 года вернула `404 chat.not.found`.
-   * Оставлен для обратной совместимости.
-   * @remarks Ранее метод был доступен только для каналов; обычные чаты по публичной ссылке не поддерживались.
-   */
-  getChatByLink = async (link: string) => {
-    return this.raw.chats.getByLink({ chat_link: link });
   };
 
   /**

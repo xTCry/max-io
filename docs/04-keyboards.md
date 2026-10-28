@@ -81,33 +81,6 @@ Keyboard.button.requestGeoLocation('Отправить геолокацию', { 
 
 После нажатия бот получает сообщение с contact/geolocation attachment, если пользователь подтвердит отправку и клиент поддерживает сценарий.
 
-## Reply keyboard
-
-Reply keyboard отображается как панель быстрых ответов.
-
-```ts
-const keyboard = Keyboard.replyKeyboard([
-  [Keyboard.button.sendMessage('Да', 'answer:yes')],
-  [Keyboard.button.sendContact('Отправить контакт')],
-  [
-    Keyboard.button.sendGeoLocation('Отправить геолокацию', null, {
-      quick: true,
-    }),
-  ],
-]);
-
-await ctx.reply('Быстрый ответ', {
-  attachments: [keyboard],
-});
-```
-
-Сервер принимает `reply_keyboard`, но визуальная поддержка зависит от конкретного клиента Max. Перед production-использованием проверьте целевые клиенты.
-
-## Legacy `chat`
-
-Кнопка `chat` оставлена только для совместимости со старым кодом и помечена как deprecated. В актуальный union `Button` она не входит, потому что серверный API больше не считает её поддерживаемым типом кнопки.
-
 ## Проверочные сценарии
 
 - [`examples/01-basic-minimum`](../examples/01-basic-minimum/), файл `src/keyboard-bot.ts` — inline-кнопки и request-кнопки.
-- [`examples/pr-scenarios`](../examples/pr-scenarios/), файл `src/40-reply-keyboard-data.ts` — reply keyboard и data attachment.
