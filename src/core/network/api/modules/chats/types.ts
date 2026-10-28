@@ -235,7 +235,7 @@ export type GetChatMembersResponse = {
 export type AddChatMembersDTO = {
   path: DefaultPath;
   body: {
-    /** ID пользователей, которых нужно добавить в групповой чат. */
+    /** До 100 уникальных ID пользователей, которых нужно добавить в групповой чат. */
     user_ids: number[];
   };
 };

@@ -162,6 +162,7 @@ export class Context<U extends Update = Update> {
     return this.myId && this.sender?.user_id === this.myId;
   }
 
+  /** Payload deep link события `bot_started`; отличается от `ctx.payload` команды. */
   get startPayload() {
     return getStartPayload(this.update) as GetStartPayload<U>;
   }
@@ -226,6 +227,10 @@ export class Context<U extends Update = Update> {
     });
   }
 
+  /**
+   * @deprecated `GET /chats` отсутствует в актуальной схеме и не поддерживается API.
+   * Метод сохранён для совместимости; сохраняйте `chat_id` из updates.
+   */
   async getAllChats(extra?: GetAllChatsExtra) {
     return this.api.getAllChats(extra);
   }
@@ -318,7 +323,11 @@ export class Context<U extends Update = Update> {
   /**
    * Добавляет пользователей в текущий групповой чат.
    *
-   * @remarks По актуальной схеме метод не добавляет подписчиков в каналы.
+   * @remarks Боту нужно право администратора `add_remove_members`.
+   * До 100 уникальных ID за запрос; подписчиков в канал добавить нельзя.
+   * Проверяйте `failed_user_ids` и `failed_user_details` в ответе.
+   * В уведомлении схемы указано, что с 9 сентября 2026 года работа метода ограничена;
+   * конкретные ограничения в уведомлении не раскрыты.
    */
   async addChatMembers(userIds: number[]) {
     this.assert(this.chatId, 'addChatMembers');

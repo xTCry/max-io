@@ -86,7 +86,7 @@ export type SendCommentResponse = {
   message: CommentMessage;
 };
 
-/** DTO редактирования комментария к посту. */
+/** DTO редактирования комментария к посту в течение 26 часов после публикации. */
 export type EditCommentDTO = {
   path: CommentPath;
   query: {

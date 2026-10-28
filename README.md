@@ -19,7 +19,7 @@
 | Возможность        | Что даёт                                                                                                |
 | ------------------ | ------------------------------------------------------------------------------------------------------- |
 | Middleware-runtime | `bot.use`, `bot.on`, `bot.command`, `bot.hears`, `bot.action`                                           |
-| Typed Context      | `ctx.reply`, `ctx.message`, `ctx.args`, `ctx.payload`, `ctx.state`, `ctx.api`                           |
+| Typed Context      | `ctx.reply`, `ctx.message`, `ctx.args`, `ctx.payload`, `ctx.startPayload`, `ctx.state`, `ctx.api`       |
 | Long polling       | `bot.start()`, marker API, режим для разработки и тестирования                                          |
 | Webhook            | `bot.start({ webhook })`, `webhookCallback`, `createWebhook`, `deleteWebhook`                           |
 | Upload             | image/video/audio/file, progress, timeout, `AbortSignal`, повторная отправка при `attachment.not.ready` |
