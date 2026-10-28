@@ -54,7 +54,10 @@ export class CommentsApi extends BaseApi {
     });
   }
 
-  /** Редактирует комментарий к посту. */
+  /**
+   * Редактирует комментарий к посту в течение 26 часов после публикации.
+   * После этого API возвращает HTTP 422 с кодом `comments.timeout_exceeded`.
+   */
   async edit({
     message_id,
     comment_id,

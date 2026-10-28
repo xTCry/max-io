@@ -19,7 +19,7 @@
 | Возможность        | Что даёт                                                                                                |
 | ------------------ | ------------------------------------------------------------------------------------------------------- |
 | Middleware-runtime | `bot.use`, `bot.on`, `bot.command`, `bot.hears`, `bot.action`                                           |
-| Typed Context      | `ctx.reply`, `ctx.message`, `ctx.args`, `ctx.payload`, `ctx.state`, `ctx.api`                           |
+| Typed Context      | `ctx.reply`, `ctx.message`, `ctx.args`, `ctx.payload`, `ctx.startPayload`, `ctx.state`, `ctx.api`       |
 | Long polling       | `bot.start()`, marker API, режим для разработки и тестирования                                          |
 | Webhook            | `bot.start({ webhook })`, `webhookCallback`, `createWebhook`, `deleteWebhook`                           |
 | Upload             | image/video/audio/file, progress, timeout, `AbortSignal`, повторная отправка при `attachment.not.ready` |
@@ -108,7 +108,7 @@ await bot.start({
 
 Если `path` не указан, `max-io` создаёт безопасный стабильный path по токену. Callback принимает только `POST` с `content-type: application/json`; входящий JSON body ограничен `5 MiB`, а лимит можно изменить через `webhook.maxBodySize` в байтах. При запуске webhook по умолчанию удаляются старые подписки с другими URL; при запуске polling удаляются все webhook-подписки.
 
-Подробнее: [`docs/webhook.md`](./docs/webhook.md).
+Событие `bot_admin_permissions_changed` доступно через webhook и сообщает об изменении прав бота-администратора. Подробнее: [`docs/webhook.md`](./docs/webhook.md).
 
 ## Polling marker
 

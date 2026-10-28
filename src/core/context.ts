@@ -162,6 +162,7 @@ export class Context<U extends Update = Update> {
     return this.myId && this.sender?.user_id === this.myId;
   }
 
+  /** Payload deep link события `bot_started`; отличается от `ctx.payload` команды. */
   get startPayload() {
     return getStartPayload(this.update) as GetStartPayload<U>;
   }
@@ -226,6 +227,10 @@ export class Context<U extends Update = Update> {
     });
   }
 
+  /**
+   * @deprecated `GET /chats` отсутствует в актуальной схеме и не поддерживается API.
+   * Метод сохранён для совместимости; сохраняйте `chat_id` из updates.
+   */
   async getAllChats(extra?: GetAllChatsExtra) {
     return this.api.getAllChats(extra);
   }
@@ -318,7 +323,11 @@ export class Context<U extends Update = Update> {
   /**
    * Добавляет пользователей в текущий групповой чат.
    *
-   * @remarks По актуальной схеме метод не добавляет подписчиков в каналы.
+   * @remarks Боту нужно право администратора `add_remove_members`.
+   * До 100 уникальных ID за запрос; подписчиков в канал добавить нельзя.
+   * Проверяйте `failed_user_ids` и `failed_user_details` в ответе.
+   * В уведомлении схемы указано, что с 9 сентября 2026 года работа метода ограничена;
+   * конкретные ограничения в уведомлении не раскрыты.
    */
   async addChatMembers(userIds: number[]) {
     this.assert(this.chatId, 'addChatMembers');
@@ -361,7 +370,7 @@ const getChatId = (update: Update) => {
     return update.chat_id;
   }
   if ('message' in update && update.message && 'recipient' in update.message) {
-    return update.message.recipient.chat_id;
+    return update.message.recipient?.chat_id;
   }
   if ('chat' in update) {
     return update.chat.chat_id;
@@ -378,7 +387,7 @@ const getChatType = (update: Update) => {
     return update.chat.type;
   }
   if ('message' in update && update.message && 'recipient' in update.message) {
-    return update.message.recipient.chat_type;
+    return update.message.recipient?.chat_type;
   }
   return undefined;
 };
@@ -404,7 +413,7 @@ const getMessageId = (update: Update) => {
   }
 
   if ('message' in update) {
-    return update.message?.body.mid;
+    return update.message?.body?.mid;
   }
 
   return undefined;
@@ -420,7 +429,7 @@ const getCallback = (update: Update) => {
 const getContactInfo = (update: Update): ContactInfo | undefined => {
   const message = getMessage(update);
   if (!message) return undefined;
-  const contact = message.body.attachments?.find(
+  const contact = message.body?.attachments?.find(
     (attachment) => attachment.type === 'contact',
   );
   if (!contact?.payload.vcf_info) return undefined;
@@ -434,7 +443,7 @@ const getContactInfo = (update: Update): ContactInfo | undefined => {
 const getLocation = (update: Update): Location | undefined => {
   const message = getMessage(update);
   if (!message) return undefined;
-  const location = message.body.attachments?.find(
+  const location = message.body?.attachments?.find(
     (attachment) => attachment.type === 'location',
   );
   if (!location) return undefined;
@@ -447,7 +456,7 @@ const getLocation = (update: Update): Location | undefined => {
 const getSticker = (update: Update): Sticker | undefined => {
   const message = getMessage(update);
   if (!message) return undefined;
-  const sticker = message.body.attachments?.find(
+  const sticker = message.body?.attachments?.find(
     (attachment) => attachment.type === 'sticker',
   );
   if (!sticker) return undefined;
@@ -469,7 +478,7 @@ const getUser = (update: Update): User | undefined => {
   }
 
   if (update.update_type === 'message_created') {
-    return update.message.sender || undefined;
+    return update.message?.sender || undefined;
   }
 
   return undefined;

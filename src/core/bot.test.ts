@@ -124,6 +124,71 @@ afterEach(() => {
 });
 
 describe('Bot.webhookCallback', () => {
+  it('передаёт неполное message_created дальше без падения текстовых фильтров', async () => {
+    const bot = new Bot('test-token');
+    const command = vi.fn();
+    const hears = vi.fn();
+    const handler = vi.fn();
+    bot.command('start', command);
+    bot.hears('hello', hears);
+    bot.on('message_created', (ctx) => {
+      handler({ user: ctx.user, messageId: ctx.messageId });
+    });
+
+    const response = await sendRequest({
+      listener: bot.webhookCallback('/updates'),
+      path: '/updates',
+      headers: { 'content-type': 'application/json' },
+      bodyChunks: [
+        JSON.stringify({ update_type: 'message_created', timestamp: 1 }),
+      ],
+    });
+
+    expect(response).toEqual({ status: 200, body: '{"ok":true}' });
+    expect(command).not.toHaveBeenCalled();
+    expect(hears).not.toHaveBeenCalled();
+    expect(handler).toHaveBeenCalledWith({
+      user: undefined,
+      messageId: undefined,
+    });
+  });
+
+  it('передаёт изменение прав бота в типизированный webhook-обработчик', async () => {
+    const bot = new Bot('test-token');
+    const handler = vi.fn();
+    bot.on('bot_admin_permissions_changed', (ctx) => {
+      handler({
+        update: ctx.update,
+        chatId: ctx.chatId,
+        user: ctx.user,
+      });
+    });
+    const update = {
+      update_type: 'bot_admin_permissions_changed',
+      timestamp: 1_700_000_000_000,
+      chat_id: 42,
+      user_id: 7,
+      bot_id: 100,
+      is_channel: true,
+      is_admin: true,
+      permissions: ['write', 'delete'],
+    };
+
+    const response = await sendRequest({
+      listener: bot.webhookCallback('/updates'),
+      path: '/updates',
+      headers: { 'content-type': 'application/json' },
+      bodyChunks: [JSON.stringify(update)],
+    });
+
+    expect(response).toEqual({ status: 200, body: '{"ok":true}' });
+    expect(handler).toHaveBeenCalledWith({
+      update,
+      chatId: 42,
+      user: undefined,
+    });
+  });
+
   it('передаёт корректный update в middleware', async () => {
     const bot = new Bot('test-token');
     const handler = vi.fn(async () => undefined);

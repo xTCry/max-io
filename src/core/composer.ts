@@ -15,14 +15,34 @@ type TriggerFn<C> = (value: string, ctx: C) => RegExpExecArray | null;
 
 type UpdateFilter<Ctx extends Context> = UpdateType | Guard<Ctx['update']>;
 
+/** Отслеживает, передал ли middleware обработку результата next() дальше. */
+class NextPromise extends Promise<void> {
+  observed = false;
+
+  static get [Symbol.species]() {
+    return Promise;
+  }
+
+  then<TResult1 = void, TResult2 = never>(
+    onfulfilled?: ((value: void) => TResult1 | PromiseLike<TResult1>) | null,
+    onrejected?: ((reason: unknown) => TResult2 | PromiseLike<TResult2>) | null,
+  ): Promise<TResult1 | TResult2> {
+    this.observed = true;
+    return super.then(onfulfilled, onrejected);
+  }
+}
+
 export class Composer<Ctx extends Context> implements MiddlewareObj<Ctx> {
   private handler: MiddlewareFn<Ctx>;
+
+  private middlewares: Array<MiddlewareFn<Ctx>>;
 
   private commandPrefix: CommandPrefix;
 
   constructor(...middlewares: Array<Middleware<Ctx>>) {
     this.commandPrefix = true;
-    this.handler = Composer.compose(middlewares);
+    this.middlewares = middlewares.map(Composer.flatten);
+    this.handler = Composer.compose(this.middlewares);
   }
 
   middleware() {
@@ -30,7 +50,8 @@ export class Composer<Ctx extends Context> implements MiddlewareObj<Ctx> {
   }
 
   use(...middlewares: Array<Middleware<Ctx>>) {
-    this.handler = Composer.compose([this.handler, ...middlewares]);
+    this.middlewares.push(...middlewares.map(Composer.flatten));
+    this.handler = Composer.compose(this.middlewares);
     return this;
   }
 
@@ -56,7 +77,8 @@ export class Composer<Ctx extends Context> implements MiddlewareObj<Ctx> {
 
     return this.use(
       this.filter(filter, (ctx, next) => {
-        const text = extractTextFromMessage(ctx.message, ctx.myId)!;
+        const text = extractTextFromMessage(ctx.message, ctx.myId);
+        if (typeof text !== 'string') return next();
         const parsedCommand = parseCommandText({
           text,
           botUsername: ctx.botInfo?.username,
@@ -93,7 +115,8 @@ export class Composer<Ctx extends Context> implements MiddlewareObj<Ctx> {
 
     return this.use(
       this.filter(filter, (ctx, next) => {
-        const text = extractTextFromMessage(ctx.message, ctx.myId)!;
+        const text = extractTextFromMessage(ctx.message, ctx.myId);
+        if (typeof text !== 'string') return next();
 
         for (const trigger of normalizedTriggers) {
           const match = trigger(text, ctx);
@@ -156,13 +179,35 @@ export class Composer<Ctx extends Context> implements MiddlewareObj<Ctx> {
   ): MiddlewareFn<C> {
     return async (ctx, next) => {
       let nextCalled = false;
-      await first(ctx, async () => {
+      let nextPromise: NextPromise | undefined;
+      let downstreamResult:
+        Promise<{ error?: unknown; failed: boolean }> | undefined;
+      await first(ctx, () => {
         if (nextCalled) {
-          throw new Error('`next` already called before!');
+          return Promise.reject(new Error('`next` already called before!'));
         }
         nextCalled = true;
-        await andThen(ctx, next);
+        nextPromise = new NextPromise((resolve, reject) => {
+          try {
+            Promise.resolve(andThen(ctx, next)).then(() => resolve(), reject);
+          } catch (error) {
+            reject(error);
+          }
+        });
+        // Подписка без вызова переопределённого then предотвращает unhandled
+        // rejection, не считая проигнорированный next() обработанным.
+        downstreamResult = Promise.prototype.then.call(
+          nextPromise,
+          () => ({ failed: false }),
+          (error: unknown) => ({ failed: true, error }),
+        ) as Promise<{ error?: unknown; failed: boolean }>;
+        return nextPromise;
       });
+
+      if (downstreamResult) {
+        const result = await downstreamResult;
+        if (result.failed && !nextPromise?.observed) throw result.error;
+      }
     };
   }
 
@@ -177,7 +222,12 @@ export class Composer<Ctx extends Context> implements MiddlewareObj<Ctx> {
     if (middlewares.length === 0) {
       return Composer.pass;
     }
-    return middlewares.map(Composer.flatten).reduce(Composer.concat);
+    return middlewares
+      .map(Composer.flatten)
+      .reduceRight<MiddlewareFn<C>>(
+        (andThen, first) => Composer.concat(first, andThen),
+        Composer.pass,
+      );
   }
 }
 
@@ -376,13 +426,14 @@ const parseCommandArgs = (payload: string) => {
 
 const extractTextFromMessage = (message: Message, myId?: number) => {
   const { text } = message.body;
+  if (typeof text !== 'string') return undefined;
 
   const mention = message.body.markup?.find((m) => {
     return m.type === 'user_mention';
   });
 
   if (mention && mention.from === 0 && mention.user_id === myId) {
-    return text?.slice(mention.length).trim();
+    return text.slice(mention.length).trim();
   }
 
   return text;

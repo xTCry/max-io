@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.1.9](/github.com/xTCry/max-io/compare/v0.1.8...v0.1.9) (2026-10-28)
+
+### 🚀 Features
+
+* **api:** support bot admin permissions updates ([612add3](/github.com/xTCry/max-io/commit/612add3dd2d746c97009846c5fa144ab6a38594f))
+
+### 🐛 Bug Fixes
+
+* **core:** handle incomplete message updates ([4d4aefd](/github.com/xTCry/max-io/commit/4d4aefd1bb55aea20ecc2002dcf48cd582f0bf2f))
+* **middleware:** await downstream execution before saving sessions ([a58b27e](/github.com/xTCry/max-io/commit/a58b27eb215a5b2959f16f941ebb5b5acd3d7b31))
+* **upload:** enforce multipart upload timeout ([4eab412](/github.com/xTCry/max-io/commit/4eab412790008549232989de208b88fc1779e694)), closes [#2](/github.com/xTCry/max-io/issues/2)
+
+### 📖 Documentation
+
+* **api:** clarify chat and comment api contracts ([cbe4e3b](/github.com/xTCry/max-io/commit/cbe4e3b325316bef41ac913b3827924fa932c958))
+
 ## [0.1.8](/github.com/xTCry/max-io/compare/v0.1.7...v0.1.8) (2026-09-04)
 
 ### 🚀 Features

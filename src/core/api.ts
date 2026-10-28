@@ -76,6 +76,10 @@ export class Api {
     return this.editMyCommands([]);
   };
 
+  /**
+   * @deprecated `GET /chats` отсутствует в актуальной схеме и не поддерживается API.
+   * Метод сохранён для совместимости; сохраняйте `chat_id` из updates.
+   */
   getAllChats = async (extra: GetAllChatsExtra = {}) => {
     return this.raw.chats.getAll(extra);
   };
@@ -238,6 +242,8 @@ export class Api {
    * Редактирует комментарий бота к посту в канале.
    *
    * @remarks Бот может изменить свой комментарий, а комментарии от имени канала — только с правом `edit`.
+   * Редактирование доступно в течение 26 часов после публикации; позднее API возвращает
+   * HTTP 422 с кодом `comments.timeout_exceeded`, даже если канал архивирован или комментарии отключены.
    */
   editComment = async (
     messageId: string,
@@ -363,7 +369,11 @@ export class Api {
   /**
    * Добавляет пользователей в групповой чат.
    *
-   * @remarks По актуальной схеме метод не добавляет подписчиков в каналы.
+   * @remarks Бот должен быть администратором с правом `add_remove_members`.
+   * До 100 уникальных ID за запрос; подписчиков в канал добавить нельзя.
+   * Проверяйте `failed_user_ids` и `failed_user_details` в ответе.
+   * В уведомлении схемы указано, что с 9 сентября 2026 года работа метода ограничена;
+   * конкретные ограничения в уведомлении не раскрыты.
    */
   addChatMembers = (chatId: number, userIds: number[]) => {
     return this.raw.chats.addChatMembers({
