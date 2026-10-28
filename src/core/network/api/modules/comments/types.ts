@@ -65,7 +65,7 @@ export type NewCommentBody = {
 export type SendCommentDTO = {
   path: CommentPath;
   query: {
-    /** Если `false`, сервер не будет генерировать предпросмотр ссылок в тексте. */
+    /** Настройка предпросмотра ссылок; для комментариев отсутствует в схеме, поддержка сервером не подтверждена. */
     disable_link_preview?: boolean;
   };
   body: NewCommentBody;
