@@ -1,5 +1,27 @@
 # Changelog
 
+## [0.2.0](/github.com/xTCry/max-io/compare/v0.1.9...v0.2.0) (2026-10-28)
+
+### ⚠ BREAKING CHANGES
+
+* **api:** remove obsolete api and reply keyboards
+
+### 🚀 Features
+
+* **session:** add concurrent session handling modes ([1b98bea](/github.com/xTCry/max-io/commit/1b98bea743ecadfbc93de385621edc91293e087f))
+
+### 🐛 Bug Fixes
+
+* **session:** persist changes when middleware fails ([848cb9c](/github.com/xTCry/max-io/commit/848cb9c4ff869b03a431b9d0c7fea4945b32f108))
+
+### 📖 Documentation
+
+* **api:** correct link preview option descriptions ([6c4ea37](/github.com/xTCry/max-io/commit/6c4ea37d1fc6466c5b39277b9a1a6ce9dd574e69))
+
+### 🔧 Code Refactoring
+
+* **api:** remove obsolete api and reply keyboards ([a461819](/github.com/xTCry/max-io/commit/a461819dfed881de26b306ccd098395a717e2577))
+
 ## [0.1.9](/github.com/xTCry/max-io/compare/v0.1.8...v0.1.9) (2026-10-28)
 
 ### 🚀 Features
