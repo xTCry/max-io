@@ -160,7 +160,20 @@ export class SessionManager<
         state.changed = true;
       },
     });
-    await next();
+    try {
+      await next();
+    } catch (middlewareError) {
+      try {
+        await this.saveState(state, key, false);
+      } catch (storageError) {
+        // Обе причины нужны вызывающему коду: ошибка сохранения не должна скрывать ошибку middleware.
+        throw new AggregateError(
+          [middlewareError, storageError],
+          'Middleware and session storage both failed',
+        );
+      }
+      throw middlewareError;
+    }
     await this.saveState(state, key, false);
   }
 

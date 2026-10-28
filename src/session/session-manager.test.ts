@@ -47,6 +47,78 @@ const runMiddleware = <C extends Context>(
 ) => (manager.middleware as MiddlewareFn<C>)(context, next);
 
 describe('SessionManager', () => {
+  it.each(['serial', 'shared'] as const)(
+    'сохраняет изменённую сессию при ошибке обработчика в режиме %s',
+    async (concurrency) => {
+      const storage = new MemoryStorage();
+      const manager = new SessionManager<Session, SessionContext>({
+        storage,
+        concurrency,
+      });
+      const context = createContext();
+      const error = new Error('middleware failed');
+
+      await expect(
+        runMiddleware(manager, context, async () => {
+          context.session.visits = 3;
+          throw error;
+        }),
+      ).rejects.toBe(error);
+      expect(await storage.get('max-io:42:7')).toEqual({ visits: 3 });
+    },
+  );
+
+  it('сохраняет обе ошибки, если обработчик и запись сессии завершились неудачно', async () => {
+    const storage = createStorage();
+    const writeError = new Error('storage failed');
+    const middlewareError = new Error('middleware failed');
+    vi.mocked(storage.set).mockRejectedValue(writeError);
+    const manager = new SessionManager<Session, SessionContext>({ storage });
+    const context = createContext();
+
+    const error = await Promise.resolve(
+      runMiddleware(manager, context, async () => {
+        context.session.visits = 1;
+        throw middlewareError;
+      }),
+    ).catch((caught: unknown) => caught);
+
+    expect(error).toBeInstanceOf(AggregateError);
+    expect((error as AggregateError).errors).toEqual([
+      middlewareError,
+      writeError,
+    ]);
+  });
+
+  it('удаляет опустевшую сессию при ошибке обработчика', async () => {
+    const storage = createStorage();
+    vi.mocked(storage.get).mockResolvedValue({ visits: 1 });
+    const manager = new SessionManager<Session, SessionContext>({ storage });
+    const context = createContext();
+
+    await expect(
+      runMiddleware(manager, context, async () => {
+        delete context.session.visits;
+        throw new Error('middleware failed');
+      }),
+    ).rejects.toThrow('middleware failed');
+    expect(storage.delete).toHaveBeenCalledWith('max-io:42:7');
+  });
+
+  it('пробрасывает ошибку хранилища после успешного обработчика', async () => {
+    const storage = createStorage();
+    const error = new Error('storage failed');
+    vi.mocked(storage.set).mockRejectedValue(error);
+    const manager = new SessionManager<Session, SessionContext>({ storage });
+    const context = createContext();
+
+    await expect(
+      runMiddleware(manager, context, async () => {
+        context.session.visits = 1;
+      }),
+    ).rejects.toBe(error);
+  });
+
   it('по умолчанию последовательно обрабатывает события одной сессии', async () => {
     const storage = new MemoryStorage();
     const manager = new SessionManager<Session, SessionContext>({ storage });
